@@ -1,0 +1,345 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{comment}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=MidnightBlue,
+  urlcolor=MidnightBlue
+}
+
+% Define \WITHSOLUTIONS before inputting this file to show solutions.
+\newif\ifsolutions
+\ifdefined\WITHSOLUTIONS
+  \solutionstrue
+\else
+  \solutionsfalse
+\fi
+
+\newcommand{\Pbb}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\iid}{\mathrel{\overset{\mathrm{iid}}{\sim}}}
+\newcommand{\MLE}{\mathrm{ML}}
+\newcommand{\R}{\mathbb{R}}
+
+\newtheorem*{definition}{Definition}
+
+\ifsolutions
+  \newenvironment{answer}{%
+    \par\medskip\noindent\textcolor{MidnightBlue}{\textbf{Solution.}}\ }
+    {\par\medskip}
+  \newcommand{\workingspace}[1]{}
+\else
+  \excludecomment{answer}
+  \newcommand{\workingspace}[1]{\vspace{#1}}
+\fi
+
+\title{\huge Recitation 1\\[0.35em]
+  \normalsize Maximum Likelihood Estimation\\[0.35em]
+  \large\ifsolutions Solutions and Teaching Notes\else Review and Practice Problems\fi}
+\author{Xuanxi Zhang}
+\date{}
+
+\begin{document}
+\maketitle
+
+\ifsolutions
+\section*{Pacing guide (75 minutes)}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Time & Activity & Suggested use \\
+\midrule
+0--25 min & MLE review & Setup, Poisson derivation, Gaussian derivation \\
+25--37 min & Problem 1 & 7 min individual work, then discussion \\
+37--50 min & Problem 2 & 7 min individual work, then discussion \\
+50--66 min & Problem 3 & 8 min individual work, then discussion \\
+66--75 min & Wrap-up or Problem 4 & Use Problem 4 only if the class is ahead \\
+\bottomrule
+\end{tabular}
+\end{center}
+\fi
+
+\section{Maximum likelihood estimation: the basic setup}
+
+Suppose $x_1,\ldots,x_n$ are observations from a model indexed by a parameter
+$\theta\in\Theta$. Under an i.i.d. assumption, the \textbf{likelihood} is
+\[
+  L(\theta;x_1,\ldots,x_n)
+  = \prod_{i=1}^n p_\theta(x_i)
+  \quad\text{or}\quad
+  L(\theta;x_1,\ldots,x_n)
+  = \prod_{i=1}^n f_\theta(x_i),
+\]
+depending on whether the model is discrete or continuous. Once the data are
+observed, $L$ is a function of $\theta$; it is not a pmf or pdf in $\theta$.
+
+\begin{definition}
+The maximum likelihood estimator (MLE) is
+\[
+  \widehat\theta_{\MLE}
+  \in \underset{\theta\in\Theta}{\arg\max}\,L(\theta;x_1,\ldots,x_n).
+\]
+Because $\log$ is strictly increasing, maximizing $L$ is equivalent to
+maximizing the log-likelihood
+\[
+  \ell(\theta)=\log L(\theta)=\sum_{i=1}^n \log p_\theta(x_i)
+  \quad\text{or}\quad
+  \ell(\theta)=\sum_{i=1}^n \log f_\theta(x_i).
+\]
+\end{definition}
+
+\noindent A reliable workflow is:
+\begin{enumerate}[label=\arabic*.,leftmargin=2em,itemsep=0.2em]
+  \item state the parameter space and the model assumptions;
+  \item write the likelihood, including any parameter-dependent support;
+  \item take logs and remove only terms that do not depend on the parameter;
+  \item find candidate maximizers and check the boundary or support;
+  \item report the estimate in the units of the original parameter.
+\end{enumerate}
+
+\section{Poisson MLE}
+
+Let $X_1,\ldots,X_n\iid\operatorname{Poisson}(\lambda)$, where $\lambda\geq 0$.
+For observed counts $x_1,\ldots,x_n$,
+\begin{align*}
+  L(\lambda)
+  &=\prod_{i=1}^n e^{-\lambda}\frac{\lambda^{x_i}}{x_i!},\\
+  \ell(\lambda)
+  &=-n\lambda+\left(\sum_{i=1}^n x_i\right)\log\lambda
+    -\sum_{i=1}^n\log(x_i!).
+\end{align*}
+If $\sum_i x_i>0$, then
+\[
+  \ell'(\lambda)=-n+\frac{\sum_i x_i}{\lambda},
+  \qquad
+  \ell''(\lambda)=-\frac{\sum_i x_i}{\lambda^2}<0.
+\]
+Therefore
+\[
+  \boxed{\widehat\lambda_{\MLE}=\frac{1}{n}\sum_{i=1}^n X_i=\overline X.}
+\]
+The estimator has a natural interpretation: the fitted expected count equals
+the sample average. If every observed count is zero, the likelihood decreases
+as $\lambda$ increases, so the maximizer is the boundary value $\widehat\lambda=0$.
+
+\section{Gaussian MLE}
+
+Let $X_1,\ldots,X_n\iid\mathcal N(\mu,\sigma^2)$, where
+$\mu\in\R$ and $\sigma^2>0$. Write $v=\sigma^2$. The log-likelihood is
+\[
+  \ell(\mu,v)
+  =-\frac n2\log(2\pi)-\frac n2\log v
+    -\frac{1}{2v}\sum_{i=1}^n(x_i-\mu)^2.
+\]
+For fixed $v$,
+\[
+  \frac{\partial\ell}{\partial\mu}
+  =\frac{1}{v}\sum_{i=1}^n(x_i-\mu)=0
+  \quad\Longrightarrow\quad
+  \boxed{\widehat\mu_{\MLE}=\overline X.}
+\]
+The identity
+\[
+  \sum_{i=1}^n(x_i-\mu)^2
+  =\sum_{i=1}^n(x_i-\overline x)^2+n(\mu-\overline x)^2
+\]
+also shows directly that $\mu=\overline x$ gives the global maximum for fixed
+$v$. Substitute $\widehat\mu=\overline x$ and let
+$S=\sum_i(x_i-\overline x)^2$. Then
+\[
+  \ell(\overline x,v)=C-\frac n2\log v-\frac{S}{2v},
+  \qquad
+  \frac{d\ell}{dv}=-\frac{n}{2v}+\frac{S}{2v^2}.
+\]
+Thus, when $S>0$,
+\[
+  \boxed{\widehat{\sigma^2}_{\MLE}
+  =\frac{1}{n}\sum_{i=1}^n(X_i-\overline X)^2,}
+  \qquad
+  \boxed{\widehat\sigma_{\MLE}
+  =\sqrt{\frac{1}{n}\sum_{i=1}^n(X_i-\overline X)^2}.}
+\]
+
+\paragraph{MLE variance versus the usual sample variance.}
+The Gaussian MLE divides by $n$. The unbiased sample variance divides by
+$n-1$. Maximum likelihood targets the parameter value that best fits the
+observed data; it does not guarantee an unbiased estimator.
+
+\paragraph{Degenerate data.}
+If all observations are equal, then $S=0$. With parameter space $v>0$, the
+likelihood grows without bound as $v\downarrow0$, so no MLE for $v$ exists in
+that open parameter space. This is a useful reminder to check the boundary.
+
+\newpage
+\section*{Practice problems}
+
+\subsection*{Problem 1: A two-point model \hfill [7 minutes]}
+Suppose $X$ is a discrete random variable with
+\[
+  \Pbb(X=1)=\theta,
+  \qquad
+  \Pbb(X=2)=1-\theta,
+  \qquad 0\leq\theta\leq1.
+\]
+We draw $n$ independent observations and find that $n_1$ of them equal 1 and
+$n_2$ equal 2, where $n_1+n_2=n$.
+\begin{enumerate}[label=(\alph*),itemsep=0.35em]
+  \item Write the likelihood function.
+  \item Find the maximum likelihood estimator of $\theta$, including the
+        cases $n_1=0$ or $n_2=0$.
+  \item Rewrite the MLE in terms of the sample mean $\overline X$.
+\end{enumerate}
+\workingspace{4.5cm}
+
+\begin{answer}
+The likelihood is
+\[
+  L(\theta)=\theta^{n_1}(1-\theta)^{n_2}.
+\]
+For $n_1,n_2>0$,
+\[
+  \ell'(\theta)=\frac{n_1}{\theta}-\frac{n_2}{1-\theta}=0
+  \quad\Longrightarrow\quad
+  \widehat\theta_{\MLE}=\frac{n_1}{n}.
+\]
+Also $\ell''(\theta)<0$ on $(0,1)$. The same formula covers the boundaries:
+$n_1=0$ gives $\widehat\theta=0$, and $n_2=0$ gives $\widehat\theta=1$.
+Finally,
+\[
+  \overline X=\frac{n_1+2n_2}{n}=2-\frac{n_1}{n}
+  \quad\Longrightarrow\quad
+  \widehat\theta_{\MLE}=2-\overline X.
+\]
+\end{answer}
+
+\subsection*{Problem 2: Calls to a help desk \hfill [7 minutes]}
+The numbers of calls received in eight comparable 15-minute periods are
+\[
+  3,\ 0,\ 2,\ 1,\ 4,\ 2,\ 0,\ 4.
+\]
+Assume the counts are independent $\operatorname{Poisson}(\lambda)$ random
+variables.
+\begin{enumerate}[label=(\alph*),itemsep=0.35em]
+  \item Find the MLE of $\lambda$.
+  \item Using the fitted model, estimate the probability that a future
+        15-minute period has at least three calls.
+  \item Give one modeling assumption that would make the calculation in
+        part (b) questionable.
+\end{enumerate}
+\workingspace{4.5cm}
+
+\begin{answer}
+The total count is 16, so
+\[
+  \widehat\lambda=\overline X=\frac{16}{8}=2
+  \quad\text{calls per 15 minutes}.
+\]
+If $Y\sim\operatorname{Poisson}(2)$, then
+\[
+  \widehat{\Pbb}(Y\geq3)
+  =1-\Pbb(Y=0)-\Pbb(Y=1)-\Pbb(Y=2)
+  =1-e^{-2}\left(1+2+\frac{2^2}{2}\right)
+  =1-5e^{-2}\approx0.323.
+\]
+Possible concerns include dependence across adjacent periods, different call
+rates at different times, or overdispersion relative to a Poisson model. Any
+one well-explained concern is sufficient.
+\end{answer}
+
+\newpage
+\subsection*{Problem 3: Repeated measurements \hfill [8 minutes]}
+A device records the same reference quantity five times:
+\[
+  9.7,\ 10.1,\ 10.2,\ 9.9,\ 10.1.
+\]
+Assume the measurements are i.i.d. $\mathcal N(\mu,\sigma^2)$.
+\begin{enumerate}[label=(\alph*),itemsep=0.35em]
+  \item Compute $\widehat\mu_{\MLE}$.
+  \item Compute $\widehat{\sigma^2}_{\MLE}$ and $\widehat\sigma_{\MLE}$.
+  \item Compute the usual unbiased sample variance $s^2$. Why does its
+        denominator differ from the MLE denominator?
+  \item If 2 is added to every observation, how do the two MLEs change?
+\end{enumerate}
+\workingspace{6.0cm}
+
+\begin{answer}
+The sample mean is
+\[
+  \widehat\mu_{\MLE}=\overline x=10.0.
+\]
+The centered observations are $-0.3,0.1,0.2,-0.1,0.1$, whose squared values
+sum to $0.16$. Therefore
+\[
+  \widehat{\sigma^2}_{\MLE}=\frac{0.16}{5}=0.032,
+  \qquad
+  \widehat\sigma_{\MLE}=\sqrt{0.032}\approx0.179.
+\]
+The unbiased sample variance is
+\[
+  s^2=\frac{0.16}{4}=0.04.
+\]
+Estimating $\mu$ uses one degree of freedom, so division by $n-1$ corrects the
+downward bias. Maximum likelihood instead maximizes the Gaussian likelihood
+and therefore divides by $n$. Adding 2 to every observation changes
+$\widehat\mu$ from $10.0$ to $12.0$ and leaves $\widehat{\sigma^2}$ unchanged.
+\end{answer}
+
+\ifsolutions\else\newpage\fi
+\subsection*{Problem 4 (backup): True or false?}
+\noindent\textit{Optional if time allows. Suggested working time: 5--8 minutes.}
+
+\noindent For each statement, decide whether it is true or false and give a brief reason.\\[0.4em]
+\begin{enumerate}[label=(\alph*),itemsep=0.55em]
+  \item MLEs are always unbiased.
+  \item If $\widehat\theta_n\xrightarrow{p}\theta$, then
+        $\widehat\theta_n^2\xrightarrow{p}\theta^2$.
+  \item Every solution of the score equation $\ell'(\theta)=0$ is an MLE.
+  \item A likelihood must satisfy
+        $\int_{-\infty}^{\infty}L(\theta)\,d\theta=1$.
+\end{enumerate}
+\workingspace{4.5cm}
+
+\begin{answer}
+The answers are false, true, false, false.
+\begin{enumerate}[label=(\alph*),itemsep=0.35em]
+  \item The Gaussian MLE of $\sigma^2$ is a counterexample: its expectation is
+        $\frac{n-1}{n}\sigma^2$.
+  \item This follows from the continuous mapping theorem because
+        $g(t)=t^2$ is continuous. The premise explicitly assumes consistency.
+  \item A zero derivative only identifies a stationary point. It may be a
+        local minimum, and it can miss a maximizer on the boundary.
+  \item A likelihood is a function of the parameter with the data held fixed.
+        It need not integrate to one over the parameter space. A normalized
+        density in $\theta$ arises only after adding a prior and forming a
+        posterior in a Bayesian analysis.
+\end{enumerate}
+\end{answer}
+
+\section*{Takeaways}
+\begin{itemize}[leftmargin=1.6em,itemsep=0.25em]
+  \item For i.i.d. data, likelihoods multiply and log-likelihoods add.
+  \item The Poisson MLE matches the sample mean count.
+  \item The Gaussian MLE matches the sample mean and uses divisor $n$ for the
+        variance.
+  \item A stationary point is not enough: check the parameter space, boundary,
+        and parameter-dependent support.
+\end{itemize}
+
+\section*{Sources}
+The review follows the course handouts
+\href{https://github.com/cfgranda/ps4ds/blob/main/slides/discrete%20variables/parametric_vs_nonparametric_handout.pdf}{Comparing Parametric and Nonparametric Models}
+and
+\href{https://github.com/cfgranda/ps4ds/blob/main/slides/continuous%20variables/maximum_likelihood_continuous_models_handout.pdf}{Maximum Likelihood Estimation for Continuous Models}.
+Problem 1 and Problem 4 are adapted from the 2025 Fall statistics recitation
+materials (Recitation 5).
+
+\end{document}
