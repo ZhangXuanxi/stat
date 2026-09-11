@@ -29,6 +29,7 @@
 \newcommand{\iid}{\mathrel{\overset{\mathrm{iid}}{\sim}}}
 \newcommand{\MLE}{\mathrm{ML}}
 \newcommand{\R}{\mathbb{R}}
+\newcommand{\rv}[1]{\widetilde{#1}}
 
 \newtheorem*{definition}{Definition}
 
@@ -70,23 +71,31 @@ Time & Activity & Suggested use \\
 
 \section{Maximum likelihood estimation: the basic setup}
 
-Suppose $x_1,\ldots,x_n$ are observations from a model indexed by a parameter
-$\theta\in\Theta$. Under an i.i.d. assumption, the \textbf{likelihood} is
+\paragraph{Course notation.}
+A tilde marks a random quantity: $\rv{x}_1,\ldots,\rv{x}_n$. After observing
+these random variables, their realizations are $x_1,\ldots,x_n$, and
+$X:=\{x_1,\ldots,x_n\}$ denotes the dataset. Thus, in this course, $X$ is a
+dataset rather than a random variable. Model parameters and values fitted to
+the observed dataset are written without tildes or hats.
+
+Suppose $\rv{x}_1,\ldots,\rv{x}_n$ are i.i.d. random variables from a model
+indexed by a parameter $\theta\in\Theta$, and let
+$X=\{x_1,\ldots,x_n\}$ be the observed dataset. The \textbf{likelihood} is
 \[
-  L(\theta;x_1,\ldots,x_n)
+  L(\theta;X)
   = \prod_{i=1}^n p_\theta(x_i)
   \quad\text{or}\quad
-  L(\theta;x_1,\ldots,x_n)
+  L(\theta;X)
   = \prod_{i=1}^n f_\theta(x_i),
 \]
 depending on whether the model is discrete or continuous. Once the data are
 observed, $L$ is a function of $\theta$; it is not a pmf or pdf in $\theta$.
 
 \begin{definition}
-The maximum likelihood estimator (MLE) is
+The maximum likelihood (ML) estimate for the observed dataset $X$ is
 \[
-  \widehat\theta_{\MLE}
-  \in \underset{\theta\in\Theta}{\arg\max}\,L(\theta;x_1,\ldots,x_n).
+  \theta_{\MLE}
+  \in \underset{\theta\in\Theta}{\arg\max}\,L(\theta;X).
 \]
 Because $\log$ is strictly increasing, maximizing $L$ is equivalent to
 maximizing the log-likelihood
@@ -108,8 +117,9 @@ maximizing the log-likelihood
 
 \section{Poisson MLE}
 
-Let $X_1,\ldots,X_n\iid\operatorname{Poisson}(\lambda)$, where $\lambda\geq 0$.
-For observed counts $x_1,\ldots,x_n$,
+Let $\rv{x}_1,\ldots,\rv{x}_n\iid\operatorname{Poisson}(\lambda)$, where
+$\lambda\geq 0$. For the observed counts
+$X=\{x_1,\ldots,x_n\}$,
 \begin{align*}
   L(\lambda)
   &=\prod_{i=1}^n e^{-\lambda}\frac{\lambda^{x_i}}{x_i!},\\
@@ -125,16 +135,18 @@ If $\sum_i x_i>0$, then
 \]
 Therefore
 \[
-  \boxed{\widehat\lambda_{\MLE}=\frac{1}{n}\sum_{i=1}^n X_i=\overline X.}
+  \boxed{\lambda_{\MLE}=\frac{1}{n}\sum_{i=1}^n x_i=m(X)=\overline x.}
 \]
-The estimator has a natural interpretation: the fitted expected count equals
+The estimate has a natural interpretation: the fitted expected count equals
 the sample average. If every observed count is zero, the likelihood decreases
-as $\lambda$ increases, so the maximizer is the boundary value $\widehat\lambda=0$.
+as $\lambda$ increases, so the maximizer is the boundary value
+$\lambda_{\MLE}=0$.
 
 \section{Gaussian MLE}
 
-Let $X_1,\ldots,X_n\iid\mathcal N(\mu,\sigma^2)$, where
-$\mu\in\R$ and $\sigma^2>0$. Write $v=\sigma^2$. The log-likelihood is
+Let $\rv{x}_1,\ldots,\rv{x}_n\iid\mathcal N(\mu,\sigma^2)$, where
+$\mu\in\R$ and $\sigma^2>0$, and let $X=\{x_1,\ldots,x_n\}$ be the observed
+dataset. Write $v=\sigma^2$. The log-likelihood is
 \[
   \ell(\mu,v)
   =-\frac n2\log(2\pi)-\frac n2\log v
@@ -145,7 +157,7 @@ For fixed $v$,
   \frac{\partial\ell}{\partial\mu}
   =\frac{1}{v}\sum_{i=1}^n(x_i-\mu)=0
   \quad\Longrightarrow\quad
-  \boxed{\widehat\mu_{\MLE}=\overline X.}
+  \boxed{\mu_{\MLE}=m(X)=\overline x.}
 \]
 The identity
 \[
@@ -153,7 +165,7 @@ The identity
   =\sum_{i=1}^n(x_i-\overline x)^2+n(\mu-\overline x)^2
 \]
 also shows directly that $\mu=\overline x$ gives the global maximum for fixed
-$v$. Substitute $\widehat\mu=\overline x$ and let
+$v$. Substitute $\mu_{\MLE}=\overline x$ and let
 $S=\sum_i(x_i-\overline x)^2$. Then
 \[
   \ell(\overline x,v)=C-\frac n2\log v-\frac{S}{2v},
@@ -162,11 +174,11 @@ $S=\sum_i(x_i-\overline x)^2$. Then
 \]
 Thus, when $S>0$,
 \[
-  \boxed{\widehat{\sigma^2}_{\MLE}
-  =\frac{1}{n}\sum_{i=1}^n(X_i-\overline X)^2,}
+  \boxed{\sigma_{\MLE}^2
+  =\frac{1}{n}\sum_{i=1}^n(x_i-\overline x)^2,}
   \qquad
-  \boxed{\widehat\sigma_{\MLE}
-  =\sqrt{\frac{1}{n}\sum_{i=1}^n(X_i-\overline X)^2}.}
+  \boxed{\sigma_{\MLE}
+  =\sqrt{\frac{1}{n}\sum_{i=1}^n(x_i-\overline x)^2}.}
 \]
 
 \paragraph{MLE variance versus the usual sample variance.}
@@ -183,20 +195,20 @@ that open parameter space. This is a useful reminder to check the boundary.
 \section*{Practice problems}
 
 \subsection*{Problem 1: A two-point model \hfill [7 minutes]}
-Suppose $X$ is a discrete random variable with
+Suppose $\rv{x}$ is a discrete random variable with
 \[
-  \Pbb(X=1)=\theta,
+  \Pbb(\rv{x}=1)=\theta,
   \qquad
-  \Pbb(X=2)=1-\theta,
+  \Pbb(\rv{x}=2)=1-\theta,
   \qquad 0\leq\theta\leq1.
 \]
 We draw $n$ independent observations and find that $n_1$ of them equal 1 and
 $n_2$ equal 2, where $n_1+n_2=n$.
 \begin{enumerate}[label=(\alph*),itemsep=0.35em]
   \item Write the likelihood function.
-  \item Find the maximum likelihood estimator of $\theta$, including the
+  \item Find the maximum likelihood estimate of $\theta$, including the
         cases $n_1=0$ or $n_2=0$.
-  \item Rewrite the MLE in terms of the sample mean $\overline X$.
+  \item Rewrite the MLE in terms of the sample mean $\overline x$.
 \end{enumerate}
 \workingspace{4.5cm}
 
@@ -209,15 +221,15 @@ For $n_1,n_2>0$,
 \[
   \ell'(\theta)=\frac{n_1}{\theta}-\frac{n_2}{1-\theta}=0
   \quad\Longrightarrow\quad
-  \widehat\theta_{\MLE}=\frac{n_1}{n}.
+  \theta_{\MLE}=\frac{n_1}{n}.
 \]
 Also $\ell''(\theta)<0$ on $(0,1)$. The same formula covers the boundaries:
-$n_1=0$ gives $\widehat\theta=0$, and $n_2=0$ gives $\widehat\theta=1$.
+$n_1=0$ gives $\theta_{\MLE}=0$, and $n_2=0$ gives $\theta_{\MLE}=1$.
 Finally,
 \[
-  \overline X=\frac{n_1+2n_2}{n}=2-\frac{n_1}{n}
+  \overline x=\frac{n_1+2n_2}{n}=2-\frac{n_1}{n}
   \quad\Longrightarrow\quad
-  \widehat\theta_{\MLE}=2-\overline X.
+  \theta_{\MLE}=2-\overline x.
 \]
 \end{answer}
 
@@ -226,8 +238,8 @@ The numbers of calls received in eight comparable 15-minute periods are
 \[
   3,\ 0,\ 2,\ 1,\ 4,\ 2,\ 0,\ 4.
 \]
-Assume the counts are independent $\operatorname{Poisson}(\lambda)$ random
-variables.
+Assume the counts are realizations of
+$\rv{x}_1,\ldots,\rv{x}_8\iid\operatorname{Poisson}(\lambda)$.
 \begin{enumerate}[label=(\alph*),itemsep=0.35em]
   \item Find the MLE of $\lambda$.
   \item Using the fitted model, estimate the probability that a future
@@ -240,15 +252,20 @@ variables.
 \begin{answer}
 The total count is 16, so
 \[
-  \widehat\lambda=\overline X=\frac{16}{8}=2
+  \lambda_{\MLE}=\overline x=\frac{16}{8}=2
   \quad\text{calls per 15 minutes}.
 \]
-If $Y\sim\operatorname{Poisson}(2)$, then
+If $\rv{y}\sim\operatorname{Poisson}(2)$ is the number of calls in a future
+period, then
 \[
-  \widehat{\Pbb}(Y\geq3)
-  =1-\Pbb(Y=0)-\Pbb(Y=1)-\Pbb(Y=2)
-  =1-e^{-2}\left(1+2+\frac{2^2}{2}\right)
-  =1-5e^{-2}\approx0.323.
+  \begin{aligned}
+  \Pbb_{\lambda_{\MLE}}(\rv{y}\geq3)
+  &=1-\Pbb_{\lambda_{\MLE}}(\rv{y}=0)
+    -\Pbb_{\lambda_{\MLE}}(\rv{y}=1)
+    -\Pbb_{\lambda_{\MLE}}(\rv{y}=2)\\
+  &=1-e^{-2}\left(1+2+\frac{2^2}{2}\right)
+   =1-5e^{-2}\approx0.323.
+  \end{aligned}
 \]
 Possible concerns include dependence across adjacent periods, different call
 rates at different times, or overdispersion relative to a Poisson model. Any
@@ -261,10 +278,11 @@ A device records the same reference quantity five times:
 \[
   9.7,\ 10.1,\ 10.2,\ 9.9,\ 10.1.
 \]
-Assume the measurements are i.i.d. $\mathcal N(\mu,\sigma^2)$.
+Assume these values are realizations of
+$\rv{x}_1,\ldots,\rv{x}_5\iid\mathcal N(\mu,\sigma^2)$.
 \begin{enumerate}[label=(\alph*),itemsep=0.35em]
-  \item Compute $\widehat\mu_{\MLE}$.
-  \item Compute $\widehat{\sigma^2}_{\MLE}$ and $\widehat\sigma_{\MLE}$.
+  \item Compute $\mu_{\MLE}$.
+  \item Compute $\sigma_{\MLE}^2$ and $\sigma_{\MLE}$.
   \item Compute the usual unbiased sample variance $s^2$. Why does its
         denominator differ from the MLE denominator?
   \item If 2 is added to every observation, how do the two MLEs change?
@@ -274,14 +292,14 @@ Assume the measurements are i.i.d. $\mathcal N(\mu,\sigma^2)$.
 \begin{answer}
 The sample mean is
 \[
-  \widehat\mu_{\MLE}=\overline x=10.0.
+  \mu_{\MLE}=\overline x=10.0.
 \]
 The centered observations are $-0.3,0.1,0.2,-0.1,0.1$, whose squared values
 sum to $0.16$. Therefore
 \[
-  \widehat{\sigma^2}_{\MLE}=\frac{0.16}{5}=0.032,
+  \sigma_{\MLE}^2=\frac{0.16}{5}=0.032,
   \qquad
-  \widehat\sigma_{\MLE}=\sqrt{0.032}\approx0.179.
+  \sigma_{\MLE}=\sqrt{0.032}\approx0.179.
 \]
 The unbiased sample variance is
 \[
@@ -290,18 +308,19 @@ The unbiased sample variance is
 Estimating $\mu$ uses one degree of freedom, so division by $n-1$ corrects the
 downward bias. Maximum likelihood instead maximizes the Gaussian likelihood
 and therefore divides by $n$. Adding 2 to every observation changes
-$\widehat\mu$ from $10.0$ to $12.0$ and leaves $\widehat{\sigma^2}$ unchanged.
+$\mu_{\MLE}$ from $10.0$ to $12.0$ and leaves $\sigma_{\MLE}^2$ unchanged.
 \end{answer}
 
 \ifsolutions\else\newpage\fi
 \subsection*{Problem 4 (backup): True or false?}
 \noindent\textit{Optional if time allows. Suggested working time: 5--8 minutes.}
 
-\noindent For each statement, decide whether it is true or false and give a brief reason.\\[0.4em]
+\noindent For each statement, decide whether it is true or false and give a brief reason.
+\par\smallskip
 \begin{enumerate}[label=(\alph*),itemsep=0.55em]
   \item MLEs are always unbiased.
-  \item If $\widehat\theta_n\xrightarrow{p}\theta$, then
-        $\widehat\theta_n^2\xrightarrow{p}\theta^2$.
+  \item If $\rv{\theta}_n\xrightarrow{p}\theta$, then
+        $\rv{\theta}_n^2\xrightarrow{p}\theta^2$.
   \item Every solution of the score equation $\ell'(\theta)=0$ is an MLE.
   \item A likelihood must satisfy
         $\int_{-\infty}^{\infty}L(\theta)\,d\theta=1$.
@@ -339,6 +358,8 @@ The review follows the course handouts
 \href{https://github.com/cfgranda/ps4ds/blob/main/slides/discrete%20variables/parametric_vs_nonparametric_handout.pdf}{Comparing Parametric and Nonparametric Models}
 and
 \href{https://github.com/cfgranda/ps4ds/blob/main/slides/continuous%20variables/maximum_likelihood_continuous_models_handout.pdf}{Maximum Likelihood Estimation for Continuous Models}.
+The notation follows Section 2.1 of the
+\href{https://github.com/cfgranda/ps4ds/blob/main/ps4ds_preprint.pdf}{Probability and Statistics for Data Science preprint}.
 Problem 1 and Problem 4 are adapted from the 2025 Fall statistics recitation
 materials (Recitation 5).
 
