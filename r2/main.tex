@@ -1,0 +1,409 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{comment}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=MidnightBlue,
+  urlcolor=MidnightBlue
+}
+
+% Define \WITHSOLUTIONS before inputting this file to show solutions.
+\newif\ifsolutions
+\ifdefined\WITHSOLUTIONS
+  \solutionstrue
+\else
+  \solutionsfalse
+\fi
+
+\newcommand{\Pbb}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\rv}[1]{\widetilde{#1}}
+\newcommand{\po}[1]{\widetilde{\mathrm{po}}_{#1}}
+\newcommand{\indep}{\mathrel{\perp\!\!\!\perp}}
+\newcommand{\given}{\,\middle|\,}
+
+\ifsolutions
+  \newenvironment{answer}{%
+    \par\medskip\noindent\textcolor{MidnightBlue}{\textbf{Solution.}}\ }
+    {\par\medskip}
+  \newcommand{\workingspace}[1]{}
+\else
+  \excludecomment{answer}
+  \newcommand{\workingspace}[1]{\vspace{#1}}
+\fi
+
+\newcommand{\keybox}[1]{%
+  \begin{center}
+  \fcolorbox{MidnightBlue}{MidnightBlue!5}{%
+    \begin{minipage}{0.91\textwidth}#1\end{minipage}}
+  \end{center}}
+
+\title{\huge Recitation 2\\[0.35em]
+  \normalsize Causal Inference, Confounding, and Simpson's Paradox\\[0.35em]
+  \large\ifsolutions Solutions and Teaching Notes\else Review and Practice Problems\fi}
+\author{Xuanxi Zhang}
+\date{September 18, 2026}
+
+\begin{document}
+\maketitle
+
+\ifsolutions
+\section*{Pacing guide (75 minutes)}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Time & Activity & Suggested use \\
+\midrule
+0--25 min & Review & Potential outcomes, confounding, Curry--Lee example \\
+25--38 min & Problem 1 & 7 min individual work, then discussion \\
+38--53 min & Problem 2 & 8 min individual work, then discussion \\
+53--68 min & Problem 3 & 8 min individual work, then discussion \\
+68--75 min & Wrap-up or Problem 4 & Use Problem 4 only if the class is ahead \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Teaching emphasis.}
+Keep three quantities distinct: an observed conditional probability, a
+potential-outcome probability, and a standardized probability. In the
+basketball example, emphasize that standardization is a better descriptive
+comparison but is causal only under the stated conditional-independence
+assumption.
+\fi
+
+\section{Potential outcomes and causal effects}
+
+Let the binary treatment $\rv{t}$ equal $1$ for treatment and $0$ for control.
+Every unit has two \textbf{potential outcomes}:
+\[
+  \po{0}=\text{outcome under control},
+  \qquad
+  \po{1}=\text{outcome under treatment}.
+\]
+Both are defined whether or not the unit actually receives treatment. The
+observed outcome is
+\[
+  \rv{y}=
+  \begin{cases}
+    \po{0}, & \rv{t}=0,\\
+    \po{1}, & \rv{t}=1,
+  \end{cases}
+  \qquad\text{or equivalently}\qquad
+  \rv{y}=(1-\rv{t})\po{0}+\rv{t}\po{1}.
+\]
+This relationship is called \textbf{consistency}. For one unit we observe only
+one potential outcome; the other is a \textbf{counterfactual}. This is the
+fundamental problem of causal inference.
+
+For a binary outcome, the population causal risk difference is
+\[
+  \Delta_{\mathrm{causal}}
+  :=\Pbb(\po{1}=1)-\Pbb(\po{0}=1)
+  =\E[\po{1}]-\E[\po{0}].
+\]
+The difference visible in observational data is instead
+\[
+  \Delta_{\mathrm{obs}}
+  :=\Pbb(\rv{y}=1\mid\rv{t}=1)
+    -\Pbb(\rv{y}=1\mid\rv{t}=0).
+\]
+By consistency, the first term describes $\po{1}$ among treated units and the
+second describes $\po{0}$ among control units. These are generally different
+subpopulations, so association need not equal causation.
+
+If treatment is independent of both potential outcomes,
+\[
+  \rv{t}\indep\{\po{0},\po{1}\},
+\]
+then $\Delta_{\mathrm{obs}}=\Delta_{\mathrm{causal}}$ at the population level.
+Random assignment creates this independence by design. In a finite randomized
+sample, the two observed rates are still estimates and need not equal the
+population probabilities exactly.
+
+\section{Confounding and adjustment}
+
+A pre-treatment variable $\rv{a}$ is a \textbf{confounder} when it helps create
+dependence between treatment and the potential outcomes. For example, age may
+affect which patients take a drug and may also predict recovery under either
+treatment. Comparing treated and control patients without accounting for age
+then mixes together treatment differences and age-composition differences.
+
+Suppose the following assumptions are plausible:
+\begin{enumerate}[label=\arabic*.,leftmargin=2em,itemsep=0.2em]
+  \item \textbf{Consistency:} the observed outcome equals the potential outcome
+        under the treatment received.
+  \item \textbf{Conditional independence:}
+        $\{\po{0},\po{1}\}\indep\rv{t}\mid\rv{a}$.
+  \item \textbf{Positivity:} within every relevant value of $a$, both treatment
+        groups can occur.
+\end{enumerate}
+Then, for $r\in\{0,1\}$,
+\[
+  \boxed{
+  \Pbb(\po{r}=1)
+  =\sum_a \Pbb(\rv{a}=a)
+     \Pbb(\rv{y}=1\mid\rv{a}=a,\rv{t}=r).}
+\]
+The same population weights $\Pbb(\rv{a}=a)$ are used for both treatments.
+By contrast, the unadjusted observed rate is
+\[
+  \Pbb(\rv{y}=1\mid\rv{t}=r)
+  =\sum_a \Pbb(\rv{a}=a\mid\rv{t}=r)
+     \Pbb(\rv{y}=1\mid\rv{a}=a,\rv{t}=r),
+\]
+which may use very different weights in the two treatment groups. This is the
+law of total probability, and the changing weights are the mechanism behind
+Simpson's paradox.
+
+\section{Simpson's paradox: Curry versus Lee}
+
+During the 2014--2015 NBA season, Courtney Lee had the higher overall
+three-point percentage, but Stephen Curry had the higher percentage within
+both distance categories:
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Shot type & Stephen Curry & Courtney Lee \\
+\midrule
+Short threes ($\leq 24$ feet) & $45/90=50.0\%$ & $56/116=48.3\%$ \\
+Long threes ($>24$ feet) & $145/366=39.6\%$ & $19/55=34.5\%$ \\
+\midrule
+All threes & $190/456=41.7\%$ & $75/171=43.9\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+This reversal is \textbf{Simpson's paradox}. Shot distance, denoted $\rv{d}$,
+explains it. Lee took $116/171=67.8\%$ of his attempts from the easier short
+range, while Curry took only $90/456=19.7\%$ from that range. Each overall
+percentage is a weighted average with a different set of weights. For example,
+\[
+  \Pbb(\rv{y}=1\mid\rv{t}=\text{Lee})
+  =0.678(0.483)+0.322(0.345)=0.439.
+\]
+
+For a common comparison, weight both players by the shot mix in the combined
+data: $206/627=0.329$ short and $421/627=0.671$ long. The standardized rates are
+\begin{align*}
+  \text{Curry: }&0.329(0.500)+0.671(0.396)=0.430,\\
+  \text{Lee: }&0.329(0.483)+0.671(0.345)=0.390.
+\end{align*}
+Standardization therefore favors Curry. It is a useful comparison of shooting
+under a common distance distribution. Interpreting it as a causal comparison
+requires the strong assumption that, conditional on distance, player identity
+is independent of the relevant potential outcomes; other shot characteristics
+may violate that assumption.
+
+\keybox{\textbf{Read the comparison before interpreting it.}
+Marginal rates answer ``what happened under each group's actual mix?''
+Stratum-specific rates answer ``what happened within a fixed category?''
+Standardized rates answer ``what would the rates be under a common mix?''}
+
+\newpage
+\section*{Practice problems}
+
+\subsection*{Problem 1: What is observed? \hfill [7 minutes]}
+Four patients have binary treatment and recovery outcomes:
+\begin{center}
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Patient & Treatment $t$ & Observed $y$ & $\mathrm{po}_0$ & $\mathrm{po}_1$ \\
+\midrule
+A & 0 & 0 & \phantom{0} & \phantom{0} \\
+B & 0 & 1 & \phantom{0} & \phantom{0} \\
+C & 1 & 1 & \phantom{0} & \phantom{0} \\
+D & 1 & 0 & \phantom{0} & \phantom{0} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=(\alph*),itemsep=0.4em]
+  \item Fill in every potential outcome determined by the observed data. Mark
+        each unobserved potential outcome with ``?''.
+  \item Compute the observed difference in recovery rates, treated minus control.
+  \item Assuming only that potential outcomes are binary, find the smallest and
+        largest possible finite-sample average causal effect
+        $\frac14\sum_{i=1}^4(\mathrm{po}_{1,i}-\mathrm{po}_{0,i})$.
+  \item If treatment was randomly assigned, does that reveal each missing
+        counterfactual? What does randomization provide instead?
+\end{enumerate}
+\workingspace{5.0cm}
+
+\begin{answer}
+Consistency determines the entries under the treatment actually received:
+\begin{center}
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Patient & $t$ & $y$ & $\mathrm{po}_0$ & $\mathrm{po}_1$ \\
+\midrule
+A & 0 & 0 & 0 & ? \\
+B & 0 & 1 & 1 & ? \\
+C & 1 & 1 & ? & 1 \\
+D & 1 & 0 & ? & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Both groups recover at rate $1/2$, so the observed difference is $0$.
+
+The known $\mathrm{po}_1$ values sum to $1$, and the two missing values can add
+anything from $0$ to $2$. Thus $\sum_i\mathrm{po}_{1,i}\in[1,3]$. The same
+argument gives $\sum_i\mathrm{po}_{0,i}\in[1,3]$. The difference of the sums
+can range from $-2$ to $2$, so the finite-sample average causal effect can range
+from $-1/2$ to $1/2$. The observed difference $0$ does not determine it.
+
+Randomization does not reveal any patient's missing counterfactual. It makes
+treatment independent of potential outcomes, so group averages are unbiased
+estimators of the corresponding population potential-outcome means (and become
+accurate with sufficiently large samples).
+\end{answer}
+
+\newpage
+\subsection*{Problem 2: Diagnose the Curry--Lee reversal \hfill [8 minutes]}
+Use the basketball table in the review.
+\begin{enumerate}[label=(\alph*),itemsep=0.45em]
+  \item Which player has the higher marginal three-point percentage? Which
+        player has the higher percentage within each distance category?
+  \item Write Curry's overall percentage as a weighted average of his short- and
+        long-shot percentages. Compare his weights with Lee's.
+  \item In one or two sentences, explain why the direction reverses after the
+        data are stratified by distance.
+  \item Using a target shot mix of $40\%$ short and $60\%$ long, compute a
+        standardized percentage for each player. Which is larger?
+  \item Does part (d) by itself prove that Curry would outperform Lee on the
+        same shots? State the additional assumption needed for that causal claim.
+\end{enumerate}
+\workingspace{5.5cm}
+
+\begin{answer}
+Lee has the higher marginal percentage: $43.9\%$ versus $41.7\%$. Curry has the
+higher rate among both short attempts ($50.0\%$ versus $48.3\%$) and long
+attempts ($39.6\%$ versus $34.5\%$).
+
+Curry's overall rate is
+\[
+  \frac{90}{456}\frac{45}{90}
+  +\frac{366}{456}\frac{145}{366}
+  =0.197(0.500)+0.803(0.396)=0.417.
+\]
+Lee's weights are $116/171=0.678$ short and $55/171=0.322$ long. Lee's overall
+rate receives much more weight from easier short attempts, which raises his
+marginal percentage even though his rate is lower within each category.
+
+With the common $40/60$ mix,
+\begin{align*}
+  \text{Curry: }&0.4(0.500)+0.6(0.396)=0.4376,\\
+  \text{Lee: }&0.4(0.483)+0.6(0.345)=0.4002.
+\end{align*}
+Curry's standardized percentage is higher. A causal interpretation additionally
+requires the relevant potential outcomes to be independent of player identity
+conditional on distance. The table cannot establish this; other shot features
+may still confound the comparison.
+\end{answer}
+
+\newpage
+\subsection*{Problem 3: A drug and patient risk \hfill [8 minutes]}
+An observational study records the following recoveries:
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Patient group & Drug ($t=1$) & No drug ($t=0$) \\
+\midrule
+Lower risk & $45/50=90\%$ & $80/100=80\%$ \\
+Higher risk & $30/100=30\%$ & $10/50=20\%$ \\
+\midrule
+All patients & $75/150=50\%$ & $90/150=60\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{enumerate}[label=(\alph*),itemsep=0.45em]
+  \item Compute the unadjusted observed risk difference. What conclusion would
+        it suggest?
+  \item Compute the risk difference within each risk group. Describe the reversal.
+  \item In the full sample, half the patients are lower risk and half are higher
+        risk. Standardize both treatment groups to this common $50/50$ mix.
+        Compute the adjusted risk difference.
+  \item Explain how risk group creates confounding here. State the assumptions
+        needed to interpret the adjusted difference causally.
+\end{enumerate}
+\workingspace{5.5cm}
+
+\begin{answer}
+The unadjusted difference is
+\[
+  0.50-0.60=-0.10,
+\]
+which suggests that the drug lowers recovery by 10 percentage points. Within
+the lower-risk group the difference is $0.90-0.80=0.10$, and within the
+higher-risk group it is $0.30-0.20=0.10$. Thus the drug has the higher observed
+recovery rate in each stratum even though it has the lower marginal rate.
+
+Using the same $50/50$ weights for both treatment levels gives
+\begin{align*}
+  \Pbb(\po{1}=1)&\approx0.5(0.90)+0.5(0.30)=0.60,\\
+  \Pbb(\po{0}=1)&\approx0.5(0.80)+0.5(0.20)=0.50.
+\end{align*}
+The adjusted risk difference is therefore $0.10$.
+
+Only one third of the treated group is lower risk ($50/150$), compared with two
+thirds of the untreated group ($100/150$). Risk group predicts recovery and is
+distributed differently across treatment groups, so the marginal comparison is
+confounded. The causal interpretation requires consistency, positivity, and
+conditional independence of treatment and both potential outcomes given risk
+group. It also assumes that the risk categories are measured well enough and
+that no important confounder remains unmeasured.
+\end{answer}
+
+\ifsolutions\else\newpage\fi
+\subsection*{Problem 4 (backup): True or false?}
+\noindent\textit{Optional if time allows. Suggested working time: 5--7 minutes.}
+
+\begin{enumerate}[label=(\alph*),itemsep=0.55em]
+  \item Random assignment reveals both potential outcomes for every unit.
+  \item If treatment has a positive risk difference in every stratum, then any
+        standardized risk difference using the same nonnegative stratum weights
+        for both treatments is positive.
+  \item To adjust for a confounder, use the treated group's stratum weights for
+        the treated rate and the control group's weights for the control rate.
+  \item Seeing a Simpson reversal proves that one of the two marginal groups has
+        been measured incorrectly.
+\end{enumerate}
+\workingspace{4.5cm}
+
+\begin{answer}
+The answers are false, true, false, false.
+\begin{enumerate}[label=(\alph*),itemsep=0.35em]
+  \item Randomization balances potential outcomes across treatment groups in
+        distribution; it does not reveal a unit's counterfactual.
+  \item A common-weight standardized difference is a weighted average of the
+        positive stratum-specific differences, so it is positive.
+  \item Those are exactly the treatment-specific weights used by the unadjusted
+        marginal rates. Adjustment uses one common target distribution.
+  \item The reversal can arise from different stratum compositions, even when
+        every count is correct.
+\end{enumerate}
+\end{answer}
+
+\section*{Takeaways}
+\begin{itemize}[leftmargin=1.6em,itemsep=0.25em]
+  \item Potential outcomes define causal questions, but only one is observed per unit.
+  \item Randomization breaks dependence between treatment and potential outcomes.
+  \item Confounding makes observed treatment groups incomparable; conditional
+        comparisons and common-weight standardization can repair this only under
+        substantive assumptions.
+  \item Simpson's paradox is a weighted-average reversal, not an arithmetic error.
+\end{itemize}
+
+\section*{Sources}
+The review follows the course handouts \emph{Causal Inference} and
+\emph{Modeling Multiple Discrete Variables}, together with
+\href{https://github.com/cfgranda/ps4ds/blob/main/slides/multiple%20discrete%20variables/simpsons_paradox_handout.pdf}{Was Courtney Lee Better Than Stephen Curry? Simpson's Paradox}
+from \emph{Probability and Statistics for Data Science}.
+
+\end{document}
