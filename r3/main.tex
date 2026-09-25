@@ -1,0 +1,531 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{comment}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=MidnightBlue,
+  urlcolor=MidnightBlue
+}
+
+% Define \WITHSOLUTIONS before inputting this file to show solutions.
+\newif\ifsolutions
+\ifdefined\WITHSOLUTIONS
+  \solutionstrue
+\else
+  \solutionsfalse
+\fi
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Pbb}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\iid}{\mathrel{\overset{\mathrm{iid}}{\sim}}}
+\newcommand{\ML}{\mathrm{ML}}
+\newcommand{\rv}[1]{\widetilde{#1}}
+\newcommand{\rvv}[1]{\widetilde{\bm{#1}}}
+\newcommand{\given}{\,\middle|\,}
+
+\ifsolutions
+  \newenvironment{answer}{%
+    \par\medskip\noindent\textcolor{MidnightBlue}{\textbf{Solution.}}\ }
+    {\par\medskip}
+  \newcommand{\workingspace}[1]{}
+\else
+  \excludecomment{answer}
+  \newcommand{\workingspace}[1]{\vspace{#1}}
+\fi
+
+\newcommand{\keybox}[1]{%
+  \begin{center}
+  \fcolorbox{MidnightBlue}{MidnightBlue!5}{%
+    \begin{minipage}{0.91\textwidth}#1\end{minipage}}
+  \end{center}}
+
+\title{\huge Recitation 3\\[0.35em]
+  \normalsize Gaussian Random Vectors and Bayesian Models\\[0.35em]
+  \large\ifsolutions Solutions and Teaching Notes\else Review and Practice Problems\fi}
+\author{Xuanxi Zhang}
+\date{September 25, 2026}
+
+\begin{document}
+\maketitle
+
+\ifsolutions
+\section*{Pacing guide (75 minutes)}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Time & Activity & Suggested use \\
+\midrule
+0--25 min & Review & Gaussian vectors, mean MLE, Bayesian updating \\
+25--37 min & Problem 1 & 6 min individual work, then discussion \\
+37--55 min & Problem 2 & 9 min individual work, then discussion \\
+55--69 min & Problem 3 & 7 min individual work, then discussion \\
+69--75 min & Wrap-up or Problem 4 & Use Problem 4 only if the class is ahead \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Teaching emphasis.}
+For Gaussian maximum likelihood, derive only the mean-vector estimate.  Treat
+the covariance matrix as fixed during that derivation; the matrix derivative
+for estimating the covariance is outside today's scope.  In the Bayesian
+section, keep the parameter random and distinguish the prior, likelihood, and
+posterior at every step.
+\fi
+
+\section{Gaussian random vectors}
+
+A $d$-dimensional Gaussian random vector with mean $\bm{\mu}\in\R^d$ and
+positive-definite covariance matrix $\bm{\Sigma}\in\R^{d\times d}$ is written
+\[
+  \rvv{x}\sim\mathcal N(\bm{\mu},\bm{\Sigma}).
+\]
+Its joint pdf is
+\[
+  f_{\bm{\mu},\bm{\Sigma}}(\bm{x})
+  =\frac{1}{\sqrt{(2\pi)^d\det(\bm{\Sigma})}}
+   \exp\!\left[-\frac12(\bm{x}-\bm{\mu})^{\mathsf T}
+     \bm{\Sigma}^{-1}(\bm{x}-\bm{\mu})\right].
+\]
+The diagonal entry $\bm{\Sigma}_{jj}$ is the variance of coordinate $j$, and
+$\bm{\Sigma}_{jk}$ is the covariance between coordinates $j$ and $k$.
+
+Every linear transformation of a Gaussian random vector is Gaussian:
+\[
+  \bm{A}\rvv{x}+\bm{b}
+  \sim\mathcal N\!\left(\bm{A}\bm{\mu}+\bm{b},
+    \bm{A}\bm{\Sigma}\bm{A}^{\mathsf T}\right).
+\]
+\paragraph{Why?}
+One characterization of a Gaussian random vector is that every linear
+combination of its coordinates is a univariate Gaussian random variable.  Set
+$\rvv{z}:=\bm{A}\rvv{x}+\bm{b}$.  For any fixed vector $\bm{c}$,
+\[
+  \bm{c}^{\mathsf T}\rvv{z}
+  =(\bm{A}^{\mathsf T}\bm{c})^{\mathsf T}\rvv{x}
+    +\bm{c}^{\mathsf T}\bm{b}.
+\]
+The right-hand side is a linear combination of the coordinates of
+$\rvv{x}$ plus a constant, so it is Gaussian.  Since this holds for every
+$\bm{c}$, $\rvv{z}$ is a Gaussian random vector.  Its parameters follow from
+linearity of the mean and the covariance rules:
+\begin{align*}
+  \E[\rvv{z}]&=\bm{A}\E[\rvv{x}]+\bm{b}
+    =\bm{A}\bm{\mu}+\bm{b},\\
+  \Cov(\rvv{z})&=\bm{A}\Cov(\rvv{x})\bm{A}^{\mathsf T}
+    =\bm{A}\bm{\Sigma}\bm{A}^{\mathsf T}.
+\end{align*}
+
+Consequently, every subvector is Gaussian.  If
+\[
+  \begin{bmatrix}\rvv{x}\\ \rvv{y}\end{bmatrix}
+  \sim \mathcal N\!\left(
+  \begin{bmatrix}\bm{\mu}_x\\ \bm{\mu}_y\end{bmatrix},
+  \begin{bmatrix}
+    \bm{\Sigma}_{xx} & \bm{\Sigma}_{xy}\\
+    \bm{\Sigma}_{yx} & \bm{\Sigma}_{yy}
+  \end{bmatrix}\right),
+\]
+then conditioning also preserves Gaussianity:
+\begin{align*}
+  \rvv{y}\mid\rvv{x}=\bm{x}
+  \sim\mathcal N\!\big(&\bm{\mu}_y+
+    \bm{\Sigma}_{yx}\bm{\Sigma}_{xx}^{-1}
+      (\bm{x}-\bm{\mu}_x),\\[-0.2em]
+    &\bm{\Sigma}_{yy}-
+    \bm{\Sigma}_{yx}\bm{\Sigma}_{xx}^{-1}\bm{\Sigma}_{xy}\big).
+\end{align*}
+
+\paragraph{Why?}
+Define
+\[
+  \bm{B}:=\bm{\Sigma}_{yx}\bm{\Sigma}_{xx}^{-1},
+  \qquad
+  \rvv{r}:=\rvv{y}-\bm{\mu}_y
+     -\bm{B}(\rvv{x}-\bm{\mu}_x).
+\]
+The pair $(\rvv{x},\rvv{r})$ is jointly Gaussian because it is a linear
+transformation of $(\rvv{x},\rvv{y})$.  Moreover,
+\[
+  \Cov(\rvv{r},\rvv{x})
+  =\bm{\Sigma}_{yx}-\bm{B}\bm{\Sigma}_{xx}=\bm{0}.
+\]
+For jointly Gaussian vectors, zero covariance implies independence, so
+$\rvv{r}$ is independent of $\rvv{x}$.  Its mean is zero and its covariance is
+\[
+  \Cov(\rvv{r})
+  =\bm{\Sigma}_{yy}
+   -\bm{\Sigma}_{yx}\bm{\Sigma}_{xx}^{-1}\bm{\Sigma}_{xy}.
+\]
+Finally, rewrite $\rvv{y}$ as
+\[
+  \rvv{y}=\bm{\mu}_y+\bm{B}(\rvv{x}-\bm{\mu}_x)+\rvv{r}.
+\]
+After conditioning on $\rvv{x}=\bm{x}$, the first two terms are fixed and the
+independent Gaussian residual $\rvv{r}$ is unchanged.  This gives exactly the
+conditional mean and covariance above.
+
+\section{Maximum likelihood for a Gaussian mean vector}
+
+Suppose
+\[
+  \rvv{x}_1,\ldots,\rvv{x}_n
+  \iid\mathcal N(\bm{\mu},\bm{\Sigma}),
+\]
+where $\bm{\Sigma}$ is fixed and positive definite.  For the observed dataset
+$X=\{\bm{x}_1,\ldots,\bm{x}_n\}$, the terms of the log-likelihood that depend
+on $\bm{\mu}$ are
+\[
+  \ell(\bm{\mu})
+  =C-\frac12\sum_{i=1}^n
+  (\bm{x}_i-\bm{\mu})^{\mathsf T}\bm{\Sigma}^{-1}
+  (\bm{x}_i-\bm{\mu}).
+\]
+The gradient and Hessian are
+\[
+  \nabla_{\bm{\mu}}\ell(\bm{\mu})
+  =\bm{\Sigma}^{-1}\sum_{i=1}^n(\bm{x}_i-\bm{\mu}),
+  \qquad
+  \nabla_{\bm{\mu}}^2\ell(\bm{\mu})=-n\bm{\Sigma}^{-1}.
+\]
+Because $\bm{\Sigma}^{-1}$ is positive definite, the Hessian is negative
+definite, so the unique maximizer is
+\[
+  \boxed{\bm{\mu}_{\ML}=\frac1n\sum_{i=1}^n\bm{x}_i.}
+\]
+Thus the ML estimate is obtained by averaging each coordinate.
+
+
+\section{Bayesian parametric models}
+
+In a Bayesian model, the parameter is itself random.  Let $\rv{\theta}$ be a
+parameter and let $\rvv{x}$ represent the data.  The model specifies
+\begin{align*}
+  &\textbf{prior:} && f_{\rv{\theta}}(\theta),\\
+  &\textbf{likelihood:} && f_{\rvv{x}\mid\rv{\theta}}(\bm{x}\mid\theta),\\
+  &\textbf{posterior:} &&
+  f_{\rv{\theta}\mid\rvv{x}}(\theta\mid\bm{x})
+  =\frac{f_{\rvv{x}\mid\rv{\theta}}(\bm{x}\mid\theta)
+          f_{\rv{\theta}}(\theta)}
+         {f_{\rvv{x}}(\bm{x})}.
+\end{align*}
+The denominator is a normalizing constant, so as a function of $\theta$,
+\[
+  \boxed{\text{posterior}\ \propto\ \text{likelihood}\times\text{prior}.}
+\]
+
+
+Two conjugate updates will be useful today.  A prior is called
+\textbf{conjugate} when the posterior belongs to the same distribution family
+as the prior.
+
+\paragraph{Gaussian prior and Gaussian likelihood.}
+Suppose
+\[
+  \rv{\mu}\sim\mathcal N(m_0,\tau^2),
+  \qquad
+  \rv{y}\mid\rv{\mu}=\mu\sim\mathcal N(\mu,s^2),
+\]
+where $\tau^2$ describes prior uncertainty and $s^2$ describes sensor noise.
+Bayes' rule gives, as a function of $\mu$,
+\begin{align*}
+  f_{\rv{\mu}\mid\rv{y}}(\mu\mid y)
+  &\propto f_{\rv{y}\mid\rv{\mu}}(y\mid\mu)f_{\rv{\mu}}(\mu)\\
+  &\propto
+  \exp\!\left[-\frac{(y-\mu)^2}{2s^2}\right]
+  \exp\!\left[-\frac{(\mu-m_0)^2}{2\tau^2}\right].
+\end{align*}
+Expanding the two squares and keeping the terms that involve $\mu$ gives
+\[
+  \log f_{\rv{\mu}\mid\rv{y}}(\mu\mid y)
+  =-\frac12\left[
+    \left(\frac1{\tau^2}+\frac1{s^2}\right)\mu^2
+    -2\left(\frac{m_0}{\tau^2}+\frac{y}{s^2}\right)\mu
+  \right]+C.
+\]
+Define
+\[
+  v_1:=\left(\frac1{\tau^2}+\frac1{s^2}\right)^{-1},
+  \qquad
+  m_1:=v_1\left(\frac{m_0}{\tau^2}+\frac{y}{s^2}\right).
+\]
+Completing the square turns the preceding expression into
+\[
+  -\frac{(\mu-m_1)^2}{2v_1}+C',
+\]
+which is the log-pdf of a Gaussian distribution.  Therefore
+\[
+  \boxed{\rv{\mu}\mid\rv{y}=y\sim\mathcal N(m_1,v_1).}
+\]
+The quantities $1/\tau^2$ and $1/s^2$ are called \textbf{precisions}.  The
+posterior precision is their sum, and
+\[
+  m_1=\frac{s^2}{s^2+\tau^2}m_0
+      +\frac{\tau^2}{s^2+\tau^2}y
+\]
+is a weighted average of the prior mean and the observation.  A more precise
+source receives more weight.  Also $v_1<\tau^2$ and $v_1<s^2$, so combining
+the prior with the observation reduces uncertainty.
+
+\paragraph{Beta prior and Bernoulli likelihood.}
+Suppose $\rv{\theta}\sim\operatorname{Beta}(a,b)$, so on $0<\theta<1$ its
+prior density has the form
+\[
+  f_{\rv{\theta}}(\theta)\propto
+  \theta^{a-1}(1-\theta)^{b-1}.
+\]
+Given $\rv{\theta}=\theta$, let the Bernoulli observations be conditionally
+independent.  If the observed data contain $h$ heads and $t$ tails, their
+likelihood is
+\[
+  p_{\rvv{x}\mid\rv{\theta}}(\bm{x}\mid\theta)
+  =\prod_i\theta^{x_i}(1-\theta)^{1-x_i}
+  =\theta^h(1-\theta)^t.
+\]
+Multiplying likelihood and prior gives
+\begin{align*}
+  f_{\rv{\theta}\mid\rvv{x}}(\theta\mid\bm{x})
+  &\propto \theta^h(1-\theta)^t
+    \theta^{a-1}(1-\theta)^{b-1}\\
+  &=\theta^{a+h-1}(1-\theta)^{b+t-1}.
+\end{align*}
+This is the kernel of another beta density, so
+\[
+  \boxed{\rv{\theta}\mid\text{data}
+    \sim\operatorname{Beta}(a+h,b+t).}
+\]
+The update simply adds the observed counts to the two beta parameters.  For
+example, the uniform prior is $\operatorname{Beta}(1,1)$; after two heads it
+becomes $\operatorname{Beta}(3,1)$.
+
+\newpage
+\section*{Practice problems}
+
+\noindent Problems 2 and 3 are adapted from Exercises 5.15 and 6.14 of
+\emph{Probability and Statistics for Data Science}.
+
+\subsection*{Problem 1: MLE of a Gaussian mean vector \hfill [6 minutes]}
+Let
+\[
+  \rvv{x}_1,\rvv{x}_2,\rvv{x}_3
+  \iid\mathcal N(\bm{\mu},\bm{\Sigma}),
+  \qquad
+  \bm{\Sigma}=\begin{bmatrix}2&1\\1&2\end{bmatrix},
+\]
+and suppose the observed vectors are
+\[
+  \bm{x}_1=\begin{bmatrix}2\\1\end{bmatrix},\qquad
+  \bm{x}_2=\begin{bmatrix}4\\0\end{bmatrix},\qquad
+  \bm{x}_3=\begin{bmatrix}3\\2\end{bmatrix}.
+\]
+\begin{enumerate}[label=(\alph*),itemsep=0.4em]
+  \item Write the log-likelihood as a function of $\bm{\mu}$, up to an
+        additive constant.
+  \item Differentiate the general $n$-observation expression and derive
+        $\bm{\mu}_{\ML}$.
+  \item Compute $\bm{\mu}_{\ML}$ for the observed dataset.
+  \item Would replacing $\bm{\Sigma}$ by the identity matrix change this ML
+        estimate? Briefly explain.
+\end{enumerate}
+\workingspace{4.8cm}
+
+\begin{answer}
+For these three observations,
+\[
+  \ell(\bm{\mu})
+  =C-\frac12\sum_{i=1}^3
+    (\bm{x}_i-\bm{\mu})^{\mathsf T}\bm{\Sigma}^{-1}
+    (\bm{x}_i-\bm{\mu}).
+\]
+For general $n$,
+\[
+  \nabla_{\bm{\mu}}\ell(\bm{\mu})
+  =\bm{\Sigma}^{-1}\sum_{i=1}^n(\bm{x}_i-\bm{\mu}).
+\]
+Since $\bm{\Sigma}$ is invertible, setting the gradient to zero gives
+\[
+  \sum_{i=1}^n\bm{x}_i-n\bm{\mu}=\bm{0}
+  \quad\Longrightarrow\quad
+  \bm{\mu}_{\ML}=\frac1n\sum_{i=1}^n\bm{x}_i.
+\]
+The negative-definite Hessian $-n\bm{\Sigma}^{-1}$ confirms that this is the
+unique maximum.  For the observed data,
+\[
+  \bm{\mu}_{\ML}
+  =\frac13\left(
+    \begin{bmatrix}2\\1\end{bmatrix}
+    +\begin{bmatrix}4\\0\end{bmatrix}
+    +\begin{bmatrix}3\\2\end{bmatrix}\right)
+  =\boxed{\begin{bmatrix}3\\1\end{bmatrix}}.
+\]
+Replacing the common covariance by the identity changes the likelihood
+contours but not the maximizing mean.  The same factor
+$\bm{\Sigma}^{-1}$ multiplies every residual and cancels from the score
+equation.
+\end{answer}
+
+\newpage
+\subsection*{Problem 2: Gaussian Bayesian model (Exercise 5.15) \hfill [9 minutes]}
+A noisy sensor is used to estimate the temperature on top of a mountain.  Let
+$\rv{\mu}$ denote the unknown temperature.  The prior and sensor model are
+\[
+  \rv{\mu}\sim\mathcal N(0,\sigma^2),
+  \qquad
+  \rv{y}\mid\rv{\mu}=\mu\sim\mathcal N(\mu,1).
+\]
+\begin{enumerate}[label=(\alph*),itemsep=0.45em]
+  \item Show that $[\rv{\mu},\rv{y}]^{\mathsf T}$ is a Gaussian random vector
+        with mean zero, and derive its covariance matrix.
+  \item Derive the posterior distribution of $\rv{\mu}$ given $\rv{y}=y$.
+  \item Let $y=-1$ and $\sigma^2=0.01$.  Describe or sketch the prior and
+        posterior.  Does the prior express confidence that the temperature is
+        close to $0$?  Does one reading change it much?
+  \item Repeat part (c) for $y=-1$ and $\sigma^2=10$.
+\end{enumerate}
+\workingspace{6.2cm}
+
+\begin{answer}
+Write $\rv{y}=\rv{\mu}+\rv{\varepsilon}$, where
+$\rv{\varepsilon}\sim\mathcal N(0,1)$ is independent of $\rv{\mu}$.  Then
+\[
+  \begin{bmatrix}\rv{\mu}\\\rv{y}\end{bmatrix}
+  =\begin{bmatrix}1&0\\1&1\end{bmatrix}
+   \begin{bmatrix}\rv{\mu}\\\rv{\varepsilon}\end{bmatrix},
+\]
+so it is a linear transformation of a Gaussian random vector and is therefore
+Gaussian.  Its mean is zero and its covariance matrix is
+\[
+  \begin{bmatrix}
+    \Var(\rv{\mu}) & \Cov(\rv{\mu},\rv{y})\\
+    \Cov(\rv{y},\rv{\mu}) & \Var(\rv{y})
+  \end{bmatrix}
+  =\boxed{\begin{bmatrix}
+    \sigma^2 & \sigma^2\\
+    \sigma^2 & \sigma^2+1
+  \end{bmatrix}}.
+\]
+Using the conditional-Gaussian formula,
+\[
+  \boxed{
+  \rv{\mu}\mid\rv{y}=y
+  \sim\mathcal N\!\left(
+    \frac{\sigma^2}{\sigma^2+1}y,
+    \frac{\sigma^2}{\sigma^2+1}\right).}
+\]
+The posterior mean is the sensor reading shrunk toward the prior mean $0$.
+
+For $y=-1$ and $\sigma^2=0.01$, the prior is
+$\mathcal N(0,0.01)$ and the posterior is
+\[
+  \mathcal N\!\left(-\frac1{101},\frac1{101}\right)
+  \approx\mathcal N(-0.0099,0.00990).
+\]
+The prior standard deviation is $0.1$, and the posterior standard deviation is
+about $0.0995$.  The two narrow curves almost overlap.  This prior expresses
+strong confidence near $0$, so one noisy reading barely changes it.
+
+For $y=-1$ and $\sigma^2=10$, the prior is $\mathcal N(0,10)$ and the posterior
+is
+\[
+  \mathcal N\!\left(-\frac{10}{11},\frac{10}{11}\right)
+  \approx\mathcal N(-0.909,0.909).
+\]
+The prior standard deviation is about $3.16$, so it does not express strong
+confidence near $0$.  The posterior standard deviation is about $0.953$ and
+its center is close to the reading, so the posterior is much more concentrated
+and meaningfully different from the prior.
+\end{answer}
+
+\newpage
+\subsection*{Problem 3: Two coin flips (Exercise 6.14) \hfill [7 minutes]}
+Let the probability of heads be a random variable
+$\rv{\theta}\sim\operatorname{Uniform}[0,1]$.  Given $\rv{\theta}=\theta$,
+the two flips $\rv{x}_1$ and $\rv{x}_2$ are conditionally independent
+Bernoulli random variables with parameter $\theta$, where $1$ denotes heads.
+\begin{enumerate}[label=(\alph*),itemsep=0.45em]
+  \item Compute the joint pmf of $\rv{x}_1$ and $\rv{x}_2$.
+  \item Both flips are observed to be heads.  Compute
+        $\Pbb(\rv{\theta}<1/2\mid\rv{x}_1=1,\rv{x}_2=1)$.
+  \item Are the two flips independent before conditioning on $\rv{\theta}$?
+        Use your answer to part (a) to justify your conclusion.
+\end{enumerate}
+\workingspace{5.4cm}
+
+\begin{answer}
+For $a,b\in\{0,1\}$, integrate out the shared random parameter:
+\[
+  p_{\rv{x}_1,\rv{x}_2}(a,b)
+  =\int_0^1 \theta^{a+b}(1-\theta)^{2-a-b}\,d\theta.
+\]
+Therefore
+\[
+\begin{array}{c|cc}
+ & \rv{x}_2=0 & \rv{x}_2=1\\
+\hline
+\rv{x}_1=0 & \frac13 & \frac16\\[0.2em]
+\rv{x}_1=1 & \frac16 & \frac13
+\end{array}
+\]
+The posterior density after two heads is proportional to $\theta^2$ on
+$[0,1]$.  Since $\int_0^1\theta^2\,d\theta=1/3$,
+\[
+  f_{\rv{\theta}\mid\rv{x}_1,\rv{x}_2}(\theta\mid1,1)=3\theta^2,
+  \qquad 0\leq\theta\leq1.
+\]
+Hence
+\[
+  \Pbb(\rv{\theta}<1/2\mid\rv{x}_1=1,\rv{x}_2=1)
+  =\int_0^{1/2}3\theta^2\,d\theta
+  =\boxed{\frac18}.
+\]
+Each flip has marginal probability $1/2$ of heads, but
+\[
+  \Pbb(\rv{x}_1=1,\rv{x}_2=1)=\frac13
+  \neq \frac12\cdot\frac12.
+\]
+Thus the flips are not marginally independent.  They are independent only
+after conditioning on their shared parameter $\rv{\theta}$.
+\end{answer}
+
+\newpage
+\subsection*{Problem 4 (backup): True or false?}
+\noindent\textit{Optional if time allows. Suggested working time: 5--7 minutes.}
+
+\begin{enumerate}[label=(\alph*),itemsep=0.65em]
+  \item For a jointly Gaussian vector, two coordinates with covariance zero
+        are independent.
+  \item If every observation has the same known covariance matrix, changing
+        that matrix changes the ML estimate of the Gaussian mean vector.
+  \item In a Bayesian model, the posterior is proportional to the prior divided
+        by the likelihood.
+  \item Random variables may be conditionally independent given a shared
+        parameter but dependent after that parameter is integrated out.
+\end{enumerate}
+\workingspace{4.2cm}
+
+\begin{answer}
+The answers are \textbf{true, false, false, true}.
+\begin{enumerate}[label=(\alph*),itemsep=0.35em]
+  \item This implication is a special property of jointly Gaussian random
+        vectors; it is not true for arbitrary distributions.
+  \item With a common positive-definite covariance, the score equation reduces
+        to $\sum_i(\bm{x}_i-\bm{\mu})=\bm{0}$, so the estimate remains the
+        coordinatewise sample mean.
+  \item The posterior is proportional to likelihood times prior.
+  \item Exercise 6.14 is an example: the flips are conditionally independent
+        given $\rv{\theta}$ but positively dependent marginally.
+\end{enumerate}
+\end{answer}
+
+\end{document}
