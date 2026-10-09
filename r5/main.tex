@@ -1,0 +1,529 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array}
+\usepackage{enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{comment}
+
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,urlcolor=MidnightBlue,
+  pdftitle={Recitation 5: Conditional Mean and Average Treatment Effect},
+  pdfauthor={Xuanxi Zhang}}
+
+% Default: student handout. Define \WITHSOLUTIONS before inputting this file
+% to include answers and the instructor's 75-minute pacing guide.
+\newif\ifsolutions
+\ifdefined\WITHSOLUTIONS
+  \solutionstrue
+\else
+  \solutionsfalse
+\fi
+
+\newcommand{\Pbb}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\rv}[1]{\widetilde{#1}}
+\newcommand{\po}[1]{\widetilde{\mathrm{po}}_{#1}}
+\newcommand{\indep}{\mathrel{\perp\!\!\!\perp}}
+\newcommand{\ATE}{\operatorname{ATE}}
+
+\ifsolutions
+  \newenvironment{answer}{%
+    \par\medskip\noindent\textcolor{MidnightBlue}{\textbf{Solution.}}\ }
+    {\par\medskip}
+  \newcommand{\workingspace}[1]{}
+\else
+  \excludecomment{answer}
+  \newcommand{\workingspace}[1]{\vspace{#1}}
+\fi
+
+\newcommand{\keybox}[1]{%
+  \begin{center}
+  \fcolorbox{MidnightBlue}{MidnightBlue!5}{%
+    \begin{minipage}{0.91\textwidth}#1\end{minipage}}
+  \end{center}}
+\setlist[enumerate]{label=(\alph*),leftmargin=2em,itemsep=0.4em}
+
+\title{\huge Recitation 5\\[0.35em]
+  \normalsize Conditional Mean and Average Treatment Effect\\[0.35em]
+  \large\ifsolutions Solutions and Teaching Notes\else Review and Practice Problems\fi}
+\author{Xuanxi Zhang}
+\date{October 9, 2026}
+
+\begin{document}
+\maketitle
+\noindent\textit{Reading:}
+\href{https://github.com/cfgranda/ps4ds/blob/main/ps4ds_preprint.pdf}
+{\emph{Probability and Statistics for Data Science}}, Sections 7.8--7.9.
+
+\section{Conditional mean}
+Fix an observed value $x$, then average $\rv{y}$ using its conditional
+distribution. Assuming the relevant means exist and are finite,
+\[
+  \mu_{\rv{y}\mid\rv{x}}(x)
+  :=\E[\rv{y}\mid\rv{x}=x]
+  =\begin{cases}
+    \displaystyle\sum_y y\,p_{\rv{y}\mid\rv{x}}(y\mid x),
+       & \text{discrete }\rv{y},\\[0.9em]
+    \displaystyle\int_{-\infty}^{\infty}y\,
+      f_{\rv{y}\mid\rv{x}}(y\mid x)\,dy,
+       & \text{continuous }\rv{y}.
+  \end{cases}
+\]
+When both variables are discrete, normalize by
+$p_{\rv{x}}(x)>0$:
+$p_{\rv{y}\mid\rv{x}}(y\mid x)
+=p_{\rv{x},\rv{y}}(x,y)/p_{\rv{x}}(x)$.
+
+\keybox{\textbf{A function versus a random variable.}
+$\mu_{\rv{y}\mid\rv{x}}(x)$ is a number once $x$ is fixed.
+The \emph{conditional mean function} maps $x$ to that number.
+Plugging in the random input gives the \emph{conditional mean}
+$\mu_{\rv{y}\mid\rv{x}}(\rv{x})=\E[\rv{y}\mid\rv{x}]$,
+which is a random variable.}
+
+\paragraph{Iterated expectation (the tower law).}
+Average the conditional means using the probabilities of the groups:
+\[
+  \boxed{\E[\rv{y}]=\E\!\left[\mu_{\rv{y}\mid\rv{x}}(\rv{x})\right].}
+\]
+For discrete $\rv{x}$ this becomes
+\[
+  \E[\rv{y}]=\sum_x p_{\rv{x}}(x)\,
+    \mu_{\rv{y}\mid\rv{x}}(x).
+\]
+For continuous $\rv{x}$, replace the sum by an integral against
+$f_{\rv{x}}(x)$. Group means get equal weight only when group probabilities
+are equal.
+
+\paragraph{From data.}
+For observed pairs $X=\{(x_i,y_i):i=1,\ldots,n\}$, let
+$I_x=\{i:x_i=x\}$. When $|I_x|>0$, estimate the conditional mean by
+the within-group average $|I_x|^{-1}\sum_{i\in I_x}y_i$.
+For a continuous predictor, exact repeats may be unavailable; one can average
+nearby observations or fit a model for the conditional mean.
+
+\newpage
+\section{Average treatment effect}
+Let $\rv{t}\in\{0,1\}$ denote treatment. Each unit has potential outcomes
+$\po{0}$ under control and $\po{1}$ under treatment. The observed outcome
+satisfies \textbf{consistency}:
+\[
+  \rv{y}=(1-\rv{t})\po{0}+\rv{t}\po{1}.
+\]
+Only the potential outcome for the received treatment is observed. The
+population \textbf{average treatment effect} is
+\[
+  \boxed{\ATE=\E[\po{1}]-\E[\po{0}]
+       =\E[\po{1}-\po{0}].}
+\]
+
+\paragraph{Observed contrast and randomization.}
+The difference visible in the observed groups is
+\[
+  \Delta_{\mathrm{obs}}
+  :=\mu_{\rv{y}\mid\rv{t}}(1)-\mu_{\rv{y}\mid\rv{t}}(0).
+\]
+In general this compares different populations. If
+$\po{r}\indep\rv{t}$ for $r=0,1$, and both treatment groups have positive
+probability, then
+\[
+  \mu_{\rv{y}\mid\rv{t}}(r)
+  =\E[\po{r}\mid\rv{t}=r]
+  =\E[\po{r}],
+  \qquad \Delta_{\mathrm{obs}}=\ATE.
+\]
+Random assignment provides this independence. Differences of \emph{sample}
+means still have sampling error; they estimate the population contrast.
+
+\paragraph{Adjustment for a discrete confounder.}
+Let $\rv{c}$ be a pre-treatment characteristic, such as smoking status.
+Write $\mu_{\rv{y}\mid\rv{c},\rv{t}}(c,r)
+=\E[\rv{y}\mid\rv{c}=c,\rv{t}=r]$. Assume:
+\begin{enumerate}[label=\arabic*.,itemsep=0.2em]
+  \item Consistency as above.
+  \item Conditional independence:
+    $\po{r}\indep\rv{t}\mid\rv{c}$ for $r=0,1$.
+  \item Positivity: $0<\Pbb(\rv{t}=1\mid\rv{c}=c)<1$
+    for every $c$ with $p_{\rv{c}}(c)>0$.
+\end{enumerate}
+Iterated expectation gives the adjustment formula:
+\[
+  \boxed{\ATE=\sum_c p_{\rv{c}}(c)
+    \left[\mu_{\rv{y}\mid\rv{c},\rv{t}}(c,1)
+          -\mu_{\rv{y}\mid\rv{c},\rv{t}}(c,0)\right].}
+\]
+Indeed, for either $r$,
+\[
+  \E[\po{r}]
+  =\sum_c p_{\rv{c}}(c)\,\E[\po{r}\mid\rv{c}=c]
+  =\sum_c p_{\rv{c}}(c)\,\mu_{\rv{y}\mid\rv{c},\rv{t}}(c,r).
+\]
+The second equality uses conditional independence and consistency.
+
+\keybox{\textbf{Choose the weights before calculating.}
+Adjustment uses the \emph{same target-population weights}
+$p_{\rv{c}}(c)$ for both treatments. The raw group mean instead uses
+$p_{\rv{c}\mid\rv{t}}(c\mid r)$, which may differ across treatment groups.
+For a target consisting of all study participants, estimate the common weights
+using the pooled counts.}
+
+\newpage
+\section*{Practice problems}
+\noindent Four core problems; Problem 5 is optional. The indicated times
+are for independent work before discussion.
+
+\subsection*{Problem 1: Life expectancy (Exercise 7.11) \hfill [5 minutes]}
+In the model in Exercise 7.11, age at death has mean $37.5$ years.
+First-year deaths have probability $0.25$ and are recorded as age $0$.
+Let $\rv{a}$ denote the recorded age at death, and let $\rv{s}$ equal $1$
+if a person survives the first year and $0$ otherwise.
+\begin{enumerate}
+  \item Write $\E[\rv{a}]$ as a weighted average of
+    $\mu_{\rv{a}\mid\rv{s}}(0)$ and
+    $\mu_{\rv{a}\mid\rv{s}}(1)$.
+  \item Find the mean age at death among people who survive the first year.
+    Explain why this differs from the mean for the whole population.
+\end{enumerate}
+\workingspace{7.5cm}
+
+\begin{answer}
+First-year deaths are coded as zero, so
+\[
+  \mu_{\rv{a}\mid\rv{s}}(0)=0,
+  \qquad \Pbb(\rv{s}=1)=1-0.25=0.75.
+\]
+By iterated expectation,
+\begin{align*}
+  \E[\rv{a}]
+  &=\Pbb(\rv{s}=0)\mu_{\rv{a}\mid\rv{s}}(0)
+    +\Pbb(\rv{s}=1)\mu_{\rv{a}\mid\rv{s}}(1),\\
+  37.5&=0.25\cdot0+0.75\,\mu_{\rv{a}\mid\rv{s}}(1).
+\end{align*}
+Thus
+\[
+  \boxed{\mu_{\rv{a}\mid\rv{s}}(1)=\frac{37.5}{0.75}=50\text{ years}.}
+\]
+Conditioning removes the first-year deaths that lower the overall average.
+The answer is an \emph{age at death}; it is not the expected number of
+additional years after the first birthday, which would be $50-1=49$.
+
+\paragraph{Discussion prompt.}
+Ask students to identify the two group weights before doing arithmetic.
+The statement $\E[\rv{a}]=37.5$ does not say that most adults died near age
+$37.5$; a population mean alone does not describe the distribution of adult
+lifespans. All calculations use the simplified model in the exercise.
+\end{answer}
+
+\newpage
+\subsection*{Problem 2: A conditional mean from a model \hfill [8 minutes]}
+\noindent\textit{Adapted from the uniform--Bernoulli exercise in the
+Fall 2025 archive, \texttt{mine/r4}.}
+
+\medskip
+Let $\rv{u}\sim\operatorname{Uniform}(0,1)$, and conditional on
+$\rv{u}=u$, let $\rv{x}\sim\operatorname{Bernoulli}(u)$.
+Here $\rv{u}$ is explicitly random.
+\begin{enumerate}
+  \item Find $\Pbb(\rv{x}=1)$ and the conditional densities
+    $f_{\rv{u}\mid\rv{x}}(u\mid1)$ and
+    $f_{\rv{u}\mid\rv{x}}(u\mid0)$.
+  \item Compute the conditional mean function
+    $g(x):=\mu_{\rv{u}\mid\rv{x}}(x)$ for $x\in\{0,1\}$.
+  \item Give the possible values and probabilities of the random variable
+    $g(\rv{x})$. Verify that $\E[g(\rv{x})]=\E[\rv{u}]$.
+\end{enumerate}
+\workingspace{8cm}
+
+\begin{answer}
+\textbf{(a)} Integrating over the latent value $u$,
+\[
+  \Pbb(\rv{x}=1)=\int_0^1 u\,du=\frac12,
+  \qquad \Pbb(\rv{x}=0)=\frac12.
+\]
+Bayes' rule for a continuous latent variable and a discrete observation gives
+\[
+  f_{\rv{u}\mid\rv{x}}(u\mid x)
+  =\frac{p_{\rv{x}\mid\rv{u}}(x\mid u)f_{\rv{u}}(u)}
+         {p_{\rv{x}}(x)}.
+\]
+Therefore, for $0<u<1$,
+\[
+  \boxed{f_{\rv{u}\mid\rv{x}}(u\mid1)=2u,
+  \qquad f_{\rv{u}\mid\rv{x}}(u\mid0)=2(1-u),}
+\]
+and both densities are zero outside $(0,1)$.
+
+\textbf{(b)} Average $u$ under each conditional density:
+\[
+  g(1)=\int_0^1u(2u)\,du=\frac23,
+  \qquad
+  g(0)=\int_0^1u\,2(1-u)\,du=\frac13.
+\]
+Hence $\boxed{g(x)=(1+x)/3}$ for $x\in\{0,1\}$.
+
+\textbf{(c)} The random conditional mean is
+$g(\rv{x})=(1+\rv{x})/3$. Its pmf is
+\[
+  \Pbb\!\left(g(\rv{x})=\frac13\right)=\frac12,
+  \qquad
+  \Pbb\!\left(g(\rv{x})=\frac23\right)=\frac12.
+\]
+Consequently,
+\[
+  \E[g(\rv{x})]
+  =\frac12\cdot\frac13+\frac12\cdot\frac23
+  =\boxed{\frac12}=\E[\rv{u}].
+\]
+Seeing $\rv{x}=1$ shifts the conditional mean upward; seeing $\rv{x}=0$
+shifts it downward. Averaging over both possible observations recovers the
+unconditional mean.
+\end{answer}
+
+\newpage
+\subsection*{Problem 3: Coffee and life expectancy \hfill [10 minutes]}
+\noindent\textit{Exercise 7.17.} The observational study gives these counts
+and average lifespans:
+\begin{center}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+& \multicolumn{2}{c}{Number of people}
+& \multicolumn{2}{c}{Mean lifespan (years)}\\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+& Coffee & No coffee & Coffee & No coffee\\
+\midrule
+Smokers     & 80 & 20 & 68 & 70\\
+Non-smokers & 40 & 60 & 82 & 80\\
+\bottomrule
+\end{tabular}
+\end{center}
+Let $\rv{t}=1$ mean drinking coffee, $\rv{c}=1$ mean smoking, and
+$\rv{y}$ denote lifespan. Use all study participants as the target population.
+\begin{enumerate}
+  \item Compute the unadjusted difference in sample means, coffee minus
+    no coffee (the exercise's ``observed ATE'').
+  \item Estimate the ATE after adjusting for smoking. Assume
+    $\po{r}\indep\rv{t}\mid\rv{c}$ for $r=0,1$, as well as consistency
+    and positivity. Show the weights you use.
+  \item Explain the change after adjustment. Compare the two within-group
+    differences with the adjusted estimate.
+\end{enumerate}
+\workingspace{6.5cm}
+
+\begin{answer}
+\textbf{(a)} The two observed treatment-group means are
+\[
+  \bar y_{\mathrm{coffee}}=\frac{80(68)+40(82)}{120}
+       =\frac{218}{3},
+  \qquad
+  \bar y_{\mathrm{no\ coffee}}=\frac{20(70)+60(80)}{80}
+       =\frac{155}{2}.
+\]
+Thus the unadjusted contrast is
+\[
+  \boxed{\frac{218}{3}-\frac{155}{2}
+       =-\frac{29}{6}\approx-4.83\text{ years}.}
+\]
+
+\textbf{(b)} There are $80+20=100$ smokers and $40+60=100$
+non-smokers among $200$ participants. Use common weights $1/2,1/2$:
+\[
+  \boxed{\text{Adjusted ATE estimate}
+    =\frac12(68-70)+\frac12(82-80)=0\text{ years}.}
+\]
+Equivalently, the standardized means are
+$\tfrac12(68)+\tfrac12(82)=75$ for coffee and
+$\tfrac12(70)+\tfrac12(80)=75$ for no coffee.
+
+\textbf{(c)} Smokers constitute $80/120=2/3$ of the coffee group but only
+$20/80=1/4$ of the no-coffee group. Smokers have lower mean lifespan in both
+groups, so this different composition pulls the raw contrast downward.
+Using the same smoking mix removes that composition difference.
+The stratum-specific estimates are $68-70=-2$ years for smokers and
+$82-80=+2$ years for non-smokers. They cancel under the target's equal weights;
+neither stratum estimate is zero. Causal interpretation depends on the stated
+assumptions; these observational summaries alone do not establish them.
+\end{answer}
+
+\newpage
+\subsection*{Problem 4: Rolling until the first six \hfill [8 minutes]}
+Roll a fair six-sided die independently until the first $6$ appears.
+Let $\rv{n}$ be the \emph{total} number of rolls, including the final $6$.
+Let $A$ be the event that at least one $1$ appears before that first $6$.
+\begin{enumerate}
+  \item Find $\E[\rv{n}]$.
+  \item Find $\E[\rv{n}\mid A]$, the expected total number of rolls given
+    that at least one $1$ appears before stopping.
+  \item Find $\E[\rv{n}\mid A^c]$, the expected total number of rolls given
+    that no $1$ appears before stopping.
+\end{enumerate}
+\workingspace{8cm}
+
+\begin{answer}
+\textbf{(a)} Each roll is a $6$ with probability $1/6$, independently.
+Thus $\rv{n}$ is geometric on $\{1,2,\ldots\}$ with success probability
+$1/6$, and $\boxed{\E[\rv{n}]=6}$.
+
+\paragraph{A useful intermediate stopping time.}
+Let $\rv{w}$ be the number of rolls until the first $1$ or $6$, including
+that roll. Its success probability is $2/6=1/3$, so $\E[\rv{w}]=3$.
+The first such face is $1$ on $A$ and $6$ on $A^c$.
+For $k=1,2,\ldots$,
+\[
+  \Pbb(\rv{w}=k,A)=\Pbb(\rv{w}=k,A^c)
+  =\left(\frac23\right)^{k-1}\frac16
+  =\frac12\Pbb(\rv{w}=k).
+\]
+Summing over $k$ gives $\Pbb(A)=\Pbb(A^c)=1/2$; the displayed
+factorization also shows that $\rv{w}$ is independent of $A$. Hence
+\[
+  \E[\rv{w}\mid A]=\E[\rv{w}\mid A^c]=3.
+\]
+
+\textbf{(b)} On $A$, the first $1$ or $6$ is a $1$. After that roll,
+the future rolls are independent of the past, so the additional waiting
+time for a $6$ has mean $6$. The total includes both stages:
+\[
+  \boxed{\E[\rv{n}\mid A]=3+6=9.}
+\]
+The first stage includes the first $1$; the second stage includes the final $6$.
+
+\textbf{(c)} On $A^c$, the first $1$ or $6$ is already a $6$, so
+$\rv{n}=\rv{w}$ and
+\[
+  \boxed{\E[\rv{n}\mid A^c]=3.}
+\]
+As a check, iterated expectation gives
+\[
+  \E[\rv{n}]
+  =\Pbb(A)\E[\rv{n}\mid A]+\Pbb(A^c)\E[\rv{n}\mid A^c]
+  =\frac12(9)+\frac12(3)=6.
+\]
+
+\paragraph{Why the answer in (c) is not $5$.}
+Conditioning on the entire stopped sequence containing no $1$ favors
+shorter sequences. It does not make the remaining five faces equally likely
+on each roll. In fact,
+$\Pbb(\rv{n}=1\mid A^c)=(1/6)/(1/2)=1/3$, not $1/5$.
+\end{answer}
+
+\newpage
+\subsection*{Problem 5 (backup): Splitting a Poisson total}
+\noindent\textit{Optional if time allows. Suggested working time: 5--7 minutes.}
+\medskip
+
+Let $\rv{x}$ and $\rv{y}$ be independent
+$\operatorname{Poisson}(\lambda)$ random variables, with $\lambda>0$,
+and define $\rv{s}=\rv{x}+\rv{y}$.
+\begin{enumerate}
+  \item For any integer $n\geq0$, find
+    $\mu_{\rv{x}\mid\rv{s}}(n)=\E[\rv{x}\mid\rv{s}=n]$.
+    \textit{Hint:} use symmetry and $\rv{x}+\rv{y}=n$ under the condition.
+  \item Write the random conditional mean
+    $\mu_{\rv{x}\mid\rv{s}}(\rv{s})$ and use iterated expectation
+    to recover $\E[\rv{x}]$.
+\end{enumerate}
+\workingspace{7cm}
+
+\begin{answer}
+The joint law of $\rv{x}$ and $\rv{y}$ is unchanged when they are exchanged,
+and the event $\rv{x}+\rv{y}=n$ has the same symmetry. Thus
+\[
+  \E[\rv{x}\mid\rv{s}=n]=\E[\rv{y}\mid\rv{s}=n].
+\]
+Conditional linearity gives
+\[
+  \E[\rv{x}\mid\rv{s}=n]+\E[\rv{y}\mid\rv{s}=n]
+  =\E[\rv{x}+\rv{y}\mid\rv{s}=n]=n.
+\]
+Each conditional mean is therefore $\boxed{n/2}$, including when $n=0$.
+The corresponding random variable is
+\[
+  \boxed{\mu_{\rv{x}\mid\rv{s}}(\rv{s})=\frac{\rv{s}}2.}
+\]
+Since $\E[\rv{s}]=\E[\rv{x}]+\E[\rv{y}]=2\lambda$, the tower law gives
+\[
+  \E[\rv{x}]=\E\!\left[\frac{\rv{s}}2\right]=\lambda.
+\]
+As a distributional check,
+$\rv{x}\mid\rv{s}=n\sim\operatorname{Binomial}(n,1/2)$,
+whose mean is $n/2$.
+\end{answer}
+
+\vfill
+\noindent\textit{Source:} adapted from Problem 3(b) of
+\texttt{wyt/Recitation 4.pdf} in the Fall 2025 archive.
+
+\ifsolutions
+\newpage
+\section*{Instructor pacing guide (75 minutes)}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Time & Activity & Suggested use\\
+\midrule
+0--12 min & Conditional mean & Function vs. random variable; tower law\\
+12--25 min & Average treatment effect & Consistency, randomization, adjustment\\
+25--34 min & Problem 1: Exercise 7.11 & 5 min individual work, 4 min discussion\\
+34--46 min & Problem 2 & 8 min individual work, 4 min discussion\\
+46--62 min & Problem 3: Exercise 7.17 & 10 min individual work, 6 min discussion\\
+62--74 min & Problem 4: Die rolls & 8 min individual work, 4 min discussion\\
+74--75 min & Wrap-up & Check the tower law in Problem 4\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Review priorities.}
+Start with the distinction between
+$\mu_{\rv{y}\mid\rv{x}}(x)$ and
+$\mu_{\rv{y}\mid\rv{x}}(\rv{x})$.
+Explain iterated expectation as a weighted average of group means.
+Then use the same idea to derive adjustment for confounding: first average
+within each stratum under each treatment, then use common population weights.
+Connect potential outcomes and consistency to Recitation 2.
+
+\paragraph{Optional regression connection.}
+If students ask why the conditional mean is useful for prediction, mention
+that it minimizes mean squared error: when second moments are finite,
+$h(x)=\mu_{\rv{y}\mid\rv{x}}(x)$ minimizes
+$\E[(\rv{y}-h(\rv{x}))^2]$ over predictors based on $\rv{x}$.
+The proof is outside today's core practice.
+
+\paragraph{Common mistakes to catch.}
+\begin{itemize}[leftmargin=1.5em,itemsep=0.45em]
+  \item Using a joint distribution in a conditional-mean calculation without
+    dividing by the conditioning probability.
+  \item Averaging group means equally when group probabilities differ.
+  \item Treating the observed coffee contrast as a causal effect without
+    an independence assumption.
+  \item Adjusting the coffee mean with coffee-group weights and the no-coffee
+    mean with no-coffee-group weights. That reproduces the raw contrast.
+  \item Interpreting zero overall adjusted effect as zero effect in every
+    stratum. Here the estimates are $-2$ and $+2$ years.
+  \item In Problem 4, treating ``no $1$ before the first $6$'' as independent
+    rolls of a die with five equally likely faces.
+\end{itemize}
+
+\paragraph{Closing check.}
+Ask: ``Which distribution supplies the weights in the tower law? Which
+weights do we use to compare two treatments in the same target population?''
+The added die problem makes the schedule tighter. If needed, provide the
+conditional densities in Problem 2 so students can focus on its means.
+Use Problem 5 only if the class is ahead. For Problem 4, a useful hint is to
+stop first at either $1$ or $6$.
+
+\paragraph{Sources and adaptations.}
+The review follows Sections 7.8--7.9 of Carlos Fernandez-Granda's
+\emph{Probability and Statistics for Data Science}.
+Problems 1 and 3 rephrase Exercises 7.11 and 7.17, retaining their numerical
+data; explanatory subparts have been added.
+Problem 2 reuses the uniform--Bernoulli model from
+\texttt{mine/r4/main.tex} in the Fall 2025 archive and adds conditional means
+and iterated expectation. Problem 4 is the requested die-stopping exercise.
+Problem 5 reuses the Poisson conditional-mean
+question from \texttt{wyt/Recitation 4.pdf}, Problem 3(b), in that archive
+(the original PDF is labeled Spring 2024--25).
+\fi
+
+\end{document}

@@ -1,0 +1,237 @@
+                                        Recitation 5
+                         Conditional Mean and Average Treatment Effect
+                                  Review and Practice Problems
+
+                                           Xuanxi Zhang
+
+                                          October 9, 2026
+
+
+Reading: Probability and Statistics for Data Science, Sections 7.8–7.9.
+
+
+1    Conditional mean
+Fix an observed value x, then average ye using its conditional distribution. Assuming the relevant
+means exist and are finite,
+                                           X
+                                           
+                                           
+                                                y pye|ex (y | x),      discrete ye,
+                                              y
+                                y|x
+                µye|ex (x) := E[e e = x] = Z ∞
+                                                   y fye|ex (y | x) dy, continuous ye.
+                                           
+                                           
+                                           
+                                                −∞
+
+When both variables are discrete, normalize by pxe(x) > 0: pye|ex (y | x) = pxe,ey (x, y)/pxe(x).
+
+    A function versus a random variable. µye|ex (x) is a number once x is fixed. The
+    conditional mean function maps x to that number. Plugging in the random input gives
+    the conditional mean µye|ex (e      y|x
+                                 x) = E[e e], which is a random variable.
+
+Iterated expectation (the tower law). Average the conditional means using the probabilities
+of the groups:
+                                                     
+                                    y ] = E µye|ex (e
+                                  E[e               x) .
+
+For discrete x
+             e this becomes                    X
+                                        y] =
+                                      E[e          pxe(x) µye|ex (x).
+                                               x
+
+For continuous x
+               e, replace the sum by an integral against fxe(x). Group means get equal weight
+only when group probabilities are equal.
+
+From data. For observed pairs X = {(xi , yi ) : i = 1, . . . , n}, let Ix = {i : P
+                                                                                 xi = x}. When
+|Ix | > 0, estimate the conditional mean by the within-group average |Ix |−1 i∈Ix yi . For a
+continuous predictor, exact repeats may be unavailable; one can average nearby observations or
+fit a model for the conditional mean.
+
+
+
+
+                                                   1
+2    Average treatment effect
+    t ∈ {0, 1} denote treatment. Each unit has potential outcomes p
+Let e                                                             fo0 under control and p
+                                                                                        fo1
+under treatment. The observed outcome satisfies consistency:
+
+                                              ye = (1 − e
+                                                        t)f
+                                                          po0 + e
+                                                                tp
+                                                                 fo1 .
+
+Only the potential outcome for the received treatment is observed. The population average
+treatment effect is
+                         ATE = E[f  po1 ] − E[f         po1 − p
+                                              po0 ] = E[f     fo0 ].
+
+Observed contrast and randomization.                       The difference visible in the observed groups is
+
+                                         ∆obs := µye|et (1) − µye|et (0).
+
+                                                   for ⊥⊥ e
+In general this compares different populations. If p      t for r = 0, 1, and both treatment
+groups have positive probability, then
+
+                                        por | e
+                         µye|et (r) = E[f     t = r] = E[f
+                                                         por ],                ∆obs = ATE .
+
+Random assignment provides this independence. Differences of sample means still have sampling
+error; they estimate the population contrast.
+
+Adjustment for a discrete confounder. Let e             c be a pre-treatment characteristic, such as
+                                           y|e
+smoking status. Write µye|ec,et (c, r) = E[e c = c, t = r]. Assume:
+                                                    e
+
+ 1. Consistency as above.
+                              for ⊥
+ 2. Conditional independence: p   ⊥et|e
+                                      c for r = 0, 1.
+                      t=1|e
+ 3. Positivity: 0 < P(e   c = c) < 1 for every c with pec (c) > 0.
+
+Iterated expectation gives the adjustment formula:
+                                        X             h                                   i
+                              ATE =            pec (c) µye|ec,et (c, 1) − µye|ec,et (c, 0) .
+                                          c
+
+
+Indeed, for either r,
+                                    X                                   X
+                          por ] =
+                        E[f                       por | e
+                                        pec (c) E[f     c = c] =              pec (c) µye|ec,et (c, r).
+                                    c                                     c
+
+The second equality uses conditional independence and consistency.
+
+    Choose the weights before calculating. Adjustment uses the same target-population
+    weights pec (c) for both treatments. The raw group mean instead uses pec|et (c | r), which
+    may differ across treatment groups. For a target consisting of all study participants,
+    estimate the common weights using the pooled counts.
+
+
+
+
+                                                            2
+Practice problems
+Four core problems; Problem 5 is optional. The indicated times are for independent work before
+discussion.
+
+Problem 1: Life expectancy (Exercise 7.11)                                        [5 minutes]
+In the model in Exercise 7.11, age at death has mean 37.5 years. First-year deaths have
+probability 0.25 and are recorded as age 0. Let e  a denote the recorded age at death, and let se
+equal 1 if a person survives the first year and 0 otherwise.
+
+(a) Write E[e
+            a] as a weighted average of µea|es (0) and µea|es (1).
+
+(b) Find the mean age at death among people who survive the first year. Explain why this
+    differs from the mean for the whole population.
+
+
+
+
+                                                   3
+Problem 2: A conditional mean from a model                                           [8 minutes]
+Adapted from the uniform–Bernoulli exercise in the Fall 2025 archive, mine/r4.
+       e ∼ Uniform(0, 1), and conditional on u
+   Let u                                                e ∼ Bernoulli(u). Here u
+                                             e = u, let x                      e is explicitly
+random.
+
+           x = 1) and the conditional densities fue|ex (u | 1) and fue|ex (u | 0).
+(a) Find P(e
+
+(b) Compute the conditional mean function g(x) := µue|ex (x) for x ∈ {0, 1}.
+
+(c) Give the possible values and probabilities of the random variable g(e
+                                                                        x). Verify that E[g(e
+                                                                                            x)] =
+      u].
+    E[e
+
+
+
+
+                                                   4
+Problem 3: Coffee and life expectancy                                           [10 minutes]
+Exercise 7.17. The observational study gives these counts and average lifespans:
+
+                                 Number of people      Mean lifespan (years)
+                                 Coffee   No coffee    Coffee       No coffee
+                  Smokers            80           20      68              70
+                  Non-smokers        40           60      82              80
+
+Let e
+    t = 1 mean drinking coffee, e c = 1 mean smoking, and ye denote lifespan. Use all study
+participants as the target population.
+
+(a) Compute the unadjusted difference in sample means, coffee minus no coffee (the exercise’s
+    “observed ATE”).
+
+(b) Estimate the ATE after adjusting for smoking. Assume pfor ⊥⊥ e
+                                                                 t|e
+                                                                   c for r = 0, 1, as well as
+    consistency and positivity. Show the weights you use.
+
+(c) Explain the change after adjustment. Compare the two within-group differences with the
+    adjusted estimate.
+
+
+
+
+                                              5
+Problem 4: Rolling until the first six                                             [8 minutes]
+Roll a fair six-sided die independently until the first 6 appears. Let ne be the total number of
+rolls, including the final 6. Let A be the event that at least one 1 appears before that first 6.
+
+(a) Find E[e
+           n].
+
+           n | A], the expected total number of rolls given that at least one 1 appears before
+(b) Find E[e
+    stopping.
+
+           n | Ac ], the expected total number of rolls given that no 1 appears before stopping.
+(c) Find E[e
+
+
+
+
+                                               6
+Problem 5 (backup): Splitting a Poisson total
+Optional if time allows. Suggested working time: 5–7 minutes.
+   Let x
+       e and ye be independent Poisson(λ) random variables, with λ > 0, and define se = x
+                                                                                        e + ye.
+
+(a) For any integer n ≥ 0, find µxe|es (n) = E[e
+                                               x | se = n]. Hint: use symmetry and x
+                                                                                   e + ye = n
+    under the condition.
+
+(b) Write the random conditional mean µxe|es (e
+                                              s) and use iterated expectation to recover E[e
+                                                                                           x].
+
+
+
+
+Source: adapted from Problem 3(b) of wyt/Recitation 4.pdf in the Fall 2025 archive.
+
+                                               7
+
