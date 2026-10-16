@@ -1,0 +1,522 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array}
+\usepackage{enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{comment}
+
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,urlcolor=MidnightBlue,
+  pdftitle={Recitation 6: Correlation, Independence, and Causation},
+  pdfauthor={Xuanxi Zhang}}
+
+% Default: student handout. Define \WITHSOLUTIONS before inputting this file
+% to include full answers and the instructor's 75-minute pacing guide.
+\newif\ifsolutions
+\ifdefined\WITHSOLUTIONS
+  \solutionstrue
+\else
+  \solutionsfalse
+\fi
+
+\newcommand{\Pbb}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\rv}[1]{\widetilde{#1}}
+\newcommand{\indep}{\mathrel{\perp\!\!\!\perp}}
+\newcommand{\lmmse}{\ell_{\mathrm{MMSE}}}
+
+\ifsolutions
+  \newenvironment{answer}{%
+    \par\medskip\noindent\textcolor{MidnightBlue}{\textbf{Solution.}}\ }
+    {\par\medskip}
+  \newcommand{\workingspace}[1]{}
+\else
+  \excludecomment{answer}
+  \newcommand{\workingspace}[1]{\vspace{#1}}
+\fi
+
+\newcommand{\keybox}[1]{%
+  \begin{center}
+  \fcolorbox{MidnightBlue}{MidnightBlue!5}{%
+    \begin{minipage}{0.91\textwidth}#1\end{minipage}}
+  \end{center}}
+\setlist[enumerate]{label=(\alph*),leftmargin=2em,itemsep=0.5em}
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.25em}
+
+\title{\huge Recitation 6\\[0.35em]
+  \normalsize Correlation, Independence, and Causation\\[0.35em]
+  \large\ifsolutions Solutions and Teaching Notes\else Review and Practice Problems\fi}
+\author{Xuanxi Zhang}
+\date{October 16, 2026}
+
+\begin{document}
+\maketitle
+\noindent\textit{Reading:}
+\href{https://github.com/cfgranda/ps4ds/blob/main/ps4ds_preprint.pdf}
+{\emph{Probability and Statistics for Data Science}},
+Sections 8.2--8.6 and 8.8.
+
+\section{Review: covariance and correlation}
+Assume finite second moments. Write
+$\mu_{\rv{x}}=\E[\rv{x}]$ and $\sigma_{\rv{x}}^2=\Var(\rv{x})$.
+\[
+  \Cov(\rv{x},\rv{y})
+  =\E[(\rv{x}-\mu_{\rv{x}})(\rv{y}-\mu_{\rv{y}})]
+  =\E[\rv{x}\rv{y}]-\mu_{\rv{x}}\mu_{\rv{y}}.
+\]
+If both variances are positive, the \textbf{correlation coefficient} is
+\[
+  \boxed{\rho_{\rv{x},\rv{y}}
+    =\frac{\Cov(\rv{x},\rv{y})}{\sigma_{\rv{x}}\sigma_{\rv{y}}}.}
+\]
+Correlation measures the direction and strength of a \emph{linear}
+association. It is dimensionless; covariance depends on the units.
+
+\paragraph{Properties to remember.}
+\begin{itemize}
+  \item \textbf{Symmetry and bounds:}
+    $\rho_{\rv{x},\rv{y}}=\rho_{\rv{y},\rv{x}}$ and
+    $-1\leq\rho_{\rv{x},\rv{y}}\leq1$.
+  \item \textbf{Shifts and rescaling:} for nonzero constants $b,d$,
+    \[
+      \Cov(b\rv{x}+a,d\rv{y}+c)=bd\,\Cov(\rv{x},\rv{y}),\qquad
+      \rho_{b\rv{x}+a,d\rv{y}+c}
+      =\operatorname{sign}(bd)\rho_{\rv{x},\rv{y}}.
+    \]
+    Positive changes of scale leave correlation unchanged; reversing one
+    variable's sign reverses the correlation.
+  \item \textbf{Perfect correlation:} $|\rho|=1$ exactly when
+    $\rv{y}=\alpha+\beta\rv{x}$ with probability one, for some
+    $\beta\ne0$. The sign of $\rho$ is the sign of $\beta$.
+  \item \textbf{Variance of a sum:}
+    $\Var(\rv{x}+\rv{y})=\Var(\rv{x})+\Var(\rv{y})
+      +2\Cov(\rv{x},\rv{y})$.
+\end{itemize}
+
+\paragraph{Connection to linear prediction.}
+The best \emph{affine} predictor of $\rv{y}$ from $\rv{x}=x$ is
+\[
+  \lmmse(x)=\mu_{\rv{y}}
+     +\frac{\Cov(\rv{x},\rv{y})}{\Var(\rv{x})}(x-\mu_{\rv{x}})
+  =\mu_{\rv{y}}+\rho_{\rv{x},\rv{y}}
+     \frac{\sigma_{\rv{y}}}{\sigma_{\rv{x}}}(x-\mu_{\rv{x}}).
+\]
+Its MSE is $(1-\rho_{\rv{x},\rv{y}}^2)\sigma_{\rv{y}}^2$.
+Thus $\rho^2$ is the fraction of variance explained by the best affine
+predictor. If $\rho=0$, that predictor is just the mean; nonlinear
+prediction may still help. A constant variable has zero covariance with
+every variable, but its correlation coefficient is \emph{undefined}.
+
+\newpage
+\section{Mini-lecture: uncorrelated versus independent}
+\textbf{Uncorrelated} means $\Cov(\rv{x},\rv{y})=0$.
+\textbf{Independent} means that, for every pair of events defined by the
+two variables,
+\[
+  \Pbb(\rv{x}\in A,\rv{y}\in B)
+  =\Pbb(\rv{x}\in A)\Pbb(\rv{y}\in B).
+\]
+For discrete variables this is equivalent to
+$p_{\rv{x},\rv{y}}(x,y)=p_{\rv{x}}(x)p_{\rv{y}}(y)$ for every $x,y$.
+
+\paragraph{Independence implies uncorrelation.}
+With finite second moments, independence gives
+\[
+  \E[\rv{x}\rv{y}]=\E[\rv{x}]\E[\rv{y}]
+  \quad\Longrightarrow\quad \Cov(\rv{x},\rv{y})=0.
+\]
+The reverse implication is false: covariance checks only one mixed moment,
+whereas independence constrains the entire joint distribution.
+
+\paragraph{Worked example: a nonlinear relationship with zero correlation.}
+Let $\rv{x}$ take $-1,0,1$ with equal probability, and set
+$\rv{y}=\rv{x}^{\,2}$. The possible pairs are
+\[
+\begin{array}{c|ccc}
+ (x,y)&(-1,1)&(0,0)&(1,1)\\ \hline
+ \Pbb(\rv{x}=x,\rv{y}=y)&1/3&1/3&1/3
+\end{array}
+\]
+By symmetry,
+\[
+  \E[\rv{x}]=0,\qquad \E[\rv{y}]=\frac23,\qquad
+  \E[\rv{x}\rv{y}]=\frac{-1+0+1}{3}=0.
+\]
+Hence $\Cov(\rv{x},\rv{y})=0$, and $\rho_{\rv{x},\rv{y}}=0$
+because both variables have positive variance. However,
+\[
+  \Pbb(\rv{x}=0,\rv{y}=0)=\frac13
+  \ne\frac19=\Pbb(\rv{x}=0)\Pbb(\rv{y}=0).
+\]
+They are dependent: observing $\rv{x}$ determines $\rv{y}$ exactly.
+The positive and negative contributions to covariance cancel.
+
+\keybox{\textbf{The Gaussian exception.}
+If $(\rv{x},\rv{y})$ is \emph{jointly Gaussian}, then
+uncorrelated $\Longleftrightarrow$ independent.
+It is not enough that each variable separately has a Gaussian distribution.}
+
+\section{Review: correlation versus causation}
+Association describes how variables vary together. A causal question asks
+what would happen if we \emph{intervened} to change one variable.
+For example, rain can cause both umbrella use and wet sidewalks:
+\[
+  \text{Umbrella use}\ \longleftarrow\ \text{Rain}\
+  \longrightarrow\ \text{Wet sidewalks}.
+\]
+Their association does not establish that using an umbrella makes a
+sidewalk wet. A common cause is a \textbf{confounder}; reverse causation
+can also produce association. Randomized assignment can support a causal
+comparison. Observational adjustment requires additional causal assumptions,
+as in Recitation 5. Neither a large $|\rho|$ nor a small $|\rho|$ alone
+determines a causal effect; ``variance explained'' is a predictive statement.
+
+\newpage
+\section*{Practice problems}
+\noindent Three core problems; Problem 4 is a backup for a fast class.
+The indicated times are for independent work before discussion.
+
+\subsection*{Problem 1: Covariance properties (Exercise 8.2)}
+\noindent\textit{Independent work: 10 minutes.}
+Let $\rv{a}$ and $\rv{b}$ have finite variances. Prove the following:
+\begin{enumerate}
+  \item For any constants $\alpha,\beta\in\mathbb{R}$,
+    \[
+      \Cov(\beta\rv{a}+\alpha,\rv{b})
+      =\beta\Cov(\rv{a},\rv{b}).
+    \]
+    Conclude that if $\rv{a}$ and $\rv{b}$ are uncorrelated, so are
+    $\beta\rv{a}+\alpha$ and $\rv{b}$.
+  \item The covariance satisfies
+    \[
+      -\sqrt{\Var(\rv{a})\Var(\rv{b})}
+      \leq\Cov(\rv{a},\rv{b})
+      \leq\sqrt{\Var(\rv{a})\Var(\rv{b})}.
+    \]
+    Include the case where one variance is zero.
+  \item The sum and difference satisfy
+    \[
+      \Cov(\rv{a}+\rv{b},\rv{a}-\rv{b})
+      =\Var(\rv{a})-\Var(\rv{b}).
+    \]
+\end{enumerate}
+\workingspace{9cm}
+
+\begin{answer}
+Define centered random variables
+$\rv{a}_0=\rv{a}-\E[\rv{a}]$ and
+$\rv{b}_0=\rv{b}-\E[\rv{b}]$.
+
+\textbf{(a)} Since
+$\beta\rv{a}+\alpha-\E[\beta\rv{a}+\alpha]=\beta\rv{a}_0$,
+\[
+  \Cov(\beta\rv{a}+\alpha,\rv{b})
+  =\E[\beta\rv{a}_0\rv{b}_0]
+  =\beta\Cov(\rv{a},\rv{b}).
+\]
+If the original covariance is zero, the transformed covariance is zero,
+including when $\beta=0$.
+
+\textbf{(b)} Cauchy--Schwarz gives
+\[
+  |\Cov(\rv{a},\rv{b})|
+  =|\E[\rv{a}_0\rv{b}_0]|
+  \leq\sqrt{\E[\rv{a}_0^2]\E[\rv{b}_0^2]}
+  =\sqrt{\Var(\rv{a})\Var(\rv{b})}.
+\]
+This proves both bounds. If a variance is zero, its centered variable is
+zero with probability one, so the covariance is also zero. The bound still
+holds, although correlation is then undefined.
+
+\textbf{Alternative proof of (b).} If $\Var(\rv{b})>0$, set
+$t=\Cov(\rv{a},\rv{b})/\Var(\rv{b})$. Then
+\[
+  0\leq\E[(\rv{a}_0-t\rv{b}_0)^2]
+    =\Var(\rv{a})-\frac{\Cov(\rv{a},\rv{b})^2}{\Var(\rv{b})}.
+\]
+Rearrange and take square roots; handle zero variance as above.
+
+\textbf{(c)} Center the sum and difference, then multiply:
+\begin{align*}
+  \Cov(\rv{a}+\rv{b},\rv{a}-\rv{b})
+    &=\E[(\rv{a}_0+\rv{b}_0)(\rv{a}_0-\rv{b}_0)]\\
+    &=\E[\rv{a}_0^2-\rv{b}_0^2]
+     =\boxed{\Var(\rv{a})-\Var(\rv{b})}.
+\end{align*}
+No independence assumption is needed. Equal variances make the sum and
+difference uncorrelated; independence does not follow in general.
+\end{answer}
+
+\newpage
+\subsection*{Problem 2: An affine function (Exercise 8.11)}
+\noindent\textit{Independent work: 7 minutes.}
+The random variables $\rv{a}$ and $\rv{b}$ satisfy
+\[
+  \mu_{\rv{a}}=2,\qquad \mu_{\rv{b}}=-2,\qquad
+  \sigma_{\rv{a}}^2=4,\qquad \sigma_{\rv{b}}^2=9,\qquad
+  \rho_{\rv{a},\rv{b}}=0.25.
+\]
+Define $\rv{c}=2\rv{b}+3$. Find the linear minimum mean-squared-error
+predictor of $\rv{c}$ given $\rv{a}=a$.
+
+\medskip
+\noindent\textit{Suggested steps:} Convert correlation to covariance;
+find $\E[\rv{c}]$ and $\Cov(\rv{a},\rv{c})$; then identify the slope
+and intercept of the predictor.
+\workingspace{12cm}
+
+\begin{answer}
+The standard deviations are $\sigma_{\rv{a}}=2$ and
+$\sigma_{\rv{b}}=3$, so
+\[
+  \Cov(\rv{a},\rv{b})
+  =\rho_{\rv{a},\rv{b}}\sigma_{\rv{a}}\sigma_{\rv{b}}
+  =\frac14\cdot2\cdot3=\frac32.
+\]
+Linearity of expectation and the covariance rule from Problem 1 give
+\[
+  \mu_{\rv{c}}=2(-2)+3=-1,\qquad
+  \Cov(\rv{a},\rv{c})
+  =2\Cov(\rv{a},\rv{b})=3.
+\]
+Consequently,
+\[
+  \boxed{\lmmse(a)
+  =\mu_{\rv{c}}+\frac{\Cov(\rv{a},\rv{c})}{\Var(\rv{a})}
+      (a-\mu_{\rv{a}})
+  =-1+\frac34(a-2)=\frac34a-\frac52.}
+\]
+
+\paragraph{Check by transforming the predictor of $\rv{b}$.}
+First predict $\rv{b}$ by
+$-2+\frac38(a-2)$. Multiplying this prediction by $2$ and adding $3$
+gives the same answer. The predictor passes through the point
+$(\mu_{\rv{a}},\mu_{\rv{c}})=(2,-1)$.
+
+\paragraph{Optional discussion: how much does the prediction improve?}
+Here $\Var(\rv{c})=2^2\cdot9=36$, and the positive rescaling of
+$\rv{b}$ leaves the correlation unchanged:
+$\rho_{\rv{a},\rv{c}}=1/4$. Therefore
+\[
+  \mathrm{MSE}_{\mathrm{linear}}
+  =\left(1-\frac1{16}\right)36
+  =\frac{135}{4}=33.75.
+\]
+The constant predictor $-1$ has MSE $36$, so the affine predictor explains
+$1/16=6.25\%$ of the variance. This is optional; the original exercise
+only asks for the predictor.
+
+\paragraph{Teaching point.}
+Use standard deviations to recover covariance from correlation, but use
+the input variance $\Var(\rv{a})$ in the slope denominator. The answer
+minimizes MSE over affine functions. It need not equal
+$\E[\rv{c}\mid\rv{a}=a]$; the exercise does not assume a jointly
+Gaussian distribution or an affine conditional mean.
+\end{answer}
+
+\newpage
+\subsection*{Problem 3: Ice cream sales (Exercise 8.15)}
+\noindent\textit{Independent work: 8 minutes.}
+Alma is analyzing data for an ice cream company. The marketing team
+argues that a strong correlation between advertising expenses and sales
+shows that its advertising is effective. Alma obtains the following
+\emph{sample covariance matrix}:
+\begin{center}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+ & Advertising & Sales & Temperature\\
+\midrule
+Advertising & 900 & 960 & 540\\
+Sales & 960 & 1600 & 720\\
+Temperature & 540 & 720 & 400\\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{enumerate}
+  \item Compute the sample correlation between advertising expenses and sales.
+  \item Should Alma accept the team's conclusion? Use the temperature
+    entries to inform your explanation, and distinguish association from
+    a causal effect.
+\end{enumerate}
+\noindent\textit{Reminder:} Divide a sample covariance by the product of
+the sample standard deviations. The diagonal entries above are variances.
+\workingspace{11cm}
+
+\begin{answer}
+\textbf{(a)} The sample standard deviations of advertising, sales, and
+temperature are $\sqrt{900}=30$, $\sqrt{1600}=40$, and
+$\sqrt{400}=20$. Thus
+\[
+  \boxed{\text{Sample correlation of advertising and sales}
+    =\frac{960}{30\cdot40}=0.8.}
+\]
+This is a strong positive linear association in the observed data.
+
+\textbf{(b)} Both quantities are even more strongly associated with
+temperature:
+\begin{align*}
+  \text{Advertising--temperature correlation}
+    &=\frac{540}{30\cdot20}=0.9,\\
+  \text{Sales--temperature correlation}
+    &=\frac{720}{40\cdot20}=0.9.
+\end{align*}
+A plausible explanation is that hotter weather increases demand for ice
+cream, and the company also spends more on advertising in hotter weather.
+Temperature could therefore be a common cause of advertising and sales:
+\[
+  \text{Advertising}\ \longleftarrow\ \text{Temperature}\
+  \longrightarrow\ \text{Sales}.
+\]
+This is a possible causal explanation, not something established by the
+covariance matrix itself.
+
+Alma can agree that advertising and sales are positively associated, but
+should \textbf{not accept the claim that the association proves the ads
+increase sales}. The matrix alone does not determine whether the causal
+effect of advertising is positive, zero, or negative.
+
+\paragraph{Discussion: what evidence would help?}
+Randomly assign different advertising levels to comparable markets or
+time periods, so assignment is independent of the potential sales outcomes,
+and compare sales. Avoid spillovers between experimental groups.
+With observational data, adjusting for temperature may help, but a causal
+interpretation additionally requires assumptions such as no remaining
+confounding and adequate overlap.
+
+\paragraph{Common mistakes.}
+The denominator is $30\cdot40$, not $900\cdot1600$.
+The value $0.8$ does not mean that ads cause $80\%$ of sales.
+Its square, $0.64$, describes the sample variance explained by a simple
+OLS regression with an intercept, not the fraction of sales caused by ads.
+Also, identifying a plausible confounder does not prove that ads have no effect.
+\end{answer}
+
+\newpage
+\subsection*{Problem 4 (backup): A point in a disk}
+\noindent\textit{Independent work: 5 minutes; use only if the class is ahead.}
+Choose a point uniformly from the unit disk. Its coordinates have joint pdf
+\[
+  f_{\rv{x},\rv{y}}(x,y)=
+  \begin{cases}
+    1/\pi,& x^2+y^2\leq1,\\
+    0,& \text{otherwise}.
+  \end{cases}
+\]
+\begin{enumerate}
+  \item Without evaluating integrals, use symmetry to find
+    $\E[\rv{x}]$, $\E[\rv{y}]$, and $\E[\rv{x}\rv{y}]$.
+    Are the coordinates uncorrelated?
+  \item Are the coordinates independent? Justify your answer using the
+    disk's support or a pair of events.
+\end{enumerate}
+\workingspace{11cm}
+
+\begin{answer}
+\textbf{(a)} Reflecting the disk across the vertical axis preserves the
+distribution and changes the sign of $\rv{x}$, so $\E[\rv{x}]=0$.
+Reflection across the horizontal axis similarly gives $\E[\rv{y}]=0$.
+Reflecting across either axis reverses the sign of the product, hence
+$\E[\rv{x}\rv{y}]=0$. Therefore
+\[
+  \boxed{\Cov(\rv{x},\rv{y})=0,\qquad\rho_{\rv{x},\rv{y}}=0.}
+\]
+Both variances are finite and positive because the coordinates are bounded
+and nonconstant.
+
+\textbf{(b)} Let $A=\{\rv{x}>3/4\}$ and $B=\{\rv{y}>3/4\}$.
+Each event has positive probability: each corresponds to a region of
+positive area inside the disk. But if both occurred, then
+\[
+  \rv{x}^{\,2}+\rv{y}^{\,2}
+     >\frac9{16}+\frac9{16}=\frac98>1,
+\]
+which is impossible. Thus
+\[
+  \Pbb(A\cap B)=0\ne\Pbb(A)\Pbb(B).
+\]
+The coordinates are \textbf{dependent but uncorrelated}. Geometrically,
+once one coordinate is close to the edge of the disk, the other must be
+close to zero.
+\end{answer}
+
+\vfill
+\noindent\textit{Source:} adapted from the 2025 archive,
+\texttt{Recitations/Recitation 1 Problems.pdf}, Problem 2 [3.31].
+The covariance question has been added.
+
+\ifsolutions
+\newpage
+\section*{Instructor pacing guide (75 minutes)}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Time & Activity & Suggested use\\
+\midrule
+0--10 min & Correlation review & Definition, properties, affine prediction\\
+10--20 min & Uncorrelation vs. independence & Teach the worked counterexample\\
+20--25 min & Correlation vs. causation & Common causes; intervention\\
+25--42 min & Exercise 8.2 & 10 min individual work, 7 min discussion\\
+42--55 min & Exercise 8.11 & 7 min individual work, 6 min discussion\\
+55--71 min & Exercise 8.15 & 8 min individual work, 8 min discussion\\
+71--75 min & Wrap-up & Revisit the two invalid implications\\
+\bottomrule
+\end{tabular}
+\end{center}
+If the class finishes early, use Problem 4 with five minutes of independent
+work followed by discussion. Keep it optional; do not shorten the three
+core work periods to fit it in.
+
+\paragraph{Board plan for the mini-lecture.}
+Write ``independent $\Rightarrow$ uncorrelated'' and prove it using
+factorization of the product expectation. Then ask whether the reverse
+holds. Work through the three-point example on page 2: list the pairs,
+compute the covariance, and disprove independence with one event pair.
+Emphasize that $\rv{y}=\rv{x}^{\,2}$ is perfectly predictable even though
+its best affine predictor is constant. For a numerical check,
+$\Var(\rv{x})=2/3$ and $\Var(\rv{y})=2/9$.
+
+\paragraph{Why the Gaussian exception needs ``jointly.''}
+For a jointly Gaussian pair, zero covariance makes the joint density
+factor into the product of its marginals (when both variances are positive).
+If needed, explain why Gaussian marginals alone are insufficient: take
+$\rv{z}\sim\mathcal N(0,1)$ and an independent fair sign
+$\rv{s}\in\{-1,1\}$. Then $\rv{z}$ and $\rv{s}\rv{z}$ are each standard
+Gaussian and have covariance zero, but their absolute values are identical.
+They are dependent and are not jointly Gaussian.
+
+\paragraph{A short derivation of the affine predictor, if needed.}
+For a predictor $\alpha+\beta\rv{x}$, centering gives
+\[
+\begin{split}
+  \E[(\rv{y}-\alpha-\beta\rv{x})^2]
+  ={}&(\mu_{\rv{y}}-\alpha-\beta\mu_{\rv{x}})^2
+      +\sigma_{\rv{y}}^2\\
+     &-2\beta\Cov(\rv{x},\rv{y})+\beta^2\sigma_{\rv{x}}^2.
+\end{split}
+\]
+First set $\alpha=\mu_{\rv{y}}-\beta\mu_{\rv{x}}$; then minimize the
+quadratic in $\beta$, giving $\beta=\Cov(\rv{x},\rv{y})/\sigma_{\rv{x}}^2$.
+Substitution gives the MSE formula on page 1.
+
+\paragraph{Closing check.}
+Ask students to explain why each statement can fail:
+``Zero correlation means independence'' and ``High correlation proves a
+causal effect.'' A nonlinear relationship addresses the first; a common
+cause addresses the second. Ask what extra assumption makes the first true
+and what study design can help with the second.
+
+\paragraph{Sources and adaptations.}
+The review follows Carlos Fernandez-Granda's
+\emph{Probability and Statistics for Data Science}, Sections 8.2--8.6 and
+8.8. Problems 1--3 rephrase Exercises 8.2, 8.11, and 8.15, retaining all
+their numerical data and requested conclusions; scaffolding has been added.
+The backup reuses the disk-independence question from the 2025 archive
+and adds a covariance calculation by symmetry. Its source handout is
+dated January 31, 2025.
+\fi
+
+\end{document}
