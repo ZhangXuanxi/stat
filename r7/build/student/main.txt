@@ -1,0 +1,237 @@
+                                           Recitation 7
+                            Bias, Standard Error, and Confidence Intervals
+                                    Review and Practice Problems
+
+                                              Xuanxi Zhang
+
+                                             October 23, 2026
+
+
+Reading: Probability and Statistics for Data Science, Sections 9.2–9.3 and 9.8; Theorem 9.8,
+Exercise 9.3, and Example 9.45.
+
+
+1     Review: bias and standard error
+A parameter θ is fixed. Before observing the data, an estimator ge = h(e            x1 , . . . , x
+                                                                                                 en ) is random;
+after observing X = {x1 , . . . , xn }, its value g = h(x1 , . . . , xn ) is a number.
+
+Two different sources of error.             For an estimator with a finite second moment,
+                                                                       p
+                                Bias(e       g ] − θ,
+                                     g ) = E[e               se(e
+                                                                g) =    Var(e
+                                                                            g ).
+
+Bias is the average signed error; standard error measures variation across repeated samples.
+Unbiased means E[eg ] = θ, not that every estimate equals θ. Their contributions to mean squared
+error are
+                           MSE(e          g − θ)2 ] = Bias(e
+                                 g ) = E[(e                g )2 + se(e
+                                                                     g )2 .
+
+The sample mean. If x            en are i.i.d. with mean µ and finite variance σ 2 , then
+                    e1 , . . . , x
+                           n
+                       1X                                              σ2            σ
+                 m
+                 e =      x
+                          ei ,         E[m]
+                                         e = µ,             Var(m)
+                                                                e =       ,       e =√ .
+                                                                               se(m)
+                       n                                               n              n
+                          i=1
+
+Linearity gives the mean; independence makes the cross-covariances zero when computing the
+variance. Multiplying n by four halves the SE.
+
+Estimating the standard error from data. For n ≥ 2, define
+                                      n                                n
+                                  1X                           1 X
+                       m(X) =        xi ,         v(X) =           (xi − m(X))2 .
+                                  n                           n−1
+                                     i=1                           i=1
+                              p
+The sample standard deviation
+                           p   v(X) describes the spread of the observations. The estimated
+SE of their mean is seest = v(X)/n. Problem 1 explains the denominator n − 1.
+
+
+
+
+                                                        1
+2    Review: confidence intervals
+A 1 − α confidence procedure produces a random interval [ℓ,
+                                                         eu e] with coverage
+
+                                    Pθ {ℓe ≤ θ ≤ u
+                                                 e} ≥ 1 − α
+
+for each parameter value in the model. Exact equal-tail constructions may have equality; normal
+approximations aim for coverage near the stated level.
+
+The normal-approximation recipe. If ge is approximately Gaussian and centered at θ, then
+                               
+                     ge − θ
+                 P          ≤ cα ≈ 1 − α,      cα = Fze−1 (1 − α/2),
+                      se(e
+                         g)
+
+where ze ∼ N (0, 1). Rearranging the event and, when needed, estimating the SE gives the
+observed interval                                           
+                                  g − cα seest , g + cα seest .
+
+At 95% confidence, use c0.05 ≈ 1.96. The margin of error is the half-width 1.96 seest . For an
+i.i.d. sample with finite positive variance, the CLT motivates
+                          "              r                    r      #
+                                            v(X)                v(X)
+                            m(X) − 1.96          , m(X) + 1.96
+                                              n                   n
+
+when the sample is large enough for the normal approximation to be useful.
+
+A population proportion. For i.i.d. ebi ∼ Bernoulli(θ), let pe = n−1 i ebi . Then
+                                                                    P
+
+                                                  r
+                                                     θ(1 − θ)
+                                p] = θ,
+                              E[e         se(e
+                                             p) =             .
+                                                          n
+                                                            p
+From an observed proportion p, a common estimate is seest = p(1 − p)/n. For planning before
+any data,
+
+                              1 2 1
+                               
+                       1                                                   0.98
+             θ(1 − θ) = − θ −     ≤           =⇒     95% margin of error ≤ √
+                       4      2     4                                        n
+
+under the normal approximation. This worst-case choice can be conservative. The approximation
+needs enough expected successes and failures; it can be poor near θ = 0 or 1 with small samples.
+
+    Interpretation. Across repeated random samples, about 95% of intervals from a
+    calibrated 95% procedure contain the fixed parameter. Once the interval is observed,
+    both its endpoints and the parameter are fixed; 95% describes the procedure, not a
+    posterior probability for the parameter.
+
+Quick checks: A larger sample reduces SE but does not automatically remove sampling bias.
+Higher confidence gives a wider interval; quadrupling the sample size approximately halves its
+width.
+
+
+
+
+                                               2
+Practice problems
+Three core problems; Problem 4 is a backup for a fast class. The indicated times are for
+independent work before discussion.
+
+Problem 1: Why divide by n − 1? (Theorem 9.8)
+Independent work: 8 minutes. Let a1 , . . . , aN be fixed population values with mean µpop =
+N −1 N
+    P                       2       −1
+                                       PN                  2
+       k=1 ak and variance σpop = N        k=1 (ak − µpop ) . Draw n ≥ 2 samples independently
+and uniformly with replacement, and set
+                                  n                      n
+                                1X                   1 X
+                          m
+                          e =      x
+                                   ei ,     ve =               e 2.
+                                                          xi − m)
+                                                         (e
+                                n                   n−1
+                                 i=1                    i=1
+
+Prove that E[e      2 .
+             v ] = σpop
+
+(a) Show the identity
+                          n
+                          X            n
+                                       X
+                                  e 2=
+                             xi − m)
+                            (e            xi − µpop )2 − n(m
+                                         (e                e − µpop )2 .
+                          i=1             i=1
+
+
+(b) Take expectations, using the mean and variance of m.
+                                                      e Where is independence needed?
+
+(c) What is the bias if we divide the squared-deviation sum by n instead of n − 1?
+
+
+
+
+                                                3
+Problem 2: Participation (Exercise 9.3)
+Independent work: 10 minutes. A poll records party preference and stated intention to vote:
+
+                          Intention            Democrat    Republican
+                          Certain to vote             20            30
+                          Likely to vote              40            10
+                          Not likely to vote          30            20
+
+A separate study gives turnout probabilities 0.8, 0.1, and 0 for these three intention categories,
+respectively.
+
+(a) Let αR be the population fraction in the joint category “certain to vote and Republican.”
+    Assume independent, uniform sampling with replacement. Construct an unbiased estimator,
+    derive its true standard error, and compute its observed value. Also give a numerical
+    estimate of the SE.
+
+(b) Estimate the Republican share among those who actually vote, using the turnout probabilities.
+    State the assumptions that make this adjustment appropriate.
+
+
+
+
+                                                4
+Problem 3: Planning the sample size (Example 9.45)
+Independent work: 8 minutes. We estimate a population prevalence θ by testing n people selected
+independently and uniformly with replacement. Treat test results as accurate i.i.d. Bernoulli(θ)
+measurements. We want a 95% confidence interval with margin of error at most 0.01 (one
+percentage point). Use the normal approximation with 1.96.
+
+(a) Without knowing θ, use θ(1 − θ) ≤ 1/4 to determine a sufficient sample size for this planning
+    rule.
+
+(b) If we plan at θ = 0.05, how many tests does the rule require? Why is this smaller, and does
+    it work for every possible prevalence?
+
+(c) For the sample size in (b) and true θ = 0.05, let e   t count the positive tests. Identify its
+    distribution and the integer values for which |t/n − 0.05| ≤ 0.01. Write the exact probability
+                                                   e
+    of meeting this error tolerance as a finite sum; no numerical evaluation by hand is required.
+
+
+
+
+                                               5
+Problem 4 (backup): A polling margin
+Independent work: 5 minutes. In a random sample of 1500 voters, 55% support a proposition and
+45% oppose it. Model the responses as independent Bernoulli variables with support probability
+θ. The population support-minus-opposition margin is d = θ − (1 − θ) = 2θ − 1.
+
+(a) Express the margin estimator de in terms of the sample support proportion pe. Is it unbiased
+    for d?
+
+(b) Find its true standard error and estimate that SE from the data.
+
+(c) Construct an approximate 95% confidence interval for d. Explain why treating the support
+    and opposition proportions as independent would give the wrong standard error.
+
+
+
+
+Source: adapted from the Fall 2025 recitation source mine/r3/r3.tex, Section 7.9. The
+unbiasedness question has been added.
+
+                                               6
+

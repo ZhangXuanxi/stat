@@ -1,0 +1,464 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array}
+\usepackage{enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{comment}
+
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,urlcolor=MidnightBlue,
+  pdftitle={Recitation 7: Bias, Standard Error, and Confidence Intervals},
+  pdfauthor={Xuanxi Zhang}}
+
+% Default: student handout. Define \WITHSOLUTIONS before inputting this file
+% to include full answers and the instructor's 75-minute pacing guide.
+\newif\ifsolutions
+\ifdefined\WITHSOLUTIONS
+  \solutionstrue
+\else
+  \solutionsfalse
+\fi
+
+\newcommand{\Pbb}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Bias}{\operatorname{Bias}}
+\newcommand{\MSE}{\operatorname{MSE}}
+\newcommand{\se}{\operatorname{se}}
+\newcommand{\rv}[1]{\widetilde{#1}}
+
+\ifsolutions
+  \newenvironment{answer}{%
+    \par\medskip\noindent\textcolor{MidnightBlue}{\textbf{Solution.}}\ }
+    {\par\medskip}
+  \newcommand{\workingspace}[1]{}
+\else
+  \excludecomment{answer}
+  \newcommand{\workingspace}[1]{\vspace{#1}}
+\fi
+
+\newcommand{\keybox}[1]{%
+  \begin{center}
+  \fcolorbox{MidnightBlue}{MidnightBlue!5}{%
+    \begin{minipage}{0.91\textwidth}#1\end{minipage}}
+  \end{center}}
+\setlist[enumerate]{label=(\alph*),leftmargin=2em,itemsep=0.4em}
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.25em}
+
+\title{\huge Recitation 7\\[0.35em]
+  \normalsize Bias, Standard Error, and Confidence Intervals\\[0.35em]
+  \large\ifsolutions Solutions and Teaching Notes\else Review and Practice Problems\fi}
+\author{Xuanxi Zhang}
+\date{October 23, 2026}
+
+\begin{document}
+\maketitle
+\noindent\textit{Reading:}
+\href{https://github.com/cfgranda/ps4ds/blob/main/ps4ds_preprint.pdf}
+{\emph{Probability and Statistics for Data Science}},
+Sections 9.2--9.3 and 9.8; Theorem 9.8, Exercise 9.3, and Example 9.45.
+
+\section{Review: bias and standard error}
+A parameter $\theta$ is fixed. Before observing the data, an estimator
+$\rv{g}=h(\rv{x}_1,\ldots,\rv{x}_n)$ is random; after observing
+$X=\{x_1,\ldots,x_n\}$, its value $g=h(x_1,\ldots,x_n)$ is a number.
+
+\paragraph{Two different sources of error.}
+For an estimator with a finite second moment,
+\[
+  \boxed{\Bias(\rv{g})=\E[\rv{g}]-\theta,\qquad
+    \se(\rv{g})=\sqrt{\Var(\rv{g})}.}
+\]
+Bias is the average signed error; standard error measures variation across
+repeated samples. Unbiased means $\E[\rv{g}]=\theta$, not that every
+estimate equals $\theta$. Their contributions to mean squared error are
+\[
+  \MSE(\rv{g})=\E[(\rv{g}-\theta)^2]
+    =\Bias(\rv{g})^2+\se(\rv{g})^2.
+\]
+
+\paragraph{The sample mean.}
+If $\rv{x}_1,\ldots,\rv{x}_n$ are i.i.d. with mean $\mu$ and finite
+variance $\sigma^2$, then
+\[
+  \rv{m}=\frac1n\sum_{i=1}^n\rv{x}_i,\qquad
+  \E[\rv{m}]=\mu,\qquad
+  \Var(\rv{m})=\frac{\sigma^2}{n},\qquad
+  \se(\rv{m})=\frac{\sigma}{\sqrt n}.
+\]
+Linearity gives the mean; independence makes the cross-covariances zero
+when computing the variance. Multiplying $n$ by four halves the SE.
+
+\paragraph{Estimating the standard error from data.}
+For $n\geq2$, define
+\[
+  m(X)=\frac1n\sum_{i=1}^n x_i,\qquad
+  v(X)=\frac1{n-1}\sum_{i=1}^n(x_i-m(X))^2.
+\]
+The sample standard deviation $\sqrt{v(X)}$ describes the spread of the
+\emph{observations}. The estimated SE of their mean is
+$\se_{\mathrm{est}}=\sqrt{v(X)/n}$.
+Problem 1 explains the denominator $n-1$.
+
+\newpage
+\section{Review: confidence intervals}
+A $1-\alpha$ confidence procedure produces a random interval
+$[\rv{\ell},\rv{u}]$ with coverage
+\[
+  \Pbb_\theta\{\rv{\ell}\leq\theta\leq\rv{u}\}\geq1-\alpha
+\]
+for each parameter value in the model. Exact equal-tail constructions may
+have equality; normal approximations aim for coverage near the stated level.
+
+\paragraph{The normal-approximation recipe.}
+If $\rv{g}$ is approximately Gaussian and centered at $\theta$, then
+\[
+  \Pbb\!\left(\left|\frac{\rv{g}-\theta}{\se(\rv{g})}\right|
+    \leq c_\alpha\right)\approx1-\alpha,
+  \qquad c_\alpha=F_{\rv{z}}^{-1}(1-\alpha/2),
+\]
+where $\rv{z}\sim\mathcal N(0,1)$. Rearranging the event and, when
+needed, estimating the SE gives the observed interval
+\[
+  \boxed{\bigl[g-c_\alpha\se_{\mathrm{est}},\,
+                     g+c_\alpha\se_{\mathrm{est}}\bigr].}
+\]
+At 95\% confidence, use $c_{0.05}\approx1.96$.
+The \textbf{margin of error} is the half-width $1.96\se_{\mathrm{est}}$.
+For an i.i.d. sample with finite positive variance, the CLT motivates
+\[
+  \left[m(X)-1.96\sqrt{\frac{v(X)}n},\,
+        m(X)+1.96\sqrt{\frac{v(X)}n}\right]
+\]
+when the sample is large enough for the normal approximation to be useful.
+
+\paragraph{A population proportion.}
+For i.i.d. $\rv{b}_i\sim\operatorname{Bernoulli}(\theta)$, let
+$\rv{p}=n^{-1}\sum_i\rv{b}_i$. Then
+\[
+  \E[\rv{p}]=\theta,\qquad
+  \se(\rv{p})=\sqrt{\frac{\theta(1-\theta)}n}.
+\]
+From an observed proportion $p$, a common estimate is
+$\se_{\mathrm{est}}=\sqrt{p(1-p)/n}$. For planning before any data,
+\[
+  \theta(1-\theta)=\frac14-\left(\theta-\frac12\right)^2\leq\frac14
+  \quad\Longrightarrow\quad
+  \text{95\% margin of error}\ \leq\frac{0.98}{\sqrt n}
+\]
+under the normal approximation. This worst-case choice can be conservative.
+The approximation needs enough expected successes and failures; it can be
+poor near $\theta=0$ or $1$ with small samples.
+
+\keybox{\textbf{Interpretation.}
+Across repeated random samples, about 95\% of intervals from a calibrated
+95\% procedure contain the fixed parameter. Once the interval is observed,
+both its endpoints and the parameter are fixed; 95\% describes the
+procedure, not a posterior probability for the parameter.}
+
+\noindent\textit{Quick checks:} A larger sample reduces SE but does not
+automatically remove sampling bias. Higher confidence gives a wider interval;
+quadrupling the sample size approximately halves its width.
+
+\newpage
+\section*{Practice problems}
+\noindent Three core problems; Problem 4 is a backup for a fast class.
+The indicated times are for independent work before discussion.
+
+\subsection*{Problem 1: Why divide by $n-1$? (Theorem 9.8)}
+\noindent\textit{Independent work: 8 minutes.}
+Let $a_1,\ldots,a_N$ be fixed population values with mean
+$\mu_{\mathrm{pop}}=N^{-1}\sum_{k=1}^N a_k$ and variance
+$\sigma_{\mathrm{pop}}^2=N^{-1}\sum_{k=1}^N(a_k-\mu_{\mathrm{pop}})^2$.
+Draw $n\geq2$ samples independently and uniformly with replacement, and set
+\[
+  \rv{m}=\frac1n\sum_{i=1}^n\rv{x}_i,\qquad
+  \rv{v}=\frac1{n-1}\sum_{i=1}^n(\rv{x}_i-\rv{m})^2.
+\]
+Prove that $\E[\rv{v}]=\sigma_{\mathrm{pop}}^2$.
+\begin{enumerate}
+  \item Show the identity
+  \[
+    \sum_{i=1}^n(\rv{x}_i-\rv{m})^2
+    =\sum_{i=1}^n(\rv{x}_i-\mu_{\mathrm{pop}})^2
+       -n(\rv{m}-\mu_{\mathrm{pop}})^2.
+  \]
+  \item Take expectations, using the mean and variance of $\rv{m}$.
+    Where is independence needed?
+  \item What is the bias if we divide the squared-deviation sum by $n$
+    instead of $n-1$?
+\end{enumerate}
+\workingspace{7.5cm}
+
+\begin{answer}
+\textbf{(a)} Expand
+$\rv{x}_i-\rv{m}=(\rv{x}_i-\mu_{\mathrm{pop}})
+-(\rv{m}-\mu_{\mathrm{pop}})$. Since
+$\sum_i(\rv{x}_i-\mu_{\mathrm{pop}})=n(\rv{m}-\mu_{\mathrm{pop}})$,
+the cross term is $-2n(\rv{m}-\mu_{\mathrm{pop}})^2$; adding the
+$n$ squared mean terms gives the identity.
+
+\textbf{(b)} Uniform sampling gives
+$\E[\rv{x}_i]=\mu_{\mathrm{pop}}$ and
+$\Var(\rv{x}_i)=\sigma_{\mathrm{pop}}^2$. Independence yields
+$\Var(\rv{m})=n^{-2}\sum_i\Var(\rv{x}_i)=\sigma_{\mathrm{pop}}^2/n$.
+Because $\E[\rv{m}]=\mu_{\mathrm{pop}}$,
+\[
+  \E\!\left[\sum_{i=1}^n(\rv{x}_i-\rv{m})^2\right]
+  =n\sigma_{\mathrm{pop}}^2
+    -n\E[(\rv{m}-\mu_{\mathrm{pop}})^2]
+  =(n-1)\sigma_{\mathrm{pop}}^2.
+\]
+Dividing by $n-1$ proves $\boxed{\E[\rv{v}]=\sigma_{\mathrm{pop}}^2}$.
+The same proof works for any i.i.d. sample with finite variance.
+
+\textbf{(c)} Let $\rv{q}=n^{-1}\sum_i(\rv{x}_i-\rv{m})^2$.
+Then
+\[
+  \E[\rv{q}]=\frac{n-1}{n}\sigma_{\mathrm{pop}}^2,\qquad
+  \boxed{\Bias(\rv{q})=-\frac{\sigma_{\mathrm{pop}}^2}{n}.}
+\]
+Centering at the fitted sample mean reduces the expected squared-deviation
+sum by one population variance, which explains the correction.
+\end{answer}
+
+\newpage
+\subsection*{Problem 2: Participation (Exercise 9.3)}
+\noindent\textit{Independent work: 10 minutes.}
+A poll records party preference and stated intention to vote:
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Intention & Democrat & Republican\\
+\midrule
+Certain to vote & 20 & 30\\
+Likely to vote & 40 & 10\\
+Not likely to vote & 30 & 20\\
+\bottomrule
+\end{tabular}
+\end{center}
+A separate study gives turnout probabilities $0.8$, $0.1$, and $0$ for
+these three intention categories, respectively.
+\begin{enumerate}
+  \item Let $\alpha_R$ be the population fraction in the joint category
+    ``certain to vote and Republican.'' Assume independent, uniform
+    sampling with replacement. Construct an unbiased estimator,
+    derive its true standard error, and compute its observed value.
+    Also give a numerical estimate of the SE.
+  \item Estimate the Republican share \emph{among those who actually
+    vote}, using the turnout probabilities. State the assumptions that
+    make this adjustment appropriate.
+\end{enumerate}
+\workingspace{9cm}
+
+\begin{answer}
+\textbf{(a)} Define $\rv{b}_i=1$ if respondent $i$ is in the stated
+joint category, and $0$ otherwise. Then the $\rv{b}_i$ are i.i.d.
+Bernoulli$(\alpha_R)$, so the estimator
+$\rv{a}_R=150^{-1}\sum_{i=1}^{150}\rv{b}_i$ satisfies
+\[
+  \E[\rv{a}_R]=\alpha_R,\qquad
+  \boxed{\se(\rv{a}_R)=\sqrt{\frac{\alpha_R(1-\alpha_R)}{150}}.}
+\]
+The observed estimate is $a_R=30/150=\boxed{0.20}$. Substituting this
+value for the unknown parameter gives
+\[
+  \se_{\mathrm{est}}=\sqrt{\frac{0.20(0.80)}{150}}
+     \approx\boxed{0.03266}\quad\text{(3.27 percentage points).}
+\]
+This estimates the true SE; it is not its known exact value.
+
+\textbf{(b)} The weighted counts are
+\[
+  \text{Republican: }0.8(30)+0.1(10)=25,\qquad
+  \text{Democrat: }0.8(20)+0.1(40)=20.
+\]
+Normalize by the total weighted turnout:
+\[
+  \boxed{\text{Estimated Republican vote share}
+    =\frac{25}{25+20}=\frac59\approx55.56\%.}
+\]
+Assume representative sampling, accurate and stable party preferences,
+and turnout rates that apply to this population and are the same for both
+parties within each intention category. Under these assumptions, the
+ratio estimates $\Pbb(\text{Republican}\mid\text{votes})$.
+The raw preference share is $60/150=40\%$, which targets a different
+quantity. A ratio of unbiased component estimates need not be unbiased.
+\end{answer}
+
+\newpage
+\subsection*{Problem 3: Planning the sample size (Example 9.45)}
+\noindent\textit{Independent work: 8 minutes.}
+We estimate a population prevalence $\theta$ by testing $n$ people
+selected independently and uniformly with replacement. Treat test results
+as accurate i.i.d. Bernoulli$(\theta)$ measurements. We want a 95\%
+confidence interval with margin of error at most $0.01$
+(\emph{one percentage point}). Use the normal approximation with $1.96$.
+\begin{enumerate}
+  \item Without knowing $\theta$, use $\theta(1-\theta)\leq1/4$ to
+    determine a sufficient sample size for this planning rule.
+  \item If we plan at $\theta=0.05$, how many tests does the rule require?
+    Why is this smaller, and does it work for every possible prevalence?
+  \item For the sample size in (b) and true $\theta=0.05$, let
+    $\rv{t}$ count the positive tests. Identify its distribution and the
+    integer values for which $|\rv{t}/n-0.05|\leq0.01$.
+    Write the exact probability of meeting this error tolerance as a
+    finite sum; no numerical evaluation by hand is required.
+\end{enumerate}
+\workingspace{10cm}
+
+\begin{answer}
+\textbf{(a)} The worst-case margin is $1.96/(2\sqrt n)=0.98/\sqrt n$.
+Thus
+\[
+  \frac{0.98}{\sqrt n}\leq0.01
+  \quad\Longleftrightarrow\quad n\geq98^2,
+  \qquad \boxed{n=9604}.
+\]
+This is a sufficient \emph{normal-approximation} planning value, not an
+exact finite-sample coverage guarantee.
+
+\textbf{(b)} At $\theta=0.05$, the variance is $0.05(0.95)=0.0475$,
+which is much smaller than $1/4$. Therefore
+\[
+  n\geq\frac{1.96^2(0.05)(0.95)}{0.01^2}=1824.76,
+  \qquad \boxed{n=1825}.
+\]
+Always round up. This calculation assumes the planning prevalence is
+correct; it does not ensure the desired margin at other prevalences
+with larger variance.
+
+\textbf{(c)} Here $\rv{t}\sim\operatorname{Binomial}(1825,0.05)$, and
+\[
+  0.04\leq\frac{\rv{t}}{1825}\leq0.06
+  \quad\Longleftrightarrow\quad73\leq\rv{t}\leq109.5
+  \quad\Longleftrightarrow\quad73\leq\rv{t}\leq109.
+\]
+The exact probability is
+\[
+  \boxed{\sum_{t=73}^{109}\binom{1825}{t}(0.05)^t(0.95)^{1825-t}
+    \approx0.95319.}
+\]
+So the probability of an error of at most one percentage point is about
+95.32\%, close to the nominal 95\%.
+\end{answer}
+
+\newpage
+\subsection*{Problem 4 (backup): A polling margin}
+\noindent\textit{Independent work: 5 minutes.}
+In a random sample of $1500$ voters, $55\%$ support a proposition and
+$45\%$ oppose it. Model the responses as independent Bernoulli variables
+with support probability $\theta$. The population support-minus-opposition
+margin is $d=\theta-(1-\theta)=2\theta-1$.
+\begin{enumerate}
+  \item Express the margin estimator $\rv{d}$ in terms of the sample
+    support proportion $\rv{p}$. Is it unbiased for $d$?
+  \item Find its true standard error and estimate that SE from the data.
+  \item Construct an approximate 95\% confidence interval for $d$.
+    Explain why treating the support and opposition proportions as
+    independent would give the wrong standard error.
+\end{enumerate}
+\workingspace{11cm}
+
+\begin{answer}
+\textbf{(a)} Since the opposition proportion is $1-\rv{p}$,
+\[
+  \rv{d}=\rv{p}-(1-\rv{p})=2\rv{p}-1,\qquad
+  \E[\rv{d}]=2\theta-1=d.
+\]
+The observed margin is $2(0.55)-1=0.10$, or 10 percentage points.
+
+\textbf{(b)} Variance scales by the square of the multiplier, so
+\[
+  \Var(\rv{d})=4\Var(\rv{p})
+    =\frac{4\theta(1-\theta)}{1500},\qquad
+  \se(\rv{d})=2\sqrt{\frac{\theta(1-\theta)}{1500}}.
+\]
+The estimated SE is
+\[
+  \se_{\mathrm{est}}=2\sqrt{\frac{0.55(0.45)}{1500}}
+    \approx0.02569\quad\text{(2.57 percentage points).}
+\]
+
+\textbf{(c)} The approximate interval is
+\[
+  0.10\pm1.96(0.02569)
+    \approx\boxed{[0.0496,\,0.1504]}.
+\]
+This corresponds to a support-minus-opposition margin between about
+4.96 and 15.04 percentage points. Both proportions use the same respondents:
+the opposition proportion is determined by the support proportion.
+Their covariance is $-\Var(\rv{p})$, so ignoring it underestimates
+the variance of their difference.
+\end{answer}
+
+\vfill
+\noindent\textit{Source:} adapted from the Fall 2025 recitation source
+\texttt{mine/r3/r3.tex}, Section 7.9. The unbiasedness question has been added.
+
+\ifsolutions
+\newpage
+\section*{Instructor pacing guide (75 minutes)}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Time & Activity & Suggested use\\
+\midrule
+0--8 min & Bias and standard error & Estimator vs. observed estimate; MSE\\
+8--15 min & Mean and proportion & Derive SE; distinguish SD from SE\\
+15--25 min & Confidence intervals & Normal recipe; coverage; half-width\\
+25--42 min & Theorem 9.8 & 8 min individual work, 9 min proof\\
+42--59 min & Exercise 9.3 & 10 min individual work, 7 min discussion\\
+59--73 min & Example 9.45 & 8 min individual work, 6 min discussion\\
+73--75 min & Wrap-up & Three short checks below\\
+\bottomrule
+\end{tabular}
+\end{center}
+Use Problem 4 only if the class finishes early, with five minutes of
+independent work before discussion. Keep the three core work periods.
+
+\paragraph{Board plan for the variance proof.}
+Start from the identity in Problem 1(a), then take expectations term by
+term. Emphasize that $\rv{x}_i$ and $\rv{m}$ are \emph{not} independent;
+independence is used between different sample observations when computing
+$\Var(\rv{m})$. The residuals sum to zero, leaving only $n-1$ free
+residuals. This gives intuition for the denominator; the expectation
+calculation is the proof. Unbiasedness of $\rv{v}$ does not imply
+unbiasedness of $\sqrt{\rv{v}}$.
+
+\paragraph{Teaching points for Exercise 9.3.}
+Part (a) targets a joint intention/preference category among all people,
+so use denominator 150. The true SE contains the unknown $\alpha_R$;
+the numerical SE uses the observed fraction. Part (b) changes the target
+to a conditional proportion among voters, so normalize weighted counts
+by 45. The turnout assumption is conditional independence of turnout and
+party preference given the intention category. The weighted counts are
+predictions, not observed election totals.
+
+\paragraph{Teaching points for Example 9.45.}
+The error tolerance $0.01$ is an absolute proportion error, not a 1\%
+relative error. Distinguish a variance upper bound from a planning guess,
+and always round sample sizes upward. The exact binomial check is for
+$\theta=0.05$ only; evaluating the sum can be supplied by the instructor.
+The preprint's integer upper limit 110 should be 109 for the stated
+tolerance, and its displayed ``0.959\%'' has an incorrect percent sign.
+The corrected event used here has probability $0.95319$.
+
+\paragraph{Closing checks.}
+Why does the sample variance divide by $n-1$? How does quadrupling $n$
+change SE and CI width? What is random in a confidence interval statement?
+
+\paragraph{Sources and adaptations.}
+The review follows Carlos Fernandez-Granda's
+\emph{Probability and Statistics for Data Science}, Sections 9.2--9.3
+and 9.8. Problem 1 gives a centered-sum proof of Theorem 9.8
+(pp.\ 370--371); Problem 2 rephrases Exercise 9.3 (p.\ 431), preserving
+the data and adding a numerical SE estimate; Problem 3 turns Example 9.45
+(pp.\ 410--411) into guided practice and corrects its binomial check.
+Problem 4 reuses the polling-margin exercise from the user's Fall 2025
+source, \texttt{mine/r3/r3.tex}, with an added bias calculation.
+\fi
+
+\end{document}
