@@ -1,0 +1,629 @@
+                       Practice Problems Midterm 2
+                                                      Solutions
+
+1. (Hotel questionnaire)
+
+    a) By iterated expectation
+
+                                       E [s] = pr̃ (0)µs̃ | r̃ (0) + pr̃ (1)µs̃ | r̃ (1)                    (1)
+                                             = 0.8 · 4 + 0.2 · 2 = 3.6.                                     (2)
+
+    b) Given the conditional independence assumptions, the conditional pmf of s̃ given
+       q̃ = 1 equals
+
+                                         ps̃,q̃ (s, 1)
+                       ps̃ | q̃ (s | 1) =                                                                   (3)
+                                           pq̃ (1)
+                                         P1
+                                             r=0 pr̃,s̃,q̃ (r, s, 1)
+                                       = P       1                                                          (4)
+                                                      pr̃,q̃ (r, 1)
+                                         P1 r=0
+                                                   pr̃ (r)pq̃ | r̃ (q | 1)ps̃ | r̃ (s | r)
+                                       = r=0P1                                                              (5)
+                                                     r=0 pr̃ (r)pq̃ | r̃ (q | 1)
+                                         0.8 · 0.25 · ps̃ | r̃ (s | 0) + 0.2 · 0.9 · ps̃ | r̃ (s | 1)
+                                       =                                                                    (6)
+                                                             0.8 · 0.25 + 0.2 · 0.9
+                                         0.2ps̃ | r̃ (s | 0) + 0.18ps̃ | r̃ (s | 1)
+                                       =                                                 .                  (7)
+                                                              0.38
+       The conditional mean given q̃ = 1 therefore equals
+                                            5
+                                            X
+                           µs̃ | q̃ (1) =         sps̃ | q̃ (s | 1)                                         (8)
+                                            s=1
+                                             5
+                                                          0.2ps̃ | r̃ (s | 0) + 0.18ps̃ | r̃ (s | 1)
+                                            X                                                         
+                                      =           s                                                         (9)
+                                            s=1
+                                                                             0.38
+                                              5                            5
+                                         0.2 X                       0.18 X
+                                      =          sps̃ | r̃ (s | 0) +          sps̃ | r̃ (s | 1)            (10)
+                                        0.38 s=1                     0.38 s=1
+                                         0.2                0.18
+                                      =      µs̃ | r̃ (0) +      µs̃ | r̃ (1)                              (11)
+                                        0.38                0.38
+                                        0.2 · 4 0.18 · 2
+                                      =         +                                                          (12)
+                                         0.38           0.38
+                                      = 3.05.                                                              (13)
+
+       The observed mean is 0.55 less than the true mean.
+
+2. (Faulty database)
+
+                                                             1
+    a) Let c̃ be a random variable that represents whether the entry is corrupted, we have
+                                              
+                                              −x
+                                                              if c̃ = −1,
+                                          b̃ = ã              if c̃ = 0,                               (14)
+                                              
+                                                x              if c̃ = 1.
+                                              
+
+
+       The conditional mean function of b̃ given c̃ = c equals
+                                                    
+                                                    −x
+                                                                   if c = −1,
+                                      µb̃ | c̃ (c) = 0              if c = 0,                           (15)
+                                                    
+                                                      x             if c = 1,
+                                                    
+
+       so by iterated expectation
+                                                  h             i
+                                         E[b̃] = E µb̃ | c̃ (c̃)                                        (16)
+                                               = 0.1(−x) + 0.1x = 0.                                    (17)
+
+       The conditional mean function of b̃2 given c̃ = c equals
+                                                     
+                                                        2
+                                                     x
+                                                                   if c = −1,
+                                      µb̃2 | c̃ (c) = σ 2           if c = 0,                           (18)
+                                                     
+                                                      2
+                                                      x             if c = 1,
+
+       so by iterated expectation
+                                                       h              i
+                                            E[b̃2 ] = E µb̃2 | c̃ (c̃)                                  (19)
+                                                   = 0.2x2 + 0.8σ 2 .                                   (20)
+
+       We conclude that Var[b̃] = E[b̃2 ] − E[b̃]2 = 0.2x2 + 0.8σ 2 .
+
+3. (Weight-loss supplement)
+
+    a) The unadjusted ATE equals
+         unadjusted ATE
+            0.5 − 4.6 − 7.5 + 1.1 − 3.4 − 1.4 + 3.2 − 1.9 − 3.6 + 2.4 + 1.2 + 4.2 − 2.5 − 3.5 + 4.7
+         =
+                                                      15
+              1.6 − 6.7 + 2.3 − 4.5 + 3.4 − 0.6 + 2.3 + 1.5 + 1.7 + 2.6 + 0.5 + 1.2 − 3.6 + 2.1 − 1.2 + 0.4
+           −
+                                                            16
+         = −0.93.                                                                                        (21)
+
+    b) We model the treatment as a random variable t̃, the weight loss as a random variable
+       w̃ and the exercise as a random variable x̃. In order to adjust for the effect of exercise,
+
+                                                  2
+        we compute
+
+                              13
+               px̃ (1) =         = 0.42,                                                         (22)
+                              31
+                              1.6 + 2.3 − 0.6 + 2.3 + 1.5 + 1.7 + 2.6 + 0.5 + 1.2 + 2.1 − 1.2 + 0.4
+         µw̃ | t̃,x̃ (0, 0) =
+                                                                12
+                                                                                                 (23)
+                            = 1.2,                                                                 (24)
+                              −6.7 − 4.5 + 3.4 − 3.6
+         µw̃ | t̃,x̃ (0, 1) =                         = −2.85,                                     (25)
+                                         4
+                              0.5 + 1.1 − 1.9 + 2.4 + 1.2 + 4.7
+         µw̃ | t̃,x̃ (1, 0) =                                   = 1.33,                            (26)
+                                              6
+                              −4.6 − 7.5 − 3.4 − 1.4 + 3.2 − 3.6 + 4.2 − 2.5 − 3.5
+         µw̃ | t̃,x̃ (1, 1) =                                                      = −2.12,        (27)
+                                                        9
+
+        The adjusted ATE equals
+
+                             1
+                             X                                   1
+                                                                 X
+         adjusted ATE =            px̃ (x)µw̃ | t̃,x̃ (1, x) −         px̃ (x)µw̃ | t̃,x̃ (0, x)   (28)
+                             x=0                                 x=0
+                           = (0.58 · 1.33 − 0.42 · 2.12) − (0.58 · 1.2 − 0.42 · 2.85) = 0.382. (29)
+
+        This approximates the true ATE if the potential outcomes of the weight gain/loss
+        for treatment and control are conditionally independent of the treatment given the
+        exercise.
+
+4. (Three variables) Yes, it is possible. Let ã, b̃ and c̃ be random variables with zero mean
+   and unit variance, which are pairwise uncorrelated. We define:
+
+                                                  w̃ := ã + αb̃,                                  (30)
+                                                   ỹ := b̃ + βc̃,                                 (31)
+                                                   z̃ := γã + c̃,                                 (32)
+
+   where α, β and γ are real-valued constants. By linearity of expectation
+
+                                        E [w̃] = E [ã] + αE[b̃] = 0,                              (33)
+                                         E [ỹ] = E[b̃] + βE [c̃] = 0,                             (34)
+                                         E [z̃] = γE [ã] + E [c̃] = 0.                            (35)
+
+   Since ã, b̃ and c̃ have zero mean and are pairwise uncorrelated,
+
+                                        E[ãb̃] = E [ãc̃] = E[b̃c̃] = 0.                          (36)
+
+                                                      3
+  Consequently, again by linearity of expectation,
+
+
+                         E [w̃ỹ] = E[ãb̃] + βE [ãc̃] + αE[b̃2 ] + αβE[b̃c̃]            (37)
+                                  = α,                                                    (38)
+                         E [w̃z̃] = γE ã2 + E [ãc̃] + γαE[ãb̃] + αE[b̃c̃]
+                                         
+                                                                                          (39)
+                                  = γ,                                                    (40)
+                         E [ỹz̃] = γE[ãb̃] + E[b̃c̃] + γβE [ãc̃] + βE c̃2
+                                                                         
+                                                                                          (41)
+                                  = β.                                                    (42)
+
+
+  If we choose α and β to be positive and γ negative, then w̃ and ỹ are positively correlated,
+  and so are ỹ and z̃, but w̃ and ỹ are negatively correlated.
+
+
+5. (Berkson’s paradox)
+
+
+   (a) The plot shows that English and Math GPAs are approximately proportional, so
+       they are positively correlated.
+
+   (b) Points such that the two entries sum 6.5 or more have a clear negative trend on
+       average, as shown in the following plot. Consequently, conditioned on being an
+       honors student, English and Math GPAs are negatively correlated.
+
+
+                                                    Correlation coefficient = -0.610
+                                           4.0
+                                           3.5
+                                           3.0
+                                           2.5
+                             English GPA
+
+
+
+
+                                           2.0
+                                           1.5
+                                           1.0
+                                           0.5
+                                                        Honors students
+                                           0.0
+                                                 0.0 0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0
+                                                              Math GPA
+
+
+6. (Noisy measurement)
+
+                                                          4
+    a) We have
+
+                                        Var[ỹ] = Var[x̃] + Var[z̃]                    (43)
+                                                 = 1 + σ2,                             (44)
+                                        E[x̃ỹ] = E[x̃2 ] + E[x̃z̃]                    (45)
+                                                 = 1,                                  (46)
+                                                     E[x̃ỹ]
+                                          ρx̃,ỹ = √                                   (47)
+                                                      1 + σ2
+                                                        1
+                                                 =√          .                         (48)
+                                                      1 + σ2
+         The linear MMSE estimate of x̃ given ỹ = y equals
+                                                          ρx̃,ỹ σx̃ y
+                                           ℓMMSE (y) =                                 (49)
+                                                              σỹ
+                                                              y
+                                                        =             .                (50)
+                                                          1 + σ2
+
+    b)
+
+                                E (x̃ − ℓMMSE (ỹ))2 = (1 − ρ2x̃,ỹ )σx̃2
+                                                   
+                                                                                       (51)
+                                                                      2
+                                                                    σ
+                                                              =          .             (52)
+                                                                  1 + σ2
+
+    c) If σ → 0 the estimate equals y and the error is zero, which makes sense since in that
+       case the noise is zero and hence ỹ = x̃ with probability one.
+    d) If σ → ∞ the estimate equals zero and the error is 1, which makes sense since in
+       that case we are better off just ignoring the measurement and setting the estimate
+       equal to the mean of x̃. The corresponding error is consequently the variance of x̃.
+
+7. (Bernoulli random variables) Let ã and b̃ be two uncorrelated Bernoulli random variables
+   with parameters θã and θb̃ defined in the same probability space. Their means equal θã
+   and θb̃ respectively, so
+                                       h i        h i
+                                   Cov ã, b̃ = E ãb̃ − θã θb̃ .                      (53)
+
+  Since
+                                h i     X             X
+                               E ãb̃ =                       abpã,b̃ (a, b)          (54)
+                                            a∈{0,1} b∈{0,1}
+
+                                        = pã,b̃ (1, 1),                               (55)
+
+  so
+
+                                 pã,b̃ (1, 1) = θã θb̃ = pã (1)pb̃ (1).             (56)
+
+                                                5
+  In addition,
+
+                                 θã = pã (1) = pã,b̃ (1, 0) + pã,b̃ (1, 1)          (57)
+                                                = pã,b̃ (1, 0) + θã θb̃ ,             (58)
+
+  so
+
+                                 pã,b̃ (1, 0) = θã (1 − θb̃ ) = pã (1)pb̃ (0)        (59)
+
+  and by the same argument pã,b̃ (0, 1) = pã (0)pb̃ (1). Finally,
+
+                             1 − θã = pã (0) = pã,b̃ (0, 0) + pã,b̃ (0, 1)          (60)
+                                                  = pã,b̃ (0, 0) + (1 − θã )θb̃ ,     (61)
+
+  so
+
+                            pã,b̃ (0, 0) = (1 − θã )(1 − θb̃ ) = pã (0)pb̃ (0).      (62)
+
+  We conclude that uncorrelated Bernoulli random variables are independent.
+
+8. (Exam)
+
+    a) The MMSE estimator is the conditional mean, which we estimate using the sample
+       conditional mean, depicted by the circle markers in the graph below. The advantage
+       of this estimator is that it is very flexible, it indicates that grades increase a lot
+       proportionally to the number of hours up to a certain point, but then there are
+       diminishing returns (if any at all). The main disadvantage is that it is very noisy
+       due to insufficient data, which results in overfitting. Also it does not provide an
+       estimate at 4, 7 or 9.
+   b) The least-squares simple-linear-regression estimator that approximates the linear
+      MMSE estimator is
+                                                                
+                              √                     h − mhours
+                       ℓ(h) = vgrade ρgrade,hours     √             + mgrade       (63)
+                                                        vhours
+                              cgrade,hours               cgrade,hours
+                            =              h + mgrade −               mhours ,     (64)
+                                 vhours                     vhours
+
+       where the sample means of the hours and grades equal
+
+                               85 + 90 + 30 + 80 + 90 + 80 + 60 + 40 + 90 + 85
+                      mgrade =                                                          (65)
+                                                      10
+                             = 73,                                                      (66)
+                               5+6+2+6+5+5+3+3+6+8
+                      mhours =                                                          (67)
+                                                10
+                             = 4.9,                                                     (68)
+
+                                                   6
+        the sample variance of the hours is
+                      (5 − 4.9)2 + (6 − 4.9)2 + (2 − 4.9)2 + (6 − 4.9)2 + (5 − 4.9)2
+              vhours =
+                                                    9
+                        (5 − 4.9) + (3 − 4.9) + (3 − 4.9)2 + (6 − 4.9)2 + (9 − 4.9)2
+                                 2            2
+                      +                                                                  (69)
+                                                      9
+                    = 4.01,                                                              (70)
+
+        and the sample covariance is
+
+        cgrade,hours
+            (85 − 73)(5 − 4.9) + (90 − 73)(6 − 4.9) + (30 − 73)(2 − 4.9) + (80 − 73)(6 − 4.9)
+         =
+                                                     9
+               (90 − 73)(5 − 4.9) + (80 − 73)(5 − 4.9) + (60 − 73)(3 − 4.9) + (40 − 73)(3 − 4.9)
+           +
+                                                       9
+               (90 − 73)(6 − 4.9) + (85 − 73)(8 − 4.9)
+           +                                                                              (71)
+                                  9
+         = 33.11.                                                                         (72)
+
+        The least-squares estimator equals
+                                           33.1          34.4
+                                     ℓ(h) =     h + 73 −      4.9                        (73)
+                                           4.01          4.01
+                                         = 8.25h + 30.97,                                (74)
+
+        The estimator is depicted as a straight line on the graph below. Its advantage is that
+        it is less noisy than the nonlinear sample conditional mean estimator, and produces
+        estimates for any number of hours. However it underfits the data, as it does not
+        capture the fact that the grade increase eventually saturates when the number of
+        hours exceed 5.
+
+        100
+
+        80
+Grade
+
+
+
+
+        60
+
+        40
+
+        20
+
+         0
+                   1      2      3       4       5     6      7       8      9
+                                             Hours
+
+                                              7
+9. (Online poll)
+
+    a) The proportion of Democrat voters in the whole population is θtot = αθyoung +
+       (1 − α)θold . The fraction of young voters in the poll that intend to vote Democrat
+       y/n1 is a reasonable estimate for θyoung . The fraction of old voters in the poll that
+       intend to vote Democrat o/n2 is a reasonable estimate for θold . The estimator for
+       θtot = αθyoung + (1 − α)θold therefore equals
+
+                                                     αy (1 − α)o
+                                        e(o, y) :=      +        .                         (75)
+                                                     n1    n2
+
+    b) We have y = 50, n1 = 70, o = 10, n2 = 30, α = 0.25, so
+
+                                                1 50 3 10
+                                  e(10, 50) =    ·  + ·   = 42.9%.                         (76)
+                                                4 70 4 30
+
+    c) Let us assume that the young people in the population are sampled independently
+       and uniformly at random with replacement, and so are the old people. Let ỹ denote
+       the number of young voters in the poll that intend to vote Democrat, and let õ denote
+       the number of old voters in the poll that intend to vote Democrat. By the properties
+       of the sample mean computed from random samples, ỹ/n1 and õ/n2 are unbiased
+       estimators of θyoung and θold respectively. Consequently, by linearity of expectation
+                                                                
+                                                   αỹ (1 − α)õ
+                              E [e(õ, ỹ)] := E      +                                  (77)
+                                                   n1      n2
+                                              αE [ỹ] (1 − α)E [õ]
+                                            =         +                                  (78)
+                                                n1          n2
+                                            = αθyoung + (1 − α)θold = θtot ,             (79)
+
+        so the estimator is unbiased (under our assumptions).
+    d) Assuming independent and uniform random sampling with replacement,
+                                    
+                                     ỹ     θyoung (1 − θyoung )
+                               Var       =                        ,                        (80)
+                                    n1               n1
+                                         
+                                         õ      θold (1 − θold )
+                                   Var        =                   .                        (81)
+                                         n2             n2
+
+        Assuming ỹ and õ are independent, the variance of our estimator is
+                                                           
+                                            αỹ (1 − α)õ
+                    Var [e(õ, ỹ)] = Var       +                                          (82)
+                                            n1       n2
+                                                                
+                                       2       ỹ             2    õ
+                                    = α Var        + (1 − α) Var                           (83)
+                                               n1                 n2
+                                      α θyoung (1 − θyoung ) (1 − α)2 θold (1 − θold )
+                                       2
+                                    =                       +                          .   (84)
+                                                n1                     n2
+
+                                                8
+        Since the estimator is unbiased, by Chebyshev’s inequality, for any ϵ
+                                                    Var [e(õ, ỹ)]
+                               P (|e(õ, ỹ) − θtot | > ϵ) ≤        ,              (85)
+                                                         ϵ2
+        which converges to zero as n1 → ∞ and n2 → ∞, so the estimator converges to θtot
+        in probability and is therefore consistent.
+10. (Herding)
+     a) Note that
+                                                 m̃1 +m̃2
+                                           m̃1              m̃3
+                                     h̃3 =     + 2 +                                (86)
+                                            4        4       2
+                                           3m̃1 m̃2 m̃3
+                                         =      +      +     .                      (87)
+                                             8     8      2
+        Let θpop denote the population proportion, such that
+                                  E [m̃1 ] = E [m̃2 ] = E [m̃3 ] = θpop .           (88)
+        By linearity of expectation and (87)
+                                  h i E [m̃ ] + E [m̃ ]
+                                               1      2
+                               E h̃2 =                                              (89)
+                                                   2
+                                         θpop
+                                      =       ,                                     (90)
+                                          2
+                                  h i 3E [m̃ ] E [m̃ ] 4E [m̃ ]
+                                                 1      2     3
+                               E h̃3 =              +     +                         (91)
+                                            8         8     8
+                                      = θpop .                                      (92)
+        Both herded estimators are unbiased. In this situation, herding does not produce
+        bias.
+     b) The polls are independent, so by (87)
+                               h i Var [m̃ ] + Var [m̃ ]
+                                              1             2
+                           Var h̃2 =                                                (93)
+                                                  4
+                                       s2
+                                    = ,                                             (94)
+                                       2
+                               h i 9Var [m̃ ] Var [m̃ ] Var [m̃ ]
+                                                1             2     3
+                           Var h̃3 =               +            +                   (95)
+                                           64             64      4
+                                       13s2
+                                    =       .                                       (96)
+                                        32
+        Consequently the standard errors equal
+                                       h i        s
+                                     se h̃2 = √ = 0.71s,                            (97)
+                                                   2
+                                       h i r 13
+                                     se h̃3 =          s = 0.64s.                   (98)
+                                                    32
+        Herding improves each individual estimator.
+
+                                              9
+      c) Note that by (87)
+
+                                         m̃1 +m̃2
+                                    m̃1              h̃3
+                             h̃all =    + 2 +                                              (99)
+                                    3       3  3              
+                                      1 1       3          1   1         m̃3
+                                  =     + +         m̃1 +    +     m̃2 +                  (100)
+                                      3 6 24               6 24           6
+                                    15m̃3 5m̃3 m̃3
+                                  =      +        +      .                                (101)
+                                     24       24      6
+
+          By the independence assumption,
+
+                                         Var [m̃1 ] + Var [m̃2 ] + Var [m̃2 ]
+                             Var [m̃all ] =                                               (102)
+                                                         9
+                                         s2
+                                       = ,                                                (103)
+                                         3
+                                h i 132 Var [m̃ ] 52 Var [m̃ ] Var [m̃ ]
+                                                     1              2            3
+                             Var h̃all =         2
+                                                       +         2
+                                                                      +                   (104)
+                                             24               24              36
+                                         133s2
+                                       =       .                                          (105)
+                                          288
+
+          Consequently the standard errors equal
+                                                         s
+                                          se [m̃all ] = √ = 0.58s,                        (106)
+                                                          3
+                                            h i r 133
+                                          se h̃all =           s = 0.68s.                 (107)
+                                                           288
+
+          The herded estimator h̃all has a larger standard error than the non-herded estimator
+          m̃all , so herding is problematic because it degrades the aggregated estimator. This
+          happens because the first poll (and to a lesser extent the second poll) are overrepre-
+          sented in the herded estimators.
+
+11. (Confidence intervals)
+
+     a) 72 out of 80 intervals contain µ. A reasonable estimate for 1 − α is therefore 0.9, so
+        the estimate for α is 0.1.
+     b)     • X = B and Y = A. The central limit theorem produces much narrower confi-
+              dence intervals.
+            • X = B and Y = A. More data results in narrower confidence intervals (see
+              equation in the notes).
+            • X = A and Y = B. Higher variance results in wider confidence intervals (see
+              equation in the notes).
+
+12. (Cholesterol)
+
+                                                 10
+      a) Let x̃1 , x̃2 , . . . , x̃200 be samples from the men, and ỹ1 , ỹ2 , . . . , ỹ100 the sample
+         from the women. If each individual is selected independently with replacement, then
+                        2                          2
+         Var [x̃i ] = σmen     and Var [ỹi ] = σwomen  . As a result, by independence
+                    "       200              100
+                                                    #       "     200
+                                                                         #      "       100
+                                                                                                   #
+                       1 X              1 X                    1 X                   1 X
+             Var                 x̃i −           ỹi = Var            x̃i + Var −              ỹi   (108)
+                      200 i=1          100 i=1                200 i=1               100 i=1
+                                                            "     200
+                                                                         #      "     100
+                                                                                               #
+                                                               1 X                 1 X
+                                                      = Var           x̃i + Var            ỹi       (109)
+                                                              200 i=1             100 i=1
+                                                     2
+                                                    σmen  σ2
+                                                =        + women .                                 (110)
+                                                    200    100
+                                              q
+                                                    2
+                                                  σmen    2
+         Therefore the standard error is           200
+                                                       + σwomen
+                                                           100
+                                                                .
+     b) By the central limit theorem, if µP   men and µwomen are the population means for men
+                                          1      200
+        and women respectively, then 200         i=1 x̃i is approximately Gaussian with mean µmen
+                        2
+                      σmen             100
+                                  1
+                                    P
+        and variance 200 , and 100     i=1 ỹi is approximately Gaussian with mean µwomen and
+                  2
+                 σwomen                 2
+                                      σmen           P100
+                                                  1
+        variance 100 . As a result, 200 − 100           i=1 ỹi is approximately Gaussian with mean
+                                      2
+                                     σmen       2
+                                              σwomen
+        µmen − µwomen and variance 200 + 100 = 1.5. By Lemma ?? the following is a 0.95
+        confidence interval for µmen − µwomen :
+                            h           √                    √ i
+                              20 − 1.96 1.5, 20 + 1.96 1.5 = [17.6, 22.4].                     (111)
+
+13. (Modified Gaussian bootstrap confidence interval) Let τ denote the monotonic transfor-
+    mation and h(X) the observed value of the estimator of interest. Since the transformed
+    parameter is approximately Gaussian, we use bootstrap samples to estimate the standard
+    error sebs of the transformed estimator (for each bootstrap batch we compute the estima-
+    tor and apply the transformation, then we compute the sample standard deviation of the
+    transformed values). We can use the bootstrap standard error to construct a confidence
+    interval for the transformed parameter:
+
+                            [ℓ, u] = [τ (h(X)) − cα sebs , τ (h(X)) + cα sebs ] ,                  (112)
+
+    where cα is set to obtain a 1-α confidence interval under the Gaussian assumption. Now,
+    if the transformed parameter of interest τ (w̃) is in [ℓ, u] with probability 1 − α, then
+    the parameter of interest w̃ is in the interval [τ −1 (ℓ), τ −1 (u)] also with probability 1 − α,
+    because τ −1 is a monotonic function (the inverse of a monotonic function is monotonic).
+    Consequently, the interval
+                      [τ ]
+                    I1−α := τ −1 (τ (h(X)) − cα sebs ) , τ −1 (τ (h(X)) + cα sebs )
+                                                                                   
+                                                                                                (113)
+
+    is a 1-α confidence interval for the parameter of interest.
+
+
+
+
+                                                   11
+

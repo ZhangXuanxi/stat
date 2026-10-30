@@ -1,0 +1,403 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools,booktabs,enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref,microtype,comment}
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,urlcolor=MidnightBlue,
+ pdftitle={Recitation 8: Midterm 2 Review},pdfauthor={Xuanxi Zhang}}
+% Default: student version. Define \WITHSOLUTIONS for answers and pacing.
+\newif\ifsolutions
+\ifdefined\WITHSOLUTIONS\solutionstrue\else\solutionsfalse\fi
+\newcommand{\rv}[1]{\widetilde{#1}}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Pbb}{\mathbb P}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\Bias}{\operatorname{Bias}}
+\newcommand{\MSE}{\operatorname{MSE}}
+\newcommand{\se}{\operatorname{se}}
+\ifsolutions
+ \newenvironment{answer}{\par\medskip\noindent\textcolor{MidnightBlue}{\textbf{Solution.}}\ }{\par\medskip}
+ \newcommand{\workingspace}[1]{}
+\else
+ \excludecomment{answer}
+ \newcommand{\workingspace}[1]{\vspace{#1}}
+\fi
+\setlist[enumerate]{label=(\alph*),leftmargin=2em,itemsep=0.4em}
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.3em}
+\title{\huge Recitation 8\\[0.35em]\normalsize Midterm 2 Review\\[0.35em]
+ \large\ifsolutions Solutions and Teaching Notes\else Review and Practice Problems\fi}
+\author{Xuanxi Zhang}
+\date{October 30, 2026}
+\begin{document}
+\maketitle
+\noindent\textit{Exam:} Tuesday, November 3, in class. Material after Midterm 1
+through the bootstrap; no coding questions. Review textbook Chapters 7--9
+alongside the lecture examples and assigned exercises.
+
+\section*{Review: conditioning, prediction, and correlation}
+\paragraph{Conditioning changes the population.}
+For a discrete grouping variable $\rv{r}$,
+\[
+ \E[\rv{s}]=\sum_r\Pbb(\rv r=r)\E[\rv s\mid\rv r=r].
+\]
+Among respondents ($\rv q=1$), the weights instead become
+\[
+ \Pbb(\rv r=r\mid\rv q=1)
+ =\frac{\Pbb(\rv q=1\mid\rv r=r)\Pbb(\rv r=r)}
+ {\sum_u\Pbb(\rv q=1\mid\rv r=u)\Pbb(\rv r=u)}.
+\]
+If $\rv s$ and $\rv q$ are conditionally independent given $\rv r$,
+the within-group mean is unchanged, but the overall observed mean can change.
+\textbf{Check the weights before averaging.}
+
+\paragraph{Best prediction under squared error.}
+For finite second moments, the unrestricted minimum-MSE predictor is
+\[
+ g_*(y)=\E[\rv x\mid\rv y=y].
+\]
+The best affine predictor $\ell_*(y)=a+by$, when $\Var(\rv y)>0$, is
+\[
+ b=\frac{\Cov(\rv x,\rv y)}{\Var(\rv y)},\qquad
+ a=\E[\rv x]-b\E[\rv y],\qquad
+ \MSE(\ell_*)=\Var(\rv x)-\frac{\Cov(\rv x,\rv y)^2}{\Var(\rv y)}.
+\]
+The conditional mean need not be linear. Joint Gaussianity is one sufficient
+condition for these two predictors to agree.
+
+\paragraph{Covariance and correlation.}
+\[
+ \Cov(\rv x,\rv y)=\E[\rv x\rv y]-\E[\rv x]\E[\rv y],\qquad
+ \rho_{\rv x,\rv y}=\frac{\Cov(\rv x,\rv y)}
+ {\sqrt{\Var(\rv x)\Var(\rv y)}}.
+\]
+Correlation is defined when both variances are positive. Independence implies
+zero covariance; the converse is false in general. Correlation alone does not
+establish causation.
+
+\paragraph{Average treatment effect.}
+For potential outcomes $\rv w(1),\rv w(0)$,
+$\mathrm{ATE}=\E[\rv w(1)-\rv w(0)]$.
+Under consistency, conditional exchangeability given a covariate $\rv c$,
+and positivity, adjust by averaging the within-stratum treatment contrasts
+using the \emph{same target-population weights} for both groups.
+
+\newpage
+\section*{Review: sampling uncertainty and the bootstrap}
+\paragraph{Observed data versus random estimators.}
+For $X=\{x_1,\ldots,x_n\}$, the observed mean and sample variance are
+\[
+ m(X)=\frac1n\sum_i x_i,\qquad
+ v(X)=\frac1{n-1}\sum_i(x_i-m(X))^2\quad(n\geq2).
+\]
+Before observing an i.i.d. sample with mean $\mu$ and variance $\sigma^2$,
+the random sample mean $\rv m=n^{-1}\sum_i\rv x_i$ satisfies
+$\E[\rv m]=\mu$ and $\se(\rv m)=\sigma/\sqrt n$.
+The standard deviation describes individual observations; the standard error
+describes an estimator across repeated samples.
+
+\paragraph{Bias and variance measure different errors.}
+For a fixed parameter $\theta$ and an estimator $\rv g$,
+\[
+ \Bias(\rv g)=\E[\rv g]-\theta,\qquad
+ \se(\rv g)=\sqrt{\Var(\rv g)},\qquad
+ \MSE(\rv g)=\Bias(\rv g)^2+\Var(\rv g).
+\]
+Increasing sample size does not automatically remove selection bias.
+For deterministic weights $a_i$,
+\[
+ \Var\!\left(\sum_i a_i\rv m_i\right)
+ =\sum_i a_i^2\Var(\rv m_i)
+   +2\sum_{i<j}a_i a_j\Cov(\rv m_i,\rv m_j).
+\]
+Only discard the covariance terms when justified. If published estimates
+reuse the same data, expand them in terms of the original independent estimates.
+
+\paragraph{Confidence intervals.}
+A $1-\alpha$ confidence procedure covers a fixed parameter in at least
+$1-\alpha$ of repeated samples (approximately so for approximate procedures).
+For an approximately unbiased, approximately Gaussian estimator, a common
+95\% interval is
+\[
+ [g-1.96\se_{\mathrm{est}},\;g+1.96\se_{\mathrm{est}}].
+\]
+For the sample mean, $\se_{\mathrm{est}}=\sqrt{v(X)/n}$.
+Higher confidence widens the interval; multiplying $n$ by four roughly halves
+its width. The 95\% refers to the procedure's coverage, not a posterior
+probability for the fixed parameter after seeing the interval.
+
+\paragraph{Nonparametric bootstrap.}
+Treat the empirical distribution of $X$ as a stand-in for the unknown population.
+Draw each resample independently, taking $n$ observations \emph{with replacement}
+from $X$, and recompute the same statistic. For $B$ bootstrap estimates
+$g_1^*,\ldots,g_B^*$, write $\bar g^*=B^{-1}\sum_b g_b^*$. Then
+\[
+ \se_{\mathrm{boot}}=
+ \sqrt{\frac1{B-1}\sum_{b=1}^B(g_b^*-\bar g^*)^2}.
+\]
+A percentile interval uses the empirical 2.5\% and 97.5\% quantiles of the
+bootstrap estimates. Its accuracy depends on how well resampling approximates
+the sampling distribution; it is not automatically an exact 95\% interval.
+Increasing $B$ reduces simulation error, not uncertainty from a small original sample.
+
+\newpage
+\section*{Practice problems}
+\noindent Three core problems from the official Midterm 2 practice set;
+Problem 4 is a backup. Work independently before discussion.
+
+\subsection*{Problem 1: Hotel questionnaire (official Problem 1)}
+\noindent\textit{Independent work: 7 minutes.}
+A hotel asks customers for a discrete satisfaction score between 1 (worst)
+and 5 (best). Twenty percent of customers are retired. Retired customers
+have mean score 2 and respond with probability 0.9. Other customers have
+mean score 4 and respond with probability 0.25.
+
+Let $\rv r$ indicate retirement, $\rv q$ indicate responding, and $\rv s$
+denote the score. Assume $\rv q$ and $\rv s$ are conditionally independent
+given $\rv r$.
+\begin{enumerate}
+ \item Find $\E[\rv s]$ for the full customer population.
+ \item Find the mean observed score $\E[\rv s\mid\rv q=1]$.
+\end{enumerate}
+\noindent\textit{Discussion:} Which group is overrepresented among respondents?
+Would collecting more responses in the same way fix the discrepancy?
+\workingspace{9cm}
+\begin{answer}
+\textbf{(a)} By iterated expectation,
+\[
+ \boxed{\E[\rv s]=0.2(2)+0.8(4)=3.6.}
+\]
+\textbf{(b)} The response probability is
+$\Pbb(\rv q=1)=0.2(0.9)+0.8(0.25)=0.38$.
+Bayes' rule gives the composition of the responding group:
+\[
+ \Pbb(\rv r=1\mid\rv q=1)=\frac{0.18}{0.38}=\frac9{19},\qquad
+ \Pbb(\rv r=0\mid\rv q=1)=\frac{10}{19}.
+\]
+Conditional independence implies
+$\E[\rv s\mid\rv r=r,\rv q=1]=\E[\rv s\mid\rv r=r]$.
+Consequently,
+\[
+ \boxed{\E[\rv s\mid\rv q=1]
+ =\frac9{19}(2)+\frac{10}{19}(4)=\frac{58}{19}\approx3.053.}
+\]
+Retired customers make up about 47.4\% of respondents but only 20\% of
+customers. Their lower mean score pulls the respondent mean downward by
+$3.6-58/19=52/95\approx0.547$.
+
+More independent responses from the same respondent distribution reduce
+standard error but leave this population discrepancy. If the population
+group shares are known, weighting the two respondent group means by 0.2
+and 0.8 targets the population mean under the stated conditional-independence assumption.
+\end{answer}
+
+\newpage
+\subsection*{Problem 2: Noisy measurement (official Problem 6)}
+\noindent\textit{Independent work: 8 minutes.}
+We want to measure a quantity $\rv x$ with mean zero and variance one.
+We observe $\rv y=\rv x+\rv z$, where the noise $\rv z$ has mean zero,
+variance $\sigma^2$, and is independent of $\rv x$.
+\begin{enumerate}
+ \item Find the best linear (affine) estimator of $\rv x$ given $\rv y=y$.
+ \item Compute its mean squared error.
+ \item What happens to the estimator and its error as $\sigma\to0$?
+ Explain why this makes sense.
+ \item What happens as $\sigma\to\infty$? Explain why this makes sense.
+\end{enumerate}
+\noindent\textit{Discussion:} Do the assumptions guarantee that the best linear
+predictor equals the unrestricted conditional-mean predictor?
+\workingspace{10cm}
+\begin{answer}
+\textbf{(a)} Independence and zero means give
+\[
+ \E[\rv y]=0,\qquad \Var(\rv y)=1+\sigma^2,\qquad
+ \Cov(\rv x,\rv y)=\Var(\rv x)+\Cov(\rv x,\rv z)=1.
+\]
+The intercept is zero and the slope is $1/(1+\sigma^2)$, so
+\[
+ \boxed{\ell_*(y)=\frac{y}{1+\sigma^2}.}
+\]
+\textbf{(b)} Set $b=1/(1+\sigma^2)$. Since
+$\rv x-b\rv y=(1-b)\rv x-b\rv z$, independence gives
+\[
+ \MSE(\ell_*)=(1-b)^2+b^2\sigma^2
+ =\frac{\sigma^4+\sigma^2}{(1+\sigma^2)^2}
+ =\boxed{\frac{\sigma^2}{1+\sigma^2}}.
+\]
+Equivalently, minimize the quadratic
+$\E[(\rv x-b\rv y)^2]=1-2b+b^2(1+\sigma^2)$ directly.
+
+\textbf{(c)} As $\sigma\to0$, $\ell_*(y)\to y$ and the MSE tends to zero.
+With no noise, the measurement equals the quantity of interest.
+
+\textbf{(d)} As $\sigma\to\infty$, the slope tends to zero and the MSE tends
+to one. The linear estimator puts vanishing weight on the increasingly noisy
+measurement and approaches the prior mean, zero. Its random output also
+has variance $\Var(\ell_*(\rv y))=1/(1+\sigma^2)\to0$.
+
+\textbf{Discussion.} No Gaussian assumption was given, so this is optimal
+within the affine class only. The unrestricted optimum is
+$\E[\rv x\mid\rv y=y]$, which can be nonlinear.
+\end{answer}
+
+\newpage
+\subsection*{Problem 3: Herding (official Problem 10)}
+\noindent\textit{Independent work: 10 minutes.}
+Three independent polls produce unbiased estimators
+$\rv m_1,\rv m_2,\rv m_3$ of a fixed support proportion $\theta$.
+Each has standard error $s$. After seeing earlier published polls,
+pollsters modify their estimates by averaging:
+\[
+ \rv h_2=\frac{\rv m_1+\rv m_2}{2},\qquad
+ \rv h_3=\frac12\left(\frac{\rv m_1+\rv h_2}{2}+\rv m_3\right).
+\]
+\begin{enumerate}
+ \item Are $\rv h_2$ and $\rv h_3$ unbiased? Does herding introduce bias here?
+ \item Find their standard errors. Does herding improve each individual
+ estimator under this model?
+ \item Compare the standard errors of
+ \[
+ \rv m_{\mathrm{all}}=\frac{\rv m_1+\rv m_2+\rv m_3}{3},\qquad
+ \rv h_{\mathrm{all}}=\frac{\rv m_1+\rv h_2+\rv h_3}{3}.
+ \]
+ Why is herding problematic when we combine the published polls?
+\end{enumerate}
+\noindent\textit{Hint:} First express each estimator in terms of the original
+independent polls $\rv m_1,\rv m_2,\rv m_3$.
+\workingspace{8cm}
+\begin{answer}
+\textbf{(a)} Expand
+$\rv h_3=\tfrac38\rv m_1+\tfrac18\rv m_2+\tfrac12\rv m_3$.
+The weights of both $\rv h_2$ and $\rv h_3$ sum to one, so
+$\E[\rv h_2]=\E[\rv h_3]=\theta$: both remain unbiased.
+
+\textbf{(b)} Apply independence to the \emph{original} polls:
+\[
+ \Var(\rv h_2)=\frac{s^2}{2},\qquad
+ \Var(\rv h_3)=\left(\frac9{64}+\frac1{64}+\frac14\right)s^2
+ =\frac{13}{32}s^2.
+\]
+Thus $\se(\rv h_2)=s/\sqrt2\approx0.707s$ and
+$\se(\rv h_3)=\sqrt{13/32}\,s\approx0.637s$.
+Each has smaller variance and MSE than its corresponding original poll,
+because it borrows information from other polls.
+
+\textbf{(c)} The unmodified average has variance $s^2/3$.
+For the published, herded polls,
+\[
+ \rv h_{\mathrm{all}}=
+ \frac58\rv m_1+\frac5{24}\rv m_2+\frac16\rv m_3,
+ \qquad
+ \Var(\rv h_{\mathrm{all}})
+ =\frac{225+25+16}{576}s^2=\frac{133}{288}s^2.
+\]
+Therefore
+\[
+ \boxed{\se(\rv m_{\mathrm{all}})=\frac{s}{\sqrt3}\approx0.577s,
+ \quad \se(\rv h_{\mathrm{all}})=\sqrt{\frac{133}{288}}s\approx0.680s.}
+\]
+Both averages are unbiased, but herding increases the aggregate variance by
+a factor $133/96\approx1.385$. It overweights the first poll and creates
+dependence among published estimates; treating them as independent would be wrong.
+\end{answer}
+
+\newpage
+\subsection*{Problem 4: A tiny bootstrap (backup)}
+\noindent\textit{Independent work: 5 minutes. Adapted from archived Recitation
+Worksheet 8, Problem 1.}
+The observed dataset is $X=\{2,4\}$. For a sample of size two, define the
+median as the average of the two ordered observations.
+\begin{enumerate}
+ \item List all ordered bootstrap resamples of size two, drawn with replacement.
+ Give each resample's probability.
+ \item Compute the median of each resample and the exact bootstrap mean.
+ \item Compute the exact bootstrap variance and standard error of the median.
+ Use the probability distribution from (a), rather than a Monte Carlo estimate.
+\end{enumerate}
+\noindent\textit{Discussion:} Why does enumerating all possible resamples use
+probability weights rather than the $B-1$ formula for simulated replicates?
+\workingspace{10cm}
+\begin{answer}
+\textbf{(a)--(b)} Each draw independently selects 2 or 4 with probability $1/2$.
+\begin{center}
+\begin{tabular}{@{}ccc@{}}
+\toprule Resample & Probability & Median\\\midrule
+$(2,2)$ & $1/4$ & 2\\
+$(2,4)$ & $1/4$ & 3\\
+$(4,2)$ & $1/4$ & 3\\
+$(4,4)$ & $1/4$ & 4\\\bottomrule
+\end{tabular}
+\end{center}
+The bootstrap mean is $(2+3+3+4)/4=3$, equal to the observed median.
+
+\textbf{(c)} Conditional on the fixed original data, the exact bootstrap
+variance and SE are
+\[
+ \boxed{\Var_*(\rv g^*)=\frac{(2-3)^2+(3-3)^2+(3-3)^2+(4-3)^2}{4}
+ =\frac12,\qquad \se_*=\frac1{\sqrt2}.}
+\]
+Here the four entries enumerate the entire resampling distribution with
+known probabilities; they are not four independently simulated replicates.
+If we simulate $B$ replicates instead, the sample variance with denominator
+$B-1$ estimates this bootstrap-distribution variance.
+This exact bootstrap calculation is still only a plug-in estimate of the
+unknown population sampling variance. Two original observations give little
+information about that population.
+\end{answer}
+
+\ifsolutions
+\newpage
+\section*{Instructor notes: 75-minute plan}
+\begin{center}
+\begin{tabular}{@{}p{0.16\textwidth}p{0.77\textwidth}@{}}
+\toprule Time & Activity\\\midrule
+0--10 min & Conditioning, prediction, correlation, and ATE; ask students to
+ distinguish a subgroup mean from the population mean.\\
+10--25 min & Bias versus SE; covariance of averages; confidence-interval
+ interpretation; resampling with replacement.\\
+25--39 min & Problem 1: 7 minutes independent work, 7 minutes discussion.\\
+39--54 min & Problem 2: 8 minutes independent work, 7 minutes discussion.\\
+54--70 min & Problem 3: 10 minutes independent work, 6 minutes discussion.\\
+70--75 min & Exit checks and questions. For a fast class, save 3 minutes
+ during earlier discussions: use 67--72 for Problem 4 and 72--75 to discuss it.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Why these problems?}
+The October 29 review deck contains official practice Problems 3
+(weight-loss supplement), 4 (three random variables), 11 (confidence-interval
+plots), 12 (cholesterol), and 13 (modified Gaussian bootstrap).
+Problems 1, 6, and 10 do not appear in that deck and form the core here.
+This is a comparison with the posted slides, not a claim that every displayed
+problem was actually completed in the lecture. Problem 13 appears only as
+a prompt on the last slide, so its classroom completion is especially uncertain.
+
+\paragraph{Sources and scope.}
+\begin{itemize}
+ \item \href{https://brightspace.nyu.edu/d2l/le/lessons/613220/units/13329394}
+ {Brightspace: Schedule and Course Material}, October 29 row:
+ \emph{Practice Problems for Midterm 2}, Problems 1, 6, and 10;
+ corresponding official solutions; \emph{Review}, 33 PDF pages.
+ Local reference copies are stored in \texttt{r8/sources/}.
+ \item Backup: \emph{Recitation Worksheet 8}, Problem 1, in the user's 2025
+ archive (the worksheet itself is dated March 21, 2025).
+ Wording clarifies exact enumeration versus Monte Carlo variance estimation.
+ \item The October 27 exam announcement specifies November 3 and material
+ after Midterm 1 through the bootstrap, without coding questions.
+\end{itemize}
+
+\paragraph{Corrections to the official Herding solution.}
+Equation (90) should read $\theta_{\mathrm{pop}}$, not
+$\theta_{\mathrm{pop}}/2$. Equation (101) should have coefficients
+$(15,5,4)/24$ on $(\rv m_1,\rv m_2,\rv m_3)$, respectively.
+In equation (102), the third variance is $\Var(\rv m_3)$.
+In equation (104), the first squared numerator is $15^2$, not $13^2$.
+The official final variance $133s^2/288$ is correct.
+
+\paragraph{Exit checks.}
+Can students explain why more respondents do not remove response bias,
+why the best linear predictor need not be the conditional mean, and why
+averaging dependent published polls can lose information?
+\fi
+\end{document}

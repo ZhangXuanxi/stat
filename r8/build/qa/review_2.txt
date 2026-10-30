@@ -1,0 +1,354 @@
+       Review
+
+Mathematical Statistics
+
+Carlos Fernandez-Granda
+Conceptual review
+Conceptual review
+
+
+
+
+ ▶ Sample mean and variance
+Conceptual review
+
+
+
+
+ ▶ Sample mean and variance
+
+ ▶ Conditional mean
+Conceptual review
+
+
+
+
+ ▶ Sample mean and variance
+
+ ▶ Conditional mean
+
+ ▶ Regression
+Conceptual review
+
+
+
+
+ ▶ Sample mean and variance
+
+ ▶ Conditional mean
+
+ ▶ Regression
+
+ ▶ Average treatment effect
+Conceptual review
+
+
+
+ ▶ Covariance and correlation coefficient
+Conceptual review
+
+
+
+ ▶ Covariance and correlation coefficient
+
+ ▶ Correlation vs causation
+Conceptual review
+
+
+
+ ▶ Covariance and correlation coefficient
+
+ ▶ Correlation vs causation
+
+ ▶ Bias and standard error
+Conceptual review
+
+
+
+ ▶ Covariance and correlation coefficient
+
+ ▶ Correlation vs causation
+
+ ▶ Bias and standard error
+
+ ▶ Confidence intervals
+Conceptual review
+
+
+
+ ▶ Covariance and correlation coefficient
+
+ ▶ Correlation vs causation
+
+ ▶ Bias and standard error
+
+ ▶ Confidence intervals
+
+ ▶ The bootstrap
+Weight-loss supplement
+
+
+
+
+In order to evaluate the effectiveness of a weight-loss supplement, we
+record the weight gain/loss in kilograms after one month of a treatment
+group that takes the supplement, and a control group that doesn’t.
+
+In bold, we highlight the participants who report that they exercise daily.
+Observed average treatment effect?
+
+
+Supplement: 0.5, -4.6, -7.5, 1.1, -3.4, -1.4, 3.2, -1.9, -3.6, 2.4, 1.2, 4.2,
+-2.5, -3.5, 4.7
+
+No supplement: 1.6, -6.7, 2.3, -4.5, 3.4, -0.6, 2.3, 1.5, 1.7, 2.6, 0.5, 1.2,
+-3.6, 2.1, -1.2, 0.4
+Observed average treatment effect?
+
+
+Supplement: 0.5, -4.6, -7.5, 1.1, -3.4, -1.4, 3.2, -1.9, -3.6, 2.4, 1.2, 4.2,
+-2.5, -3.5, 4.7
+
+No supplement: 1.6, -6.7, 2.3, -4.5, 3.4, -0.6, 2.3, 1.5, 1.7, 2.6, 0.5, 1.2,
+-3.6, 2.1, -1.2, 0.4
+
+unadjusted ATE
+  0.5 − 4.6 − 7.5 + 1.1 − 3.4 − 1.4 + 3.2 − 1.9 − 3.6 + 2.4 + 1.2 + 4.2 − 2.5 − 3.5 + 4.7
+=
+                                             15
+  1.6 − 6.7 + 2.3 − 4.5 + 3.4 − 0.6 + 2.3 + 1.5 + 1.7 + 2.6 + 0.5 + 1.2 − 3.6 + 2.1 − 1.2 + 0.4
+−
+                                                16
+= −0.93
+Average treatment effect?
+
+Supplement: 0.5, -4.6, -7.5, 1.1, -3.4, -1.4, 3.2, -1.9, -3.6, 2.4, 1.2, 4.2,
+-2.5, -3.5, 4.7
+
+No supplement: 1.6, -6.7, 2.3, -4.5, 3.4, -0.6, 2.3, 1.5, 1.7, 2.6, 0.5, 1.2,
+-3.6, 2.1, -1.2, 0.4
+Average treatment effect?
+
+Supplement: 0.5, -4.6, -7.5, 1.1, -3.4, -1.4, 3.2, -1.9, -3.6, 2.4, 1.2, 4.2,
+-2.5, -3.5, 4.7
+
+No supplement: 1.6, -6.7, 2.3, -4.5, 3.4, -0.6, 2.3, 1.5, 1.7, 2.6, 0.5, 1.2,
+-3.6, 2.1, -1.2, 0.4
+
+                         13
+             px̃ (1) =        = 0.42,
+                         31
+                         1.6 + 2.3 − 0.6 + 2.3 + 1.5 + 1.7 + 2.6 + 0.5 + 1.2 + 2.1 − 1.2 + 0.4
+    µw̃ | t̃,x̃ (0, 0) =
+                                                          12
+                       = 1.2,
+                         −6.7 − 4.5 + 3.4 − 3.6
+    µw̃ | t̃,x̃ (0, 1) =                         = −2.85,
+                                    4
+                         0.5 + 1.1 − 1.9 + 2.4 + 1.2 + 4.7
+    µw̃ | t̃,x̃ (1, 0) =                                   = 1.33,
+                                         6
+                         −4.6 − 7.5 − 3.4 − 1.4 + 3.2 − 3.6 + 4.2 − 2.5 − 3.5
+    µw̃ | t̃,x̃ (1, 1) =                                                      = −2.12,
+                                                   9
+Average treatment effect?
+Average treatment effect?
+
+                         1
+                         X
+            E [f
+               po1 ] =         px̃ (x)µpfo1 | x̃ (x)
+                         x=0
+                         1
+                         X
+                    =          px̃ (x)µpfo1 | x̃,t̃ (1, x)
+                         x=0
+                         X1
+                    =          px̃ (x)µw̃ | x̃,t̃ (1, x)
+                         x=0
+                    = 0.58 · 1.33 − 0.42 · 2.12 = −0.119,
+                         1
+                         X
+            E [f
+               po0 ] =         px̃ (x)µw̃ | x̃,t̃ (0, x)
+                         x=0
+                    = 0.58 · 1.2 − 0.42 · 2.85 = −0.501
+                       po1 ] − E [f
+              ATE = E [f          po0 ] = 0.382
+Three random variables
+
+
+If a random variable w̃ is positively correlated with another random variable
+ỹ , and ỹ is positively correlated with a third random variable z̃, can w̃ and
+z̃ be negatively correlated? Provide an example of three such variables, or
+prove that it is impossible.
+Three random variables
+
+
+If a random variable w̃ is positively correlated with another random variable
+ỹ , and ỹ is positively correlated with a third random variable z̃, can w̃ and
+z̃ be negatively correlated? Provide an example of three such variables, or
+prove that it is impossible.
+
+Hint: For random variables ã, b̃ and c̃ with zero mean and unit variance,
+which are pairwise uncorrelated:
+
+                                w̃ := ã + αb̃,
+                                 ỹ := b̃ + β c̃,
+                                 z̃ := γ ã + c̃,
+Three random variables
+
+
+
+           w̃ := ã + αb̃,   ỹ := b̃ + β c̃,   z̃ := γ ã + c̃,
+Three random variables
+
+
+
+               w̃ := ã + αb̃,   ỹ := b̃ + β c̃,   z̃ := γ ã + c̃,
+
+
+
+                        E [w̃ ] = E [ã] + αE[b̃] = 0,
+                         E [ỹ ] = E[b̃] + βE [c̃] = 0,
+                         E [z̃] = γE [ã] + E [c̃] = 0.
+
+Since ã, b̃ and c̃ have zero mean and are pairwise uncorrelated,
+
+                       E[ãb̃] = E [ãc̃] = E[b̃ c̃] = 0.
+Three random variables
+
+
+
+           w̃ := ã + αb̃,   ỹ := b̃ + β c̃,   z̃ := γ ã + c̃,
+Three random variables
+
+
+
+               w̃ := ã + αb̃,    ỹ := b̃ + β c̃,   z̃ := γ ã + c̃,
+
+By linearity of expectation,
+
+             E [w̃ ỹ ] = E[ãb̃] + βE [ãc̃] + αE[b̃ 2 ] + αβE[b̃ c̃]
+                     = α,
+             E [w̃ z̃] = γE ã2 + E [ãc̃] + γαE[ãb̃] + αE[b̃c̃]
+                            
+
+                     = γ,
+              E [ỹ z̃] = γE[ãb̃] + E[b̃ c̃] + γβE [ãc̃] + βE c̃ 2
+                                                                
+
+                     = β.
+1 − α confidence intervals for µ
+
+
+
+
+  A
+
+
+
+
+  B
+CLT or Chebyshev’s inequality?
+
+
+
+
+  A
+
+
+
+
+  B
+More data?
+
+
+
+
+  A
+
+
+
+
+  B
+Higher population variance?
+
+
+
+
+  A
+
+
+
+
+  B
+Cholesterol
+
+200 men and 100 women sampled independently at random with
+replacement from the population. We assume the population standard
+deviations of cholesterol are known: σmen , σwomen . Standard error of the
+difference between the average cholesterol in men and women?
+Cholesterol
+
+200 men and 100 women sampled independently at random with
+replacement from the population. We assume the population standard
+deviations of cholesterol are known: σmen , σwomen . Standard error of the
+difference between the average cholesterol in men and women?
+
+By independence
+           200           100                  200                   100
+     "                          #       "            #      "                 #
+        1 X           1 X                  1 X                   1 X
+ Var           x̃i −         ỹi = Var            x̃i + Var −             ỹi
+       200           100                  200                   100
+           i=1           i=1                  i=1                   i=1
+                                              200                 100
+                                        "            #      "             #
+                                           1 X                 1 X
+                                  = Var           x̃i + Var           ỹi
+                                          200                 100
+                                                i=1                  i=1
+                                   σ2    σ2
+                                  = men + women
+                                    200   100
+Cholesterol
+
+
+Average cholesterol: 200 for the men, 180 for the women
+
+σmen = σwomen = 10
+
+95% confidence interval for the difference between the mean cholesterol
+level of men and women?
+Cholesterol
+
+
+Average cholesterol: 200 for the men, 180 for the women
+
+σmen = σwomen = 10
+
+95% confidence interval for the difference between the mean cholesterol
+level of men and women?
+
+By CLT, each average is Gaussian, so difference is Gaussian with mean
+                              2      2
+µmen − µwomen and variance σ200
+                              men
+                                  + σwomen
+                                      100 = 1.5. Consequently, a 0.95
+confidence interval for µmen − µwomen is
+              h          √               √ i
+                20 − 1.96 1.5, 20 + 1.96 1.5 = [17.6, 22.4].
+Modified Gaussian bootstrap confidence interval
+
+
+
+
+Bootstrap percentile confidence intervals work for estimators that are
+rendered approximately Gaussian by a strictly monotonic transformation,
+even if the transformation is not known to us. Propose an alternative
+approach, based on the bootstrap standard error, to build confidence
+intervals when the transformation is known (as in the case of Fisher’s
+transformation)
+

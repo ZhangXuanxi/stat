@@ -1,0 +1,196 @@
+                      Practice Problems for Midterm 2
+1. (Hotel questionnaire) A hotel wants to determine average customer satisfaction using a
+   questionnaire that asks customers for a discrete score between 1 (worst) and 5 (best).
+   20% of the customers are retired. The average score given by the retired customers is 2,
+   and they answer the questionnaire with probability 0.9. The average score given by the
+   rest of the customers is 4, and they answer the questionnaire with probability 0.25. We
+   define a Bernoulli random variable r̃ to represent whether a customer is retired (r̃ = 1)
+   or not (r̃ = 0), another Bernoulli random variable q̃ to represent whether they answer the
+   questionnaire (q̃ = 1) or not (q̃ = 0), and a discrete random variable s̃ to represent the
+   score. We assume that q̃ and s̃ are conditionally independent given r̃.
+
+    a) What is the mean of the score s̃?
+    b) What is the mean of the observed score, i.e. the conditional mean of s̃ given q̃ = 1?
+
+2. (Faulty database) An entry in a database can be modeled as a Gaussian random variable
+   ã with zero mean and variance σ 2 . Due to a programming error, for a certain fixed
+   constant x, the entry is replaced by −x with probability 0.1 and x with probability 0.1,
+   independently of the content of the entry. Otherwise, the entry remains the same. We
+   model the resulting entry as a random variable b̃.
+
+    a) Compute the variance of b̃.
+    b) Derive the minimum mean-squared error estimator of ã given b̃ = b, for all possible
+       values of b.
+
+3. (Weight-loss supplement) In order to evaluate the effectiveness of a weight-loss supple-
+   ment, we record the weight gain/loss in kilograms after one month of a treatment group
+   that takes the supplement, and a control group that doesn’t. In bold, we highlight the
+   participants who report that they exercise daily.
+   Supplement: 0.5, -4.6, -7.5, 1.1, -3.4, -1.4, 3.2, -1.9, -3.6, 2.4, 1.2, 4.2, -2.5, -3.5, 4.7
+   No supplement: 1.6, -6.7, 2.3, -4.5, 3.4, -0.6, 2.3, 1.5, 1.7, 2.6, 0.5, 1.2, -3.6, 2.1, -1.2,
+   0.4
+
+    a) Compute the observed average treatment effect (ATE) given by the difference in
+       average weight gain/loss between the treatment and control groups.
+    b) Estimate the ATE making any adjustments that you think are reasonable. Explain
+       under what assumptions your estimate approximates the true ATE.
+
+4. (Three random variables) If a random variable w̃ is positively correlated with another
+   random variable ỹ, and ỹ is positively correlated with a third random variable z̃, can w̃
+   and z̃ be negatively correlated? Provide an example of three such variables, or prove that
+   it is impossible.
+
+5. (Berkson’s paradox) The following plot shows the GPA in English and Math of the stu-
+   dents in a high school. Students whose total GPA (English + Math) is 6.5 or above are
+   considered honors students.
+
+                                              1
+                                      4.0
+                                      3.5
+                                      3.0
+                                      2.5
+
+
+
+
+                        English GPA
+                                      2.0
+                                      1.5
+                                      1.0
+                                      0.5
+                                      0.0
+                                            0.0 0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0
+                                                         Math GPA
+
+    a) Are English and Math GPAs uncorrelated, positively correlated or negatively corre-
+       lated?
+    b) Conditioned on being an honors student, are English and Math GPAs uncorrelated,
+       positively correlated or negatively correlated?
+
+6. (Noisy measurement) We are interested in measuring a certain quantity modeled by a
+   random variable x̃ with zero mean and unit variance. Our available measurements ỹ :=
+   x̃ + z̃ are corrupted by additive random noise, modeled as a random variable z̃ with zero
+   mean and variance σ 2 , which is independent from x̃.
+    a) What is the best linear estimator of x̃ given ỹ = y?
+    b) What is the corresponding mean squared error?
+    c) What happens to the estimator and the error when σ → 0? Explain why this makes
+       sense.
+    d) What happens to the estimator and the error when σ → ∞? Explain why this makes
+       sense.
+7. (Bernoulli random variables) Does uncorrelation imply independence for Bernoulli random
+   variables?
+8. (Exam) The following table shows the number of hours that a group of students dedicated
+   to study for an exam, and their resulting grades.
+
+                    Hours              5      6    2    6    5    5    3    3    6    8
+                    Grade              85     90   30   80   90   80   60   40   90   85
+
+    a) Approximate the minimum MSE estimator of the grade given the number of hours
+       from the data and sketch it on a graph. What is the main advantage and disadvantage
+       of this estimator?
+
+                                                        2
+      b) Approximate the linear minimum MSE estimator of the grade given the number of
+         hours from the data, and sketch it superposed onto the minimum MSE estimator.
+         What is the main advantage and disadvantage of this estimator?
+
+ 9. (Online poll) In online polls, young people are often overrepresented. In this problem we
+    show how to correct for this. Our goal is to analyze an online poll for a fictitious election
+    where there are two candidates, a Democrat and a Republican. The poll consists of n1
+    young people and n2 old people. We denote by y and o the number of young and old
+    Democrat voters in the poll, respectively. We assume that the fraction of young voters in
+    the population, denoted by α, is known.
+      a) Derive an estimator of the proportion of Democrat voters in the election, as a function
+         of y, o, n1 and n2 . As a hint, it may be useful to consider the population parameters
+         θyoung and θold , representing the proportion of Democrats among young and old voters
+         in the population, respectively.
+      b) Apply your estimator to a poll where 60 out of 100 participants intend to vote for
+         the Democratic candidate. 70 out of the 100 participants are young, and 50 of these
+         70 are Democratic voters. The fraction of young voters in the overall population is
+         25%.
+      c) Under what assumptions is your estimator unbiased? Justify your answer mathe-
+         matically.
+      d) Show that your estimator is consistent as n1 → ∞ and n2 → ∞.
+10. (Herding) Herding is the act of manipulating poll results, so that they are more similar to
+    other polls. Let m̃1 , m̃2 and m̃3 be random variables representing the sample proportion
+    of voters supporting a certain candidate in three polls. The polls are independent and
+    have the same standard error s. Poll 1 is released first. After seeing it, the second pollster
+    uses its result to perform herding via averaging, obtaining the herded estimator,
+                                                 m̃1 + m̃2
+                                          h̃2 :=           .                                (1)
+                                                      2
+    After Poll 2 is released, the third pollster also performs herding using the average of the
+    two first polls,
+                                                              !
+                                            1 m̃1 + h̃2
+                                     h̃3 :=              + m̃3 .                            (2)
+                                            2      2
+
+      a) Assuming m̃1 , m̃2 and m̃3 are unbiased, are h̃2 and h̃3 unbiased? Does herding
+         produce bias in this situation?
+      b) Derive the standard error of the herded estimators h̃2 and h̃3 as a function of the
+         standard error s. Does herding improve or degrade the estimators?
+      c) Derive the standard error of the estimator obtained by averaging the three non-
+         herded estimators,
+                                                    m̃1 + m̃2 + m̃3
+                                         m̃all :=                   ,                         (3)
+                                                           3
+
+                                               3
+          and the estimator obtained by averaging the three herded estimators,
+
+                                                    m̃1 + h̃2 + h̃3
+                                         h̃all :=                   ,                      (4)
+                                                          3
+          as a function of the standard error s. Why is herding problematic?
+
+11. (Confidence intervals) The following are 1 − α confidence intervals for a certain quantity
+    µ, estimated using the sample mean of the observed data.
+
+
+
+
+      A
+
+
+
+
+      B
+
+
+
+
+      a) Estimate α.
+     b) In each scenario, choose whether you think X = A and Y = B, or X = B and
+        Y = A.
+           • In plot X, the confidence intervals are based on the central limit theorem. In
+             plot Y, they are built using Chebyshev’s inequality (everything else is the same).
+           • In plot X, the confidence intervals are built using more data than in plot Y
+             (everything else is the same).
+           • In plot X, the data are sampled from a distribution that has higher variance
+             than plot Y (everything else is the same).
+
+12. (Cholesterol) We want to determine whether men have higher cholesterol than women in
+    a certain population. We pick 200 men and 100 women independently at random with
+    replacement from the population, and compute their average cholesterol levels.
+
+      a) Let σmen and σwomen denote the standard deviations of the cholesterol level for the
+         men and women in the population, respectively. What is the standard error of the
+         difference between the average cholesterol levels computed from our data?
+
+                                              4
+     b) The average cholesterol levels we observe are 200 for the men and 180 for the women.
+        Assuming σmen = σwomen = 10, compute a 95% confidence interval for the difference
+        between the mean cholesterol level of the men and the women in the population.
+
+13. (Modified Gaussian bootstrap confidence interval) Bootstrap percentile confidence inter-
+    vals work for estimators that are rendered approximately Gaussian by a strictly monotonic
+    transformation, even if the transformation is not known to us. Propose an alternative
+    approach, based on the bootstrap standard error, to build confidence intervals when the
+    transformation is known (as in the case of Fisher’s transformation).
+
+
+
+
+                                             5
+
