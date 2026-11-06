@@ -1,0 +1,440 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools,booktabs,enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref,microtype,comment}
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,urlcolor=MidnightBlue,
+ pdftitle={Recitation 9: Two-Sample Tests},pdfauthor={Xuanxi Zhang}}
+% Default: student handout. Define \WITHSOLUTIONS for answers and pacing.
+\newif\ifsolutions
+\ifdefined\WITHSOLUTIONS\solutionstrue\else\solutionsfalse\fi
+\newcommand{\rv}[1]{\widetilde{#1}}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Pbb}{\mathbb P}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\se}{\operatorname{se}}
+\ifsolutions
+ \newenvironment{answer}{\par\medskip\noindent\textcolor{MidnightBlue}{\textbf{Solution.}}\ }{\par\medskip}
+ \newcommand{\workingspace}[1]{}
+\else
+ \excludecomment{answer}
+ \newcommand{\workingspace}[1]{\vspace{#1}}
+\fi
+\setlist[enumerate]{label=(\alph*),leftmargin=2em,itemsep=0.4em}
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.3em}
+\title{\huge Recitation 9\\[0.35em]\normalsize Two-Sample Tests\\[0.35em]
+ \large\ifsolutions Solutions and Teaching Notes\else Review and Practice Problems\fi}
+\author{Xuanxi Zhang}
+\date{November 6, 2026}
+\begin{document}
+\maketitle
+\noindent\textit{Goal:} Compare an observed difference between two groups with
+the variation we would expect if their population parameters were equal.
+
+\section*{Review: Antetokounmpo's free throws}
+\paragraph{1. Turn the question into a model.}
+The \href{https://github.com/cfgranda/ps4ds/blob/main/slides/hypothesis\%20testing/two_sample_tests_handout.pdf}{lecture handout} reports the following free throws:
+\begin{center}
+\begin{tabular}{@{}lrrr@{}}
+\toprule Location & Made & Missed & Attempts\\\midrule
+Home ($H$) & 34 & 10 & 44\\
+Away ($A$) & 22 & 19 & 41\\\bottomrule
+\end{tabular}
+\end{center}
+Let $\rv{x}_{H,i}\sim\operatorname{Bernoulli}(\theta_H)$ and
+$\rv{x}_{A,j}\sim\operatorname{Bernoulli}(\theta_A)$ indicate made shots.
+Assume independent shots, with a constant success probability within each
+location. The parameters $\theta_H,\theta_A$ are fixed but unknown.
+For ``Is his free-throw percentage \emph{different} at home and away?'', use
+\[
+ H_0:\theta_H=\theta_A=\theta,\qquad
+ H_1:\theta_H\ne\theta_A.
+\]
+This is a \textbf{two-sample} problem: both success probabilities are unknown
+and both are estimated from data. For Bernoulli data, equal means also imply
+equal distributions; this is not true for arbitrary distributions.
+
+\paragraph{2. Measure the observed difference.}
+Let $X_H$ and $X_A$ denote the observed home and away datasets. Then
+\[
+ m(X_H)=\frac{34}{44}\approx0.773,\qquad
+ m(X_A)=\frac{22}{41}\approx0.537,
+\]
+\[
+ d_{\mathrm{obs}}=m(X_H)-m(X_A)\approx0.236.
+\]
+The gap is \textbf{23.6 percentage points}. Is it large relative to sampling
+variation? The counts alone do not answer that question.
+
+\paragraph{3. Work out the variation under the null.}
+Before observing the data, let
+$\rv m_H=44^{-1}\sum_i\rv x_{H,i}$,
+$\rv m_A=41^{-1}\sum_j\rv x_{A,j}$, and $\rv d=\rv m_H-\rv m_A$.
+Under $H_0$, independence gives
+\[
+ \E_0[\rv d]=0,\qquad
+ \Var_0(\rv d)=\theta(1-\theta)
+ \left(\frac1{44}+\frac1{41}\right).
+\]
+\textbf{The variances add even though the means are subtracted.}
+The standard error is the square root of this variance.
+
+\newpage
+\section*{Review: from a difference to a decision}
+\paragraph{4. Estimate the null standard error and standardize.}
+Under $H_0$, all 85 attempts share one success probability. Estimate it by
+pooling the successes and attempts:
+\[
+ \theta_{\mathrm{ML},0}=\frac{34+22}{44+41}=\frac{56}{85}\approx0.659,
+ \qquad
+ \se_{0,\mathrm{est}}=
+ \sqrt{\theta_{\mathrm{ML},0}(1-\theta_{\mathrm{ML},0})
+ \left(\frac1{44}+\frac1{41}\right)}\approx0.1029.
+\]
+Thus $z_{\mathrm{obs}}=d_{\mathrm{obs}}/\se_{0,\mathrm{est}}\approx2.295$:
+the observed gap is about 2.3 estimated null standard errors above zero.
+For sufficiently large samples, the corresponding random standardized
+statistic $\rv z_{\mathrm{test}}$ is approximately $\mathcal N(0,1)$ under $H_0$.
+
+\paragraph{5. Choose the tail that matches the question.}
+Write $\Phi(u)=\Pbb(\rv z\leq u)$ for $\rv z\sim\mathcal N(0,1)$.
+Choose the alternative and significance level \emph{before} inspecting outcomes.
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule Alternative & Approximate $p$ value & Reject at $\alpha=0.05$ if\\\midrule
+$\theta_H>\theta_A$ & $1-\Phi(z_{\mathrm{obs}})$ & $z_{\mathrm{obs}}\geq1.645$\\
+$\theta_H<\theta_A$ & $\Phi(z_{\mathrm{obs}})$ & $z_{\mathrm{obs}}\leq-1.645$\\
+$\theta_H\ne\theta_A$ & $2[1-\Phi(|z_{\mathrm{obs}}|)]$ & $|z_{\mathrm{obs}}|\geq1.960$\\
+\bottomrule
+\end{tabular}
+\end{center}
+For the original question, both directions count as evidence:
+\[
+ p_{\mathrm{two}}\approx\Pbb(|\rv z|\geq2.295)\approx0.0218<0.05.
+\]
+Reject $H_0$ at the 5\% level. A \emph{prespecified} home-is-better alternative
+would instead give $p_{\mathrm{right}}\approx0.0109$.
+
+\paragraph{6. Say what the result means.}
+Under the equal-probability model, a standardized gap at least this extreme
+in either direction has approximate probability 2.2\%. This is evidence of
+a difference; it is \emph{not} a 2.2\% probability that $H_0$ is true.
+It does not show that crowd taunts caused the difference: location was not
+randomly assigned, and opponents, fatigue, and game conditions may differ.
+
+\paragraph{Check the approximation.}
+A common rule of thumb asks for at least 10 expected makes and 10 expected
+misses in each group, using the pooled estimate. Here these are
+$(28.99,15.01)$ at home and $(27.01,13.99)$ away. This supports a normal
+approximation, but does not establish independence. Shots within a game may
+be dependent. The nominal false-positive rate is \emph{approximate} for this
+plug-in $z$ test and relies on the model.
+
+\paragraph{The same idea for other means.}
+For two independent samples of sizes $n_A,n_B$, with population means
+$\mu_A,\mu_B$ and \emph{known} variances $\sigma_A^2,\sigma_B^2$,
+\[
+ \se(\rv m_B-\rv m_A)=\sqrt{\frac{\sigma_B^2}{n_B}+\frac{\sigma_A^2}{n_A}},
+ \qquad z_{\mathrm{obs}}=
+ \frac{m(X_B)-m(X_A)}{\sqrt{\sigma_B^2/n_B+\sigma_A^2/n_A}}
+ \quad(H_0:\mu_B=\mu_A).
+\]
+This is an exact Gaussian test for independent Gaussian observations with
+known variances; otherwise a CLT may justify an approximation. With unknown
+variances and small samples, a suitable two-sample $t$ procedure is needed.
+
+\newpage
+\section*{Practice problems}
+\noindent Three core problems; Problem 4 is a backup. A calculator is useful.
+Use $\Phi(1.645)\approx0.95$, $\Phi(1.960)\approx0.975$, and
+$\Phi(2.295)\approx0.9891$.
+
+\subsection*{Problem 1: Why do we pool the free throws?}
+\noindent\textit{Independent work: 8 minutes. Based on the lecture example.}
+Use the home/away data on page 1 and the independent Bernoulli model.
+\begin{enumerate}
+ \item Write the likelihood under $H_0:\theta_H=\theta_A=\theta$, up to a
+ factor independent of $\theta$. Derive $\theta_{\mathrm{ML},0}$.
+ Why not use the unweighted average of the two observed success proportions?
+ \item Starting from $\Var(\rv x_{H,i})=\theta(1-\theta)$ under $H_0$,
+ derive $\Var_0(\rv d)$. Explain both denominators and the plus sign.
+ \item Compute the estimated null SE, standardized statistic, and two-sided
+ $p$ value. State the decisions at $\alpha=0.05$ and $\alpha=0.01$.
+ \item A student treats $22/41$ as the \emph{known} away success probability
+ and includes only the home group's variance contribution in the SE.
+ What source of uncertainty is missing?
+\end{enumerate}
+\workingspace{9cm}
+\begin{answer}
+\textbf{(a)} There are 56 makes and 29 misses in total, so
+\[
+ L_0(\theta)\propto\theta^{56}(1-\theta)^{29},\qquad
+ \ell_0'(\theta)=\frac{56}{\theta}-\frac{29}{1-\theta}.
+\]
+Setting the derivative to zero gives
+$\boxed{\theta_{\mathrm{ML},0}=56/85}$.
+The second derivative is negative on $(0,1)$, and the likelihood vanishes
+at both endpoints, so this is the maximum. Equivalently,
+\[
+ \theta_{\mathrm{ML},0}
+ =\frac{44\,m(X_H)+41\,m(X_A)}{85}.
+\]
+Each attempt receives the same weight. An unweighted average would give
+equal weight to groups with different numbers of attempts.
+
+\textbf{(b)} Independence within each group gives
+$\Var_0(\rv m_H)=44\theta(1-\theta)/44^2=\theta(1-\theta)/44$;
+similarly, $\Var_0(\rv m_A)=\theta(1-\theta)/41$.
+Between-group independence makes their covariance zero, hence
+\[
+ \boxed{\Var_0(\rv d)=\Var_0(\rv m_H)+\Var_0(\rv m_A)
+ =\theta(1-\theta)(1/44+1/41).}
+\]
+The minus sign is squared when computing the variance.
+
+\textbf{(c)} Using unrounded fractions,
+\[
+ d_{\mathrm{obs}}=0.23614,\quad \se_{0,\mathrm{est}}=0.10291,\quad
+ z_{\mathrm{obs}}=2.29460,\quad p_{\mathrm{two}}\approx0.02176.
+\]
+Reject at 5\%; do not reject at 1\%. Failure to reject at 1\% does not
+establish equal success probabilities.
+
+\textbf{(d)} The away proportion is itself estimated from only 41 attempts.
+Its variance contribution $\theta(1-\theta)/41$ is missing. Using the same
+pooled plug-in value, the proposed SE is about $0.07147$, too small; it
+overstates the evidence against $H_0$.
+\end{answer}
+
+\newpage
+\subsection*{Problem 2: Comparing treatment and control means}
+\noindent\textit{Independent work: 8 minutes. Archived Exercise 11.19.}
+An experiment compares a control group ($A$) with an independent treatment
+group ($B$). Observations are approximately normally distributed, and the
+standard deviation of an individual measurement in either group is known
+to be $\sigma=5$. Each group has 25 observations.
+\begin{enumerate}
+ \item What is the standard error of $\rv m_B-\rv m_A$?
+ \item For $H_0:\mu_B=\mu_A$ versus $H_1:\mu_B>\mu_A$, give the
+ level-$0.05$ rejection region, both in standardized units and in the
+ original measurement units.
+ \item Suppose the test's $p$ value is $0.07$. Would you reject at
+ $\alpha=0.10$? At $\alpha=0.05$?
+ \item What is the level-$0.05$ rejection region if instead
+ $H_1:\mu_B\ne\mu_A$? Explain why the cutoff changes.
+\end{enumerate}
+\noindent\textit{Discussion:} Why is $5/\sqrt{50}$ not the SE in part (a)?
+\workingspace{10cm}
+\begin{answer}
+\textbf{(a)} Each sample mean has variance $5^2/25=1$. Independence gives
+\[
+ \boxed{\se(\rv m_B-\rv m_A)=\sqrt{\frac{25}{25}+\frac{25}{25}}
+ =\sqrt2\approx1.414.}
+\]
+The value $5/\sqrt{50}$ is the SE of the grand mean of 50 independent
+observations with variance 25, not the difference of two group means.
+
+\textbf{(b)} Under $H_0$, the standardized difference is approximately
+standard Gaussian. Let $d_{\mathrm{obs}}=m(X_B)-m(X_A)$. Reject when
+\[
+ \boxed{z_{\mathrm{obs}}=\frac{d_{\mathrm{obs}}}{\sqrt2}\geq1.645}
+ \qquad\Longleftrightarrow\qquad
+ \boxed{d_{\mathrm{obs}}\geq1.645\sqrt2\approx2.326.}
+\]
+Only a sufficiently positive difference supports this alternative.
+
+\textbf{(c)} Since $0.07\leq0.10$, reject at 10\%. Since $0.07>0.05$,
+do not reject at 5\%. Choose the significance level in advance;
+changing it after seeing the $p$ value changes the planned decision rule.
+
+\textbf{(d)} Split the 5\% null tail area equally between the two directions:
+\[
+ \boxed{|z_{\mathrm{obs}}|\geq1.960}
+ \qquad\Longleftrightarrow\qquad
+ \boxed{|d_{\mathrm{obs}}|\geq1.960\sqrt2\approx2.772.}
+\]
+Thus reject if $d_{\mathrm{obs}}\leq-2.772$ or $d_{\mathrm{obs}}\geq2.772$.
+The positive cutoff is larger because only 2.5\% of the null distribution
+lies in the upper rejection tail.
+
+\medskip
+\noindent\textit{Connection to the free throws:} Both tests divide a difference
+by its null standard error. Here the variances are known. In the Bernoulli
+example, the unknown common success probability determines both variances
+and is estimated using pooled data.
+\end{answer}
+
+\newpage
+\subsection*{Problem 3: What does the test tell us?}
+\noindent\textit{Independent work: 7 minutes. Adapted from archived Exercise
+9.26(b)--(d), with extensions to the free-throw example.}
+Mark each statement true or false and justify your answer in one or two
+sentences. For a false statement, give a correct replacement.
+\begin{enumerate}
+ \item If the $p$ value is $0.03$, the test rejects at significance level $0.02$.
+ \item If a test using the rule ``reject when $p\leq\alpha$'' rejects at
+ significance level $0.06$, then its $p$ value is at most $0.06$.
+ \item The free-throw test's two-sided $p$ value $0.0218$ is the probability
+ that the home and away success probabilities are equal.
+ \item If we compute away minus home instead of home minus away, the
+ two-sided $p$ value is unchanged.
+ \item After seeing that the home percentage is higher, we may replace
+ the planned two-sided test by a one-sided test and halve its $p$ value
+ while keeping the advertised significance level.
+ \item Rejecting equality establishes that crowd taunts caused the lower
+ away success rate.
+\end{enumerate}
+\workingspace{9cm}
+\begin{answer}
+\textbf{(a) False.} $0.03>0.02$, so do not reject. The same result would
+reject at a prespecified 5\% level.
+
+\textbf{(b) True.} This is exactly the stated rejection rule. A smaller
+significance level might lead to a different decision.
+
+\textbf{(c) False.} The $p$ value measures how extreme the data are under
+the null model. Here it is approximately the probability, under $H_0$, of
+a standardized difference with magnitude at least $2.295$. It is not a
+posterior probability of $H_0$.
+
+\textbf{(d) True.} Reversing the subtraction changes $z_{\mathrm{obs}}$
+to $-z_{\mathrm{obs}}$ but leaves $|z_{\mathrm{obs}}|$ unchanged.
+For a one-sided test, the sign and the alternative must be kept consistent:
+``home is better'' becomes a \emph{left}-tail test for away minus home.
+
+\textbf{(e) False.} The direction must be chosen before examining the
+outcomes. If we always choose whichever direction the observed effect
+favors and then use a one-sided 5\% cutoff, we reject for
+$|z_{\mathrm{obs}}|\geq1.645$. Under an ideal continuous standard-normal
+null, that event has probability 10\%, not 5\%.
+
+\textbf{(f) False.} A difference in probabilities is not a causal
+attribution. This observational comparison does not isolate crowd taunts
+from other differences between home and away games. The independent-shot
+model may also be imperfect.
+
+\medskip
+\noindent\textit{Exit check:} Complete the sentence: ``Assuming the null
+model, the $p$ value is the probability of \underline{\hspace{3cm}}.''
+The missing phrase is ``a test statistic at least as extreme as the one
+observed, in the direction(s) specified by the alternative.''
+\end{answer}
+
+\newpage
+\subsection*{Problem 4 (backup): Is the normal approximation credible?}
+\noindent\textit{Independent work: 5 minutes. Adapted from archived
+Recitation Worksheet 11, Problem 2.}
+A study records exposure to an environmental factor and disease status:
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule & Not exposed & Exposed\\\midrule
+No disease & 128 & 7\\
+Disease & 19 & 7\\\bottomrule
+\end{tabular}
+\end{center}
+Model individuals as independent, with disease probabilities
+$\theta_N$ and $\theta_E$ in the two groups.
+\begin{enumerate}
+ \item State hypotheses for whether the disease probabilities differ, and
+ find the observed exposed-minus-unexposed difference.
+ \item Find the pooled null estimate and the expected disease/no-disease
+ counts in each group using that estimate.
+ \item Does the ``at least 10 expected successes and failures per group''
+ guideline hold? Explain why computing a normal-tail $p$ value alone
+ would not settle whether the approximation is reliable.
+\end{enumerate}
+\workingspace{9cm}
+\begin{answer}
+\textbf{(a)} Test $H_0:\theta_E=\theta_N$ against
+$H_1:\theta_E\ne\theta_N$. The observed difference is
+\[
+ \boxed{d_{\mathrm{obs}}=\frac7{14}-\frac{19}{147}\approx0.37075.}
+\]
+The difference is about 37.1 percentage points.
+
+\textbf{(b)} The common-probability estimate is
+$\theta_{\mathrm{ML},0}=26/161\approx0.16149$.
+Multiplying each group size by this value and its complement gives
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule Expected count under fitted $H_0$ & Not exposed & Exposed\\\midrule
+Disease & 23.74 & 2.26\\
+No disease & 123.26 & 11.74\\\bottomrule
+\end{tabular}
+\end{center}
+\textbf{(c)} No: the expected exposed disease count is only 2.26.
+A mechanical pooled $z$ calculation gives $z\approx3.602$ and an approximate
+two-sided $p\approx0.000316$, but that small number does not validate its
+Gaussian calibration. The guideline is a diagnostic, not a theorem
+asserting failure or success. A suitable exact method, such as Fisher's
+exact test for this $2\times2$ table, avoids this normal approximation;
+its calculation is beyond this recitation.
+
+Even a well-calibrated test would assess association, not establish that
+exposure caused disease. The original archive asks for a significance
+test; this adaptation emphasizes checking the assumptions first.
+\end{answer}
+
+\ifsolutions
+\newpage
+\section*{Instructor notes: 75-minute plan}
+\begin{center}
+\begin{tabular}{@{}p{0.16\textwidth}p{0.77\textwidth}@{}}
+\toprule Time & Activity\\\midrule
+0--7 min & Free-throw table; two unknown probabilities; formulate a
+two-sided alternative before calculating.\\
+7--16 min & Derive the difference's null mean and variance; explain
+pooling and standardization.\\
+16--25 min & One versus two tails; $p$ value, decision, approximation
+checks, and the limits of a causal conclusion.\\
+25--42 min & Problem 1: 8 minutes independent work, 9 minutes discussion.\\
+42--58 min & Problem 2: 8 minutes independent work, 8 minutes discussion.\\
+58--72 min & Problem 3: 7 minutes independent work, 7 minutes discussion.\\
+72--75 min & Exit check and questions.\\\bottomrule
+\end{tabular}
+\end{center}
+\noindent\textit{Fast-class option:} Keep all independent-work periods.
+Shorten discussions by 2 minutes each for Problems 1 and 2 and by 1 minute
+for Problem 3. Then use minutes 67--72 for Problem 4 and 72--75 for its
+discussion and the exit check.
+
+\paragraph{Board sequence.}
+Write the two proportions, then ask whether a 23.6-point gap is surprising.
+Build the chain
+\[
+ \text{equal probabilities}\ \Longrightarrow\ \E_0[\rv d]=0
+ \ \Longrightarrow\ \se_{0,\mathrm{est}}\approx0.103
+ \ \Longrightarrow\ z\approx2.295
+ \ \Longrightarrow\ p_{\mathrm{two}}\approx0.022.
+\]
+Sketch a bell curve with both tails beyond $\pm2.295$ shaded. Ask which
+tail would count for a prespecified ``home is better'' question. Do not
+describe the positive raw difference alone as the two-sided evidence:
+its \emph{magnitude} is what matters.
+
+\paragraph{Assumptions and notation to emphasize.}
+The true common parameter $\theta$ is deterministic and unknown;
+$\theta_{\mathrm{ML},0}=56/85$ is its observed estimate under $H_0$.
+The random means have tildes, and $X_H,X_A$ denote observed datasets.
+The pooled null SE is appropriate for testing equal Bernoulli probabilities.
+An unrestricted confidence interval for their difference commonly uses
+separate group estimates instead; do not conflate the two calculations.
+Independent groups do not by themselves ensure independence of shots
+\emph{within} groups. A game-level dependence model would require more
+information than these two totals.
+
+\paragraph{Sources and adaptations.}
+The review and Problem 1 follow Carlos Fernandez-Granda's
+\href{https://github.com/cfgranda/ps4ds/blob/main/slides/hypothesis\%20testing/two_sample_tests_handout.pdf}{\emph{Two-Sample Tests} handout},
+especially the free-throw counts and the two tail probabilities.
+We call the square-root quantity a standard error (the slide labels it
+``variance'') and describe Gaussian calibration as approximate.
+Problem 2 preserves Exercise 11.19 from the Fall 2025 archive's
+\texttt{mine/r10/main.tex}; it also appears in archived Worksheet 9.
+Problem 3(a)--(c) adapts Exercise 9.26(b)--(d) from
+\texttt{mine/r8/main.tex}; (d)--(f) connect these ideas to the lecture example.
+Problem 4 preserves the counts in archived Worksheet 11, Problem 2,
+and changes the task to checking normal-approximation conditions.
+The archived worksheets themselves carry Spring 2025 headers.
+\fi
+\end{document}
