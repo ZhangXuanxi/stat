@@ -1,0 +1,515 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools,booktabs,enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref,microtype,comment,pgfplots}
+\pgfplotsset{compat=1.18}
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,urlcolor=MidnightBlue,
+ pdftitle={Recitation 10: Power and the Sign Test},pdfauthor={Xuanxi Zhang}}
+% Default: student handout. Define \WITHSOLUTIONS for answers and pacing.
+% Both versions compile from this self-contained file; no external figures.
+\newif\ifsolutions
+\ifdefined\WITHSOLUTIONS\solutionstrue\else\solutionsfalse\fi
+\newcommand{\rv}[1]{\widetilde{#1}}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Pbb}{\mathbb P}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\pow}{\operatorname{pow}}
+\ifsolutions
+ \newenvironment{answer}{\par\medskip\noindent\textcolor{MidnightBlue}{\textbf{Solution.}}\ }{\par\medskip}
+ \newcommand{\workingspace}[1]{}
+\else
+ \excludecomment{answer}
+ \newcommand{\workingspace}[1]{\vspace{#1}}
+\fi
+\setlist[enumerate]{label=(\alph*),leftmargin=2em,itemsep=0.4em}
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.3em}
+\title{\huge Recitation 10\\[0.35em]\normalsize Power and the Sign Test\\[0.35em]
+ \large\ifsolutions Solutions and Teaching Notes\else Review and Practice Problems\fi}
+\author{Xuanxi Zhang}
+\date{November 13, 2026}
+\begin{document}
+\maketitle
+\noindent\textit{Reading:}
+\href{https://github.com/cfgranda/ps4ds/blob/main/ps4ds_preprint.pdf}
+{\emph{Probability and Statistics for Data Science}},
+Section 10.6, Example 10.17, and Exercise 10.10.
+
+\section*{Review: how often will a test detect an effect?}
+For a fixed test and significance level $\alpha$, its \textbf{power function} is
+\[
+ \pow(\theta)=\Pbb_\theta(\text{reject }H_0).
+\]
+Under an alternative, this is the probability of a true positive;
+$1-\pow(\theta)$ is the probability of a type II error.
+Under a null parameter, the same rejection probability is the type I error
+rate. A level-$\alpha$ test bounds it by $\alpha$ throughout the null.
+A $p$ value evaluates the observed data under the null; power evaluates a
+\emph{decision rule} across repeated datasets at a specified parameter.
+
+\paragraph{1. Specify the free-throw model (Example 10.17).}
+In the free-throw example, Antetokounmpo made 34 of 44 home attempts and
+22 of 41 away attempts. For repeated datasets of these sizes, assume all shots are
+independent, with fixed success probabilities $\theta_H$ and $\theta_A$:
+\[
+ \rv h_i\sim\operatorname{Bernoulli}(\theta_H),\qquad
+ \rv a_j\sim\operatorname{Bernoulli}(\theta_A),\qquad
+ \rv d=\frac1{44}\sum_{i=1}^{44}\rv h_i-
+       \frac1{41}\sum_{j=1}^{41}\rv a_j.
+\]
+The observed difference is $d_{\mathrm{obs}}=34/44-22/41\approx0.236$.
+We compare a right-tailed test for $\theta_H>\theta_A$ with a two-tailed
+test for $\theta_H\ne\theta_A$. Both are calibrated at equality.
+
+\paragraph{2. Use the null distribution to set the rejection region.}
+Follow the book's power approximation: fix $\theta_H=0.685$ and use the
+\emph{true null} standard deviation at $\theta_A=\theta_H$,
+\[
+ \sigma_{\mathrm{null}}=
+ \sqrt{0.685(1-0.685)\left(\frac1{44}+\frac1{41}\right)}
+ \approx0.10083.
+\]
+Write $\Phi(u)=\Pbb(\rv z\leq u)$ for $\rv z\sim\mathcal N(0,1)$.
+At $\alpha=0.05$, solving the normal-tail equations gives
+\[
+ \begin{array}{lll}
+ \text{One tail:}&1-\Phi(\tau_1/\sigma_{\mathrm{null}})=\alpha,
+   &\tau_1=\sigma_{\mathrm{null}}\Phi^{-1}(0.95)\approx0.16585,\\[0.5em]
+ \text{Two tails:}&2[1-\Phi(\tau_2/\sigma_{\mathrm{null}})]=\alpha,
+   &\tau_2=\sigma_{\mathrm{null}}\Phi^{-1}(0.975)\approx0.19762.
+ \end{array}
+\]
+Reject when $d_{\mathrm{obs}}\geq\tau_1$ or $|d_{\mathrm{obs}}|\geq\tau_2$,
+respectively. \textbf{Keep these cutoffs fixed as $\theta_A$ varies.}
+The observed pooled SE, about $0.10291$, is a different quantity; the
+calculation here follows the fixed-null approximation in equation (10.82).
+
+\newpage
+\section*{Review: evaluate the rejection region under an alternative}
+\paragraph{3. Change the distribution, keeping the test fixed.}
+At a specified pair $(\theta_H,\theta_A)$, let $\delta=\theta_H-\theta_A$.
+Independence and the Gaussian approximation to the sample proportions give
+\[
+ \rv d\ \approx\ \mathcal N(\delta,\sigma_{\mathrm{pow}}^2),\qquad
+ \sigma_{\mathrm{pow}}^2=
+ \frac{\theta_H(1-\theta_H)}{44}+\frac{\theta_A(1-\theta_A)}{41}.
+\]
+\textbf{The null SD sets the cutoffs; the alternative SD computes power.}
+Standardize under this specified model, subtracting its mean $\delta$:
+\[
+ \boxed{\pow_1(\theta_H,\theta_A)
+ \approx1-\Phi\!\left(\frac{\tau_1-\delta}{\sigma_{\mathrm{pow}}}\right).}
+\]
+For a two-tailed test, add the probabilities of the two rejection tails:
+\[
+ \boxed{\pow_2(\theta_H,\theta_A)\approx
+ \Phi\!\left(\frac{-\tau_2-\delta}{\sigma_{\mathrm{pow}}}\right)
+ +1-\Phi\!\left(\frac{\tau_2-\delta}{\sigma_{\mathrm{pow}}}\right).}
+\]
+
+\paragraph{4. Work one example: $\theta_H=0.685$, $\theta_A=0.55$.}
+Here $\delta=0.135$ and $\sigma_{\mathrm{pow}}\approx0.10460$. Thus
+\[
+ \pow_1\approx1-\Phi(0.29495)=0.3840,\qquad
+ \pow_2\approx\Phi(-3.18005)+1-\Phi(0.59872)=0.2754.
+\]
+The right-tailed test detects this specified difference about 38.4\% of the
+time in this approximation; it misses it about 61.6\% of the time.
+This is not a probability that the alternative is true.
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+ width=0.91\textwidth,height=5.25cm,
+ xmin=0,xmax=1,ymin=0,ymax=1.03,
+ xlabel={Away success probability $\theta_A$},ylabel={Rejection probability},
+ xtick={0,0.25,0.5,0.685,0.85,1},
+ xticklabels={$0$,$0.25$,$0.5$,$0.685$,$0.85$,$1$},
+ ytick={0,0.25,0.5,0.75,1},tick label style={font=\small},
+ label style={font=\small},
+ legend style={at={(0.03,0.05)},anchor=south west,font=\small,
+   draw=none,fill=white},
+ grid=major,grid style={gray!18}]
+% Numeric coordinates are computed from the displayed Gaussian formulas.
+\addplot[black,thick] coordinates {
+(0.000,1.0000000) (0.010,1.0000000) (0.020,1.0000000) (0.030,1.0000000) (0.040,1.0000000) (0.050,1.0000000) (0.060,1.0000000) (0.070,1.0000000) (0.080,1.0000000) (0.090,0.9999999) (0.100,0.9999997) (0.110,0.9999992) (0.120,0.9999980) (0.130,0.9999956) (0.140,0.9999907) (0.150,0.9999814) (0.160,0.9999641) (0.170,0.9999338) (0.180,0.9998823) (0.190,0.9997980) (0.200,0.9996642) (0.210,0.9994580) (0.220,0.9991488) (0.230,0.9986969) (0.240,0.9980520) (0.250,0.9971515) (0.260,0.9959201) (0.270,0.9942684) (0.280,0.9920929) (0.290,0.9892765) (0.300,0.9856889) (0.310,0.9811886) (0.320,0.9756252) (0.330,0.9688419) (0.340,0.9606798) (0.350,0.9509817) (0.360,0.9395968) (0.370,0.9263854) (0.380,0.9112246) (0.390,0.8940125) (0.400,0.8746733) (0.410,0.8531616) (0.420,0.8294661) (0.430,0.8036120) (0.440,0.7756636) (0.450,0.7457243) (0.460,0.7139371) (0.470,0.6804828) (0.480,0.6455773) (0.490,0.6094680) (0.500,0.5724293) (0.510,0.5347567) (0.520,0.4967605) (0.530,0.4587594) (0.540,0.4210729) (0.550,0.3840145) (0.560,0.3478843) (0.570,0.3129628) (0.580,0.2795044) (0.590,0.2477327) (0.600,0.2178359) (0.610,0.1899637) (0.620,0.1642256) (0.630,0.1406898) (0.640,0.1193841) (0.650,0.1002970) (0.660,0.0833813) (0.670,0.0685571) (0.680,0.0557165) (0.685,0.0500000) (0.690,0.0447288) (0.700,0.0354456) (0.710,0.0277067) (0.720,0.0213450) (0.730,0.0161925) (0.740,0.0120840) (0.750,0.0088619) (0.760,0.0063789) (0.770,0.0045011) (0.780,0.0031089) (0.790,0.0020987) (0.800,0.0013822) (0.810,0.0008864) (0.820,0.0005523) (0.830,0.0003336) (0.840,0.0001947) (0.850,0.0001096) (0.860,0.0000592) (0.870,0.0000306) (0.880,0.0000151) (0.890,0.0000070) (0.900,0.0000031) (0.910,0.0000013) (0.920,0.0000005) (0.930,0.0000002) (0.940,0.0000001) (0.950,0.0000000) (0.960,0.0000000) (0.970,0.0000000) (0.980,0.0000000) (0.990,0.0000000) (1.000,0.0000000)
+};
+\addlegendentry{One tail}
+\addplot[MidnightBlue,thick,densely dotted] coordinates {
+(0.000,1.0000000) (0.010,1.0000000) (0.020,1.0000000) (0.030,1.0000000) (0.040,1.0000000) (0.050,1.0000000) (0.060,1.0000000) (0.070,0.9999999) (0.080,0.9999997) (0.090,0.9999991) (0.100,0.9999979) (0.110,0.9999950) (0.120,0.9999892) (0.130,0.9999777) (0.140,0.9999563) (0.150,0.9999180) (0.160,0.9998523) (0.170,0.9997438) (0.180,0.9995707) (0.190,0.9993033) (0.200,0.9989019) (0.210,0.9983155) (0.220,0.9974803) (0.230,0.9963179) (0.240,0.9947350) (0.250,0.9926230) (0.260,0.9898579) (0.270,0.9863022) (0.280,0.9818061) (0.290,0.9762105) (0.300,0.9693507) (0.310,0.9610599) (0.320,0.9511747) (0.330,0.9395399) (0.340,0.9260138) (0.350,0.9104738) (0.360,0.8928217) (0.370,0.8729882) (0.380,0.8509376) (0.390,0.8266707) (0.400,0.8002277) (0.410,0.7716894) (0.420,0.7411773) (0.430,0.7088527) (0.440,0.6749146) (0.450,0.6395961) (0.460,0.6031602) (0.470,0.5658945) (0.480,0.5281051) (0.490,0.4901099) (0.500,0.4522322) (0.510,0.4147931) (0.520,0.3781053) (0.530,0.3424663) (0.540,0.3081532) (0.550,0.2754171) (0.560,0.2444797) (0.570,0.2155301) (0.580,0.1887234) (0.590,0.1641801) (0.600,0.1419871) (0.610,0.1221994) (0.620,0.1048436) (0.630,0.0899213) (0.640,0.0774145) (0.650,0.0672902) (0.660,0.0595068) (0.670,0.0540191) (0.680,0.0507842) (0.685,0.0500000) (0.690,0.0497664) (0.700,0.0509417) (0.710,0.0543012) (0.720,0.0598538) (0.730,0.0676270) (0.740,0.0776670) (0.750,0.0900372) (0.760,0.1048146) (0.770,0.1220861) (0.780,0.1419417) (0.790,0.1644678) (0.800,0.1897386) (0.810,0.2178069) (0.820,0.2486939) (0.830,0.2823791) (0.840,0.3187899) (0.850,0.3577919) (0.860,0.3991799) (0.870,0.4426711) (0.880,0.4879002) (0.890,0.5344180) (0.900,0.5816938) (0.910,0.6291229) (0.920,0.6760389) (0.930,0.7217332) (0.940,0.7654802) (0.950,0.8065693) (0.960,0.8443413) (0.970,0.8782293) (0.980,0.9078001) (0.990,0.9327916) (1.000,0.9531425)
+};
+\addlegendentry{Two tails}
+\addplot[gray,dashed,domain=0:1] {0.05};
+\addlegendentry{$\alpha=0.05$}
+\addplot[gray,densely dashed,forget plot] coordinates {(0.685,0) (0.685,1.03)};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\noindent\small
+Both curves equal $0.05$ at equality in this Gaussian approximation.
+One tail gives greater power when home is better; two tails also detect
+when away is better. Choose the direction before observing outcomes.
+The actual pooled test re-estimates its null SE for every dataset; its
+power can be computed by simulation or by summing binomial probabilities.
+\normalsize
+
+\newpage
+\section*{Practice problems}
+\noindent Three core problems; Problem 4 is a backup. The indicated times
+are for independent work before discussion.
+
+\subsection*{Problem 1: Which effects can the free-throw test detect?}
+\noindent\textit{Independent work: 8 minutes. Example 10.17 and Exercise 10.5.}
+Use the independent Bernoulli model and the fixed cutoffs on page 1.
+\begin{enumerate}
+ \item Derive $\E[\rv d]=\theta_H-\theta_A$ and
+ $\Var(\rv d)=\theta_H(1-\theta_H)/44+\theta_A(1-\theta_A)/41$.
+ Why do the two variance contributions add?
+ \item Suppose $\theta_H=0.685$ and $\theta_A=0.75$.
+ Compute $\delta$, $\sigma_{\mathrm{pow}}$, and both approximate powers.
+ You may use $\Phi(2.371)\approx0.9911$,
+ $\Phi(1.362)\approx0.9134$, and $\Phi(2.698)\approx0.9965$.
+ \item Explain why the one-tailed rejection probability is so small in
+ part (b). Which test addresses a difference in \emph{either} direction?
+ What happens to both approximate powers at $\theta_A=0.685$?
+\end{enumerate}
+\workingspace{9cm}
+\begin{answer}
+\textbf{(a)} Each Bernoulli observation has mean $\theta$ and variance
+$\theta(1-\theta)$. By linearity,
+\[
+ \E[\rv d]=\frac{44\theta_H}{44}-\frac{41\theta_A}{41}
+ =\theta_H-\theta_A.
+\]
+Within-group independence gives variances
+$44\theta_H(1-\theta_H)/44^2$ and $41\theta_A(1-\theta_A)/41^2$.
+Between-group independence makes their covariance zero. Since the
+coefficient $-1$ is squared in a variance,
+\[
+ \boxed{\Var(\rv d)=\frac{\theta_H(1-\theta_H)}{44}
+                         +\frac{\theta_A(1-\theta_A)}{41}.}
+\]
+
+\textbf{(b)} Now $\delta=-0.065$ and
+\[
+ \sigma_{\mathrm{pow}}=
+ \sqrt{\frac{0.685(0.315)}{44}+\frac{0.75(0.25)}{41}}
+ \approx0.09735.
+\]
+Using $\tau_1\approx0.16585$ and $\tau_2\approx0.19762$,
+\begin{align*}
+ \pow_1&\approx1-\Phi\!\left(\frac{0.16585+0.065}{0.09735}\right)
+       \approx\boxed{0.0089},\\
+ \pow_2&\approx\Phi\!\left(\frac{-0.19762+0.065}{0.09735}\right)
+       +1-\Phi\!\left(\frac{0.19762+0.065}{0.09735}\right)
+       \approx\boxed{0.0900}.
+\end{align*}
+The supplied rounded cdf values give about $0.0901$ for the second result.
+
+\textbf{(c)} The right-tailed test rejects for a sufficiently positive
+home-minus-away difference, but the true difference here is negative.
+The two-tailed test can detect either direction, although a 6.5-point gap
+is still hard to detect with these sample sizes. For the directional
+formulation $H_0:\theta_H\leq\theta_A$, part (b) is in the null region;
+its rejection probability is not power against the intended alternative.
+At equality, $\delta=0$ and $\sigma_{\mathrm{pow}}=\sigma_{\mathrm{null}}$,
+so the two Gaussian formulas both give $\boxed{0.05}$.
+\end{answer}
+
+\newpage
+\subsection*{Problem 2: Derive the sign test (Exercise 10.10(a)--(b))}
+\noindent\textit{Independent work: 7 minutes.}
+For paired measurements $(x_i,y_i)$, the sign statistic counts how often
+the second measurement is larger:
+\[
+ t=\sum_{i=1}^n\mathbf 1(y_i>x_i).
+\]
+Its random counterpart is
+$\rv t=\sum_{i=1}^n\mathbf 1(\rv y_i>\rv x_i)$.
+\begin{enumerate}
+ \item For independent $\rv a,\rv b$ with a common continuous distribution,
+ show that \mbox{$\Pbb(\rv a>\rv b)=1/2$}.
+ Where do continuity and symmetry enter?
+ \item Under the null, suppose all $2n$ measurements are independent
+ samples from the same continuous distribution. Derive the distribution
+ of $\rv t$ and its pmf. State a one-tailed $p$-value formula for the
+ alternative that the second measurement tends to be larger.
+\end{enumerate}
+\noindent\textit{Discussion:} Why does this test not require a Gaussian
+model for the measurements? What information does it discard?
+\workingspace{10cm}
+\begin{answer}
+\textbf{(a)} Independence and the common distribution make
+$(\rv a,\rv b)$ and $(\rv b,\rv a)$ identically distributed. Therefore
+$\Pbb(\rv a>\rv b)=\Pbb(\rv b>\rv a)$.
+Independence and continuity imply $\Pbb(\rv a=\rv b)=0$. The two strict
+inequality events partition the sample space up to this zero-probability
+event, so each has probability $\boxed{1/2}$.
+
+\textbf{(b)} Define $\rv s_i=\mathbf 1(\rv y_i>\rv x_i)$.
+Part (a) gives $\rv s_i\sim\operatorname{Bernoulli}(1/2)$.
+Because distinct pairs are independent, their signs are independent.
+Consequently,
+\[
+ \boxed{\rv t\sim\operatorname{Binomial}(n,1/2),\qquad
+ p_{\rv t}(k)=\binom nk2^{-n},\quad k=0,\ldots,n.}
+\]
+Large counts support the stated alternative. For observed count $t$,
+\[
+ \boxed{p_{\mathrm{right}}(t)=\Pbb_0(\rv t\geq t)
+       =\sum_{k=t}^{n}\binom nk2^{-n}.}
+\]
+Include the observed count in this tail: this is a discrete test.
+The continuous measurement distribution need not be specified, because
+under the null the independent signs have a known distribution.
+The statistic uses only which measurement is larger, discarding the
+magnitudes of the differences.
+
+\medskip
+\noindent\textit{Assumption check:} Independent pairs alone do not imply
+independent measurements within a pair. For paired data, within-pair
+\emph{exchangeability} (swapping the labels leaves the joint distribution
+unchanged) and no ties also give fair signs, even if the two measurements
+are dependent. Equal marginal distributions alone are insufficient.
+\end{answer}
+
+\newpage
+\subsection*{Problem 3: Are left ears longer? (Exercise 10.10(c)--(d))}
+\noindent\textit{Independent work: 10 minutes.}
+A friend claims that left ears tend to be longer than right ears.
+Measurements from ten people, in inches, are
+\begin{center}
+\begin{tabular}{@{}l*{10}{r}@{}}
+\toprule
+Left  &2.4&2.7&3.2&2.3&2.0&2.6&3.2&2.3&2.9&2.3\\
+Right &2.2&2.6&3.3&2.2&2.1&2.5&3.1&2.5&2.7&2.2\\
+\bottomrule
+\end{tabular}
+\end{center}
+Assume independent people and fair, independent signs under the null.
+Set $y_i$ to the left-ear length and $x_i$ to the right-ear length.
+\begin{enumerate}
+ \item State the one-sided alternative using
+ $q=\Pbb(\rv y_i>\rv x_i)$, and compute $t$.
+ \item Compute the exact one-sided $p$ value and give the decision at
+ $\alpha=0.05$. Does the decision establish equal ear lengths?
+ \item As an extension, find the smallest count that rejects at 5\%.
+ Is the actual null rejection probability exactly 5\%?
+ \item Return to Exercise 10.10(d): suppose all measurements are
+ independent, and $\rv x_i$ and $\rv y_i$ each have the same continuous
+ distribution $F_i$ within each pair, but $F_i$ may differ across people.
+ Is the same sign test still valid? Justify your answer.
+\end{enumerate}
+\noindent\textit{Arithmetic aid:}
+$\binom{10}{7}=120$, $\binom{10}{8}=45$,
+$\binom{10}{9}=10$, $\binom{10}{10}=1$, and $2^{10}=1024$.
+\workingspace{8cm}
+\begin{answer}
+\textbf{(a)} Use the fair-sign null $H_0:q=1/2$ against $H_1:q>1/2$.
+The latter describes a tendency for left ears to be longer. The signs of
+left minus right are
+\[
+ (+,+,-,+,-,+,+,-,+,+),\qquad \boxed{t=7}.
+\]
+This null concerns a population comparison, not exact equality of every
+person's two ear lengths. The same upper-tail rule also controls error
+for the one-sided composite null $q\leq1/2$ under i.i.d. signs.
+
+\textbf{(b)} Under the fair-sign null, $\rv t\sim\operatorname{Binomial}(10,1/2)$.
+The exact tail probability is
+\[
+ p=\Pbb_0(\rv t\geq7)
+ =\frac{120+45+10+1}{1024}
+ =\boxed{0.171875}.
+\]
+Since $p>0.05$, do not reject. These data do not provide sufficient
+evidence for the directional claim at 5\%; they do not prove equal
+lengths or equal distributions. A prespecified two-sided test would give
+$2(0.171875)=0.34375$.
+
+\textbf{(c)} The two relevant tails are
+\[
+ \Pbb_0(\rv t\geq8)=\frac{56}{1024}=0.0546875>0.05,
+ \qquad
+ \Pbb_0(\rv t\geq9)=\frac{11}{1024}\approx0.0107422<0.05.
+\]
+Thus reject exactly when $\boxed{t\geq9}$.
+The null rejection probability is about $1.07\%$; discreteness makes
+this nonrandomized level-$0.05$ test conservative.
+
+\textbf{(d)} Yes. For each $i$, independence, continuity, and the common
+within-pair distribution $F_i$ give
+$\Pbb(\rv y_i>\rv x_i)=1/2$. Independent pairs therefore still yield
+i.i.d. Bernoulli$(1/2)$ signs, even though the underlying lengths are
+not identically distributed across people. Their sum remains
+$\boxed{\operatorname{Binomial}(10,1/2)}$.
+\end{answer}
+
+\newpage
+\subsection*{Problem 4 (backup): Gaussian power and sample size}
+\noindent\textit{Independent work: 5 minutes. Archived Recitation 7,
+with a power extension.}
+Let $\rv x_1,\ldots,\rv x_n$ be i.i.d. $\mathcal N(\theta,1)$.
+We test $H_0:\theta\leq0$ against $H_1:\theta>0$ using the sample mean.
+Let $m(X)=n^{-1}\sum_i x_i$ denote its observed value.
+\begin{enumerate}
+ \item Construct a level-$0.05$ test. Explain why checking $\theta=0$
+ suffices to bound the rejection probability for every $\theta\leq0$.
+ \item Derive the power function at any fixed $\theta$.
+ \item How large must $n$ be for power at least $0.80$ when
+ $\theta=0.5$? Use $\Phi^{-1}(0.95)=1.64485$ and
+ $\Phi^{-1}(0.80)=0.84162$.
+\end{enumerate}
+\workingspace{11cm}
+\begin{answer}
+\textbf{(a)} The random sample mean has distribution
+$\rv m\sim\mathcal N(\theta,1/n)$, so at $\theta=0$,
+$\sqrt n\,\rv m\sim\mathcal N(0,1)$. Reject if
+\[
+ \boxed{m(X)\geq\frac{\Phi^{-1}(0.95)}{\sqrt n}.}
+\]
+For $\theta<0$, the distribution shifts left while the cutoff stays
+fixed, so its upper-tail rejection probability decreases. The maximum
+null rejection probability is $0.05$, attained at $\theta=0$.
+
+\textbf{(b)} Standardizing under the true parameter gives the exact power
+function (the observations are Gaussian):
+\[
+ \pow(\theta)=\Pbb_\theta\!\left(\rv m\geq
+                          \frac{\Phi^{-1}(0.95)}{\sqrt n}\right)
+ =\boxed{1-\Phi\!\left(\Phi^{-1}(0.95)-\sqrt n\,\theta\right).}
+\]
+For fixed $\theta>0$, increasing $n$ increases power.
+
+\textbf{(c)} Require
+$\Phi(1.64485-0.5\sqrt n)\leq0.20$. Since
+$\Phi^{-1}(0.20)=-0.84162$,
+\[
+ \sqrt n\geq\frac{1.64485+0.84162}{0.5},\qquad
+ n\geq24.7301.
+\]
+Round up to get $\boxed{n=25}$.
+The resulting power is about $0.8038$.
+\end{answer}
+
+\ifsolutions
+\newpage
+\section*{Instructor notes: 75-minute plan}
+\begin{center}
+\begin{tabular}{@{}p{0.16\textwidth}p{0.77\textwidth}@{}}
+\toprule Time & Activity\\\midrule
+0--5 min & Define power, type I and type II errors; distinguish power
+from a $p$ value.\\
+5--13 min & Recall the free throws. Fix the null SD and derive the
+one- and two-tailed cutoffs.\\
+13--22 min & Shift to the specified alternative, derive both powers,
+and work $\theta_A=0.55$. Read the power curves.\\
+22--25 min & Introduce paired signs: a fair sign is Bernoulli$(1/2)$.
+Explain the setup for Exercise 10.10 without giving the proof.\\
+25--41 min & Problem 1: 8 minutes independent work, 8 minutes discussion.\\
+41--55 min & Problem 2: 7 minutes independent work, 7 minutes discussion.\\
+55--72 min & Problem 3: 10 minutes independent work, 7 minutes discussion.\\
+72--75 min & Exit check and questions.\\\bottomrule
+\end{tabular}
+\end{center}
+\noindent\textit{Fast-class option:} Keep independent-work times intact.
+Shorten the three core discussions to 6, 4, and 4 minutes, respectively.
+This finishes Problem 3 at minute 64. Use 64--69 for independent work on
+Problem 4, 69--72 for its discussion, and 72--75 for the exit check.
+
+\paragraph{Board sequence.}
+Write
+\[
+ \text{null model}\ \longrightarrow\ \text{fixed rejection region}
+ \ \longrightarrow\ \text{probability under a specified model}.
+\]
+Sketch a null bell curve centered at zero and an alternative curve centered
+at $0.135$, with the same vertical cutoff $0.16585$ on both.
+The area to its right is about $0.05$ under the null and $0.384$ under
+the specified alternative. For two tails, draw both $\pm0.19762$ cutoffs
+and shade the two alternative tail areas. Then move to the binomial
+sign statistic: the same rejection-probability idea applies to discrete data.
+
+\paragraph{Exit check.}
+Ask: ``Which SD sets the free-throw cutoff, and which SD computes power?
+Why can a level-$0.05$ sign test reject less than 5\% of the time under
+the null?'' Expected answers: the null SD and specified-model SD,
+respectively; discrete tail probabilities need not equal the target level.
+
+\paragraph{Paired-data assumptions.}
+Real ears from the same person can be dependent. The exercise's independent
+continuous measurements are sufficient for its derivation; independent
+people with exchangeable left/right measurements and no ties are also
+sufficient. Do not infer exchangeability from equal marginals alone.
+If ties occur, the simple no-ties derivation does not apply directly.
+The usual sign test drops ties and uses the number of non-tied pairs;
+this requires fair signs conditional on being non-tied. There are no ties
+in the supplied data.
+
+\newpage
+\section*{Instructor notes: the actual pooled test}
+\paragraph{Why the two power calculations differ.}
+Example 10.17 fixes the null SD at the true equality model with
+$\theta_H=0.685$. In practice, the two-sample $z$ test estimates a pooled
+null probability from \emph{each new dataset}. To evaluate that actual
+procedure at specified $(\theta_H,\theta_A)$, repeat the following:
+\begin{enumerate}[label=\arabic*.]
+ \item Simulate independent counts
+ $\rv k_H\sim\operatorname{Binomial}(44,\theta_H)$ and
+ $\rv k_A\sim\operatorname{Binomial}(41,\theta_A)$.
+ \item For the simulated counts $k_H,k_A$, compute
+ \[
+ d=\frac{k_H}{44}-\frac{k_A}{41},\qquad
+ \theta_{\mathrm{ML},0}=\frac{k_H+k_A}{85},\qquad
+ s_0=\sqrt{\theta_{\mathrm{ML},0}(1-\theta_{\mathrm{ML},0})
+                  (1/44+1/41)}.
+ \]
+ \item Compute $z=d/s_0$ and use
+ $p_1=1-\Phi(z)$ or $p_2=2[1-\Phi(|z|)]$.
+ If all attempts are makes or all are misses, $d=s_0=0$;
+ define the procedure to not reject (set $p=1$).
+ \item Record $\mathbf 1(p\leq0.05)$.
+ The fraction of rejections across $B$ independent repetitions estimates
+ power. Its estimated Monte Carlo SE is
+ $\sqrt{p_{\mathrm{MC}}(1-p_{\mathrm{MC}})/B}$,
+ where $p_{\mathrm{MC}}$ denotes that observed fraction.
+\end{enumerate}
+Because there are only $45\times42$ possible count pairs, we can also
+compute the rejection probability directly, without simulation error:
+\[
+ \sum_{k_H=0}^{44}\sum_{k_A=0}^{41}
+ \mathbf 1\{\text{pooled rule rejects at }(k_H,k_A)\}
+ \binom{44}{k_H}\theta_H^{k_H}(1-\theta_H)^{44-k_H}
+ \binom{41}{k_A}\theta_A^{k_A}(1-\theta_A)^{41-k_A}.
+\]
+\begin{center}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+ &\multicolumn{2}{c}{Fixed-null Gaussian approximation}
+ &\multicolumn{2}{c}{Pooled rule: exact summation}\\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+$\theta_A$ & One tail & Two tails & One tail & Two tails\\\midrule
+0.550 &0.3840&0.2754&0.3390&0.2574\\
+0.685 &0.0500&0.0500&0.0491&0.0496\\
+0.750 &0.0089&0.0900&0.0112&0.0998\\
+\bottomrule
+\end{tabular}
+\end{center}
+\noindent Here $\theta_H=0.685$ throughout. Exact summation evaluates the
+chosen pooled $z$ rule under the independent-binomial model; it does not
+turn that rule into an exact level-$0.05$ test for all null parameters.
+
+\paragraph{Sources and numerical clarification.}
+The review and Problem 1 follow
+\href{https://github.com/cfgranda/ps4ds/blob/main/ps4ds_preprint.pdf}
+{Example 10.17 and Exercise 10.5}; Problems 2--3 cover all of Exercise
+10.10, with an added discrete-cutoff question. In the preprint, the
+quoted cutoffs $0.166$ and $0.198$ agree with the fixed true-null SD
+$0.10083$, not the stated observed SD $0.103$. Using the actual observed
+pooled SE $0.10291$ instead gives $0.16927$ and $0.20170$.
+The power curves here are recomputed from equations (10.79)--(10.82).
+Problem 4(a) reuses the Gaussian test in the Fall 2025 archive's
+\texttt{mine/r7/r7.tex}, Section 2; parts (b)--(c) add power and sample-size
+planning. The archive had no close match for the requested sign exercise.
+\fi
+\end{document}

@@ -1,0 +1,365 @@
+Recitation 10
+Power and the Sign Test
+Solutions and Teaching Notes
+Xuanxi Zhang
+November 13, 2026
+Reading: Probability and Statistics for Data Science , Section 10.6, Example 10.17, and Exercise
+10.10.
+Review: how often will a test detect an effect?
+For a fixed test and significance level α, its power function is
+pow(θ) = Pθ(reject H0).
+Under an alternative, this is the probability of a true positive; 1 − pow(θ) is the probability of a
+type II error. Under a null parameter, the same rejection probability is the type I error rate. A
+level-α test bounds it by α throughout the null. A p value evaluates the observed data under
+the null; power evaluates a decision rule across repeated datasets at a specified parameter.
+1. Specify the free-throw model (Example 10.17). In the free-throw example, Antetok-
+ounmpo made 34 of 44 home attempts and 22 of 41 away attempts. For repeated datasets of
+these sizes, assume all shots are independent, with fixed success probabilities θH and θA:
+ehi ∼ Bernoulli(θH), eaj ∼ Bernoulli(θA), ed = 1
+44
+44X
+i=1
+ehi − 1
+41
+41X
+j=1
+eaj.
+The observed difference is dobs = 34/44 − 22/41 ≈ 0.236. We compare a right-tailed test for
+θH > θ A with a two-tailed test for θH ̸= θA. Both are calibrated at equality.
+2. Use the null distribution to set the rejection region. Follow the book’s power
+approximation: fix θH = 0.685 and use the true null standard deviation at θA = θH,
+σnull =
+s
+0.685(1 − 0.685)
+ 1
+44 + 1
+41
+
+≈ 0.10083.
+Write Φ(u) = P(ez ≤ u) for ez ∼ N (0, 1). At α = 0.05, solving the normal-tail equations gives
+One tail: 1 − Φ(τ1/σnull) = α, τ 1 = σnullΦ−1(0.95) ≈ 0.16585,
+Two tails: 2[1 − Φ(τ2/σnull)] = α, τ 2 = σnullΦ−1(0.975) ≈ 0.19762.
+Reject when dobs ≥ τ1 or |dobs| ≥ τ2, respectively. Keep these cutoffs fixed as θA varies.
+The observed pooled SE, about 0 .10291, is a different quantity; the calculation here follows the
+fixed-null approximation in equation (10.82).
+1
+
+Review: evaluate the rejection region under an alternative
+3. Change the distribution, keeping the test fixed. At a specified pair ( θH , θA), let
+δ = θH − θA. Independence and the Gaussian approximation to the sample proportions give
+ed ≈ N (δ, σ2
+pow), σ 2
+pow = θH(1 − θH)
+44 + θA(1 − θA)
+41 .
+The null SD sets the cutoffs; the alternative SD computes power. Standardize under
+this specified model, subtracting its mean δ:
+pow1(θH , θA) ≈ 1 − Φ
+ τ1 − δ
+σpow
+
+.
+For a two-tailed test, add the probabilities of the two rejection tails:
+pow2(θH , θA) ≈ Φ
+ −τ2 − δ
+σpow
+
++ 1 − Φ
+ τ2 − δ
+σpow
+
+.
+4. Work one example: θH = 0.685, θA = 0.55. Here δ = 0.135 and σpow ≈ 0.10460. Thus
+pow1 ≈ 1 − Φ(0.29495) = 0.3840, pow2 ≈ Φ(−3.18005) + 1 − Φ(0.59872) = 0.2754.
+The right-tailed test detects this specified difference about 38.4% of the time in this approximation;
+it misses it about 61.6% of the time. This is not a probability that the alternative is true.
+0 0.25 0.5 0.685 0.85 10
+0.25
+0.5
+0.75
+1
+Away success probability θA
+Rejection probability
+One tail
+Two tails
+α = 0.05
+Both curves equal 0 .05 at equality in this Gaussian approximation. One tail gives greater power when
+home is better; two tails also detect when away is better. Choose the direction before observing outcomes.
+The actual pooled test re-estimates its null SE for every dataset; its power can be computed by simulation
+or by summing binomial probabilities.
+2
+
+Practice problems
+Three core problems; Problem 4 is a backup. The indicated times are for independent work
+before discussion.
+Problem 1: Which effects can the free-throw test detect?
+Independent work: 8 minutes. Example 10.17 and Exercise 10.5. Use the independent Bernoulli
+model and the fixed cutoffs on page 1.
+(a) Derive E[ed] = θH − θA and Var(ed) = θH(1 − θH)/44 + θA(1 − θA)/41. Why do the two
+variance contributions add?
+(b) Suppose θH = 0.685 and θA = 0.75. Compute δ, σpow, and both approximate powers. You
+may use Φ(2.371) ≈ 0.9911, Φ(1.362) ≈ 0.9134, and Φ(2 .698) ≈ 0.9965.
+(c) Explain why the one-tailed rejection probability is so small in part (b). Which test addresses
+a difference in either direction? What happens to both approximate powers at θA = 0.685?
+Solution. (a) Each Bernoulli observation has mean θ and variance θ(1 − θ). By linearity,
+E[ed] = 44θH
+44 − 41θA
+41 = θH − θA.
+Within-group independence gives variances 44 θH(1 − θH)/442 and 41θA(1 − θA)/412. Between-
+group independence makes their covariance zero. Since the coefficient −1 is squared in a
+variance,
+Var(ed) = θH(1 − θH)
+44 + θA(1 − θA)
+41 .
+(b) Now δ = −0.065 and
+σpow =
+r
+0.685(0.315)
+44 + 0.75(0.25)
+41 ≈ 0.09735.
+Using τ1 ≈ 0.16585 and τ2 ≈ 0.19762,
+pow1 ≈ 1 − Φ
+0.16585 + 0.065
+0.09735
+
+≈ 0.0089 ,
+pow2 ≈ Φ
+ −0.19762 + 0.065
+0.09735
+
++ 1 − Φ
+0.19762 + 0.065
+0.09735
+
+≈ 0.0900 .
+The supplied rounded cdf values give about 0 .0901 for the second result.
+(c) The right-tailed test rejects for a sufficiently positive home-minus-away difference, but
+the true difference here is negative. The two-tailed test can detect either direction, although
+a 6.5-point gap is still hard to detect with these sample sizes. For the directional formulation
+H0 : θH ≤ θA, part (b) is in the null region; its rejection probability is not power against the
+intended alternative. At equality, δ = 0 and σpow = σnull, so the two Gaussian formulas both
+give 0 .05 .
+3
+
+Problem 2: Derive the sign test (Exercise 10.10(a)–(b))
+Independent work: 7 minutes. For paired measurements (xi, yi), the sign statistic counts how
+often the second measurement is larger:
+t =
+nX
+i=1
+1(yi > x i).
+Its random counterpart is et =Pn
+i=1 1(eyi >exi).
+(a) For independentea,eb with a common continuous distribution, show that P(ea >eb) = 1/2.
+Where do continuity and symmetry enter?
+(b) Under the null, suppose all 2 n measurements are independent samples from the same
+continuous distribution. Derive the distribution of et and its pmf. State a one-tailed p-value
+formula for the alternative that the second measurement tends to be larger.
+Discussion: Why does this test not require a Gaussian model for the measurements? What
+information does it discard?
+Solution. (a) Independence and the common distribution make ( ea,eb) and (eb,ea) identically
+distributed. Therefore P(ea >eb) = P(eb >ea). Independence and continuity imply P(ea =eb) = 0.
+The two strict inequality events partition the sample space up to this zero-probability event, so
+each has probability 1 /2 .
+(b) Defineesi = 1(eyi >exi). Part (a) gives esi ∼ Bernoulli(1/2). Because distinct pairs are
+independent, their signs are independent. Consequently,
+et ∼ Binomial(n, 1/2), p et(k) =
+n
+k
+
+2−n, k = 0, . . . , n.
+Large counts support the stated alternative. For observed count t,
+pright(t) = P0(et ≥ t) =
+nX
+k=t
+n
+k
+
+2−n.
+Include the observed count in this tail: this is a discrete test. The continuous measurement
+distribution need not be specified, because under the null the independent signs have a known
+distribution. The statistic uses only which measurement is larger, discarding the magnitudes of
+the differences.
+Assumption check: Independent pairs alone do not imply independent measurements within a pair.
+For paired data, within-pair exchangeability (swapping the labels leaves the joint distribution
+unchanged) and no ties also give fair signs, even if the two measurements are dependent. Equal
+marginal distributions alone are insufficient.
+4
+
+Problem 3: Are left ears longer? (Exercise 10.10(c)–(d))
+Independent work: 10 minutes. A friend claims that left ears tend to be longer than right ears.
+Measurements from ten people, in inches, are
+Left 2.4 2.7 3.2 2.3 2.0 2.6 3.2 2.3 2.9 2.3
+Right 2.2 2.6 3.3 2.2 2.1 2.5 3.1 2.5 2.7 2.2
+Assume independent people and fair, independent signs under the null. Set yi to the left-ear
+length and xi to the right-ear length.
+(a) State the one-sided alternative using q = P(eyi >exi), and compute t.
+(b) Compute the exact one-sided p value and give the decision at α = 0.05. Does the decision
+establish equal ear lengths?
+(c) As an extension, find the smallest count that rejects at 5%. Is the actual null rejection
+probability exactly 5%?
+(d) Return to Exercise 10.10(d): suppose all measurements are independent, and exi andeyi each
+have the same continuous distribution Fi within each pair, but Fi may differ across people.
+Is the same sign test still valid? Justify your answer.
+Arithmetic aid:
+ 10
+7
+
+= 120,
+ 10
+8
+
+= 45,
+ 10
+9
+
+= 10,
+ 10
+10
+
+= 1, and 2 10 = 1024.
+Solution. (a) Use the fair-sign null H0 : q = 1/2 against H1 : q > 1/2. The latter describes a
+tendency for left ears to be longer. The signs of left minus right are
+(+, +, −, +, −, +, +, −, +, +), t = 7 .
+This null concerns a population comparison, not exact equality of every person’s two ear lengths.
+The same upper-tail rule also controls error for the one-sided composite null q ≤ 1/2 under i.i.d.
+signs.
+(b) Under the fair-sign null, et ∼ Binomial(10, 1/2). The exact tail probability is
+p = P0(et ≥ 7) = 120 + 45 + 10 + 1
+1024 = 0 .171875 .
+Since p > 0.05, do not reject. These data do not provide sufficient evidence for the directional
+claim at 5%; they do not prove equal lengths or equal distributions. A prespecified two-sided
+test would give 2(0 .171875) = 0.34375.
+(c) The two relevant tails are
+P0(et ≥ 8) = 56
+1024 = 0.0546875 > 0.05, P0(et ≥ 9) = 11
+1024 ≈ 0.0107422 < 0.05.
+Thus reject exactly when t ≥ 9 . The null rejection probability is about 1 .07%; discreteness
+makes this nonrandomized level-0 .05 test conservative.
+(d) Yes. For each i, independence, continuity, and the common within-pair distribution Fi
+give P(eyi >exi) = 1/2. Independent pairs therefore still yield i.i.d. Bernoulli(1 /2) signs, even
+though the underlying lengths are not identically distributed across people. Their sum remains
+Binomial(10, 1/2) .
+5
+
+Problem 4 (backup): Gaussian power and sample size
+Independent work: 5 minutes. Archived Recitation 7, with a power extension. Letex1, . . . ,exn
+be i.i.d. N (θ, 1). We test H0 : θ ≤ 0 against H1 : θ > 0 using the sample mean. Let
+m(X) = n−1P
+i xi denote its observed value.
+(a) Construct a level-0 .05 test. Explain why checking θ = 0 suffices to bound the rejection
+probability for every θ ≤ 0.
+(b) Derive the power function at any fixed θ.
+(c) How large must n be for power at least 0 .80 when θ = 0.5? Use Φ −1(0.95) = 1.64485 and
+Φ−1(0.80) = 0.84162.
+Solution. (a) The random sample mean has distribution em ∼ N (θ, 1/n), so at θ = 0,√nem ∼ N (0, 1). Reject if
+m(X) ≥ Φ−1(0.95)√n .
+For θ < 0, the distribution shifts left while the cutoff stays fixed, so its upper-tail rejection
+probability decreases. The maximum null rejection probability is 0 .05, attained at θ = 0.
+(b) Standardizing under the true parameter gives the exact power function (the observations
+are Gaussian):
+pow(θ) = Pθ
+
+em ≥ Φ−1(0.95)√n
+
+= 1 − Φ
+ 
+Φ−1(0.95) − √n θ
+
+.
+For fixed θ > 0, increasing n increases power.
+(c) Require Φ(1.64485 − 0.5√n) ≤ 0.20. Since Φ −1(0.20) = −0.84162,
+√n ≥ 1.64485 + 0.84162
+0.5 , n ≥ 24.7301.
+Round up to get n = 25 . The resulting power is about 0 .8038.
+6
+
+Instructor notes: 75-minute plan
+Time Activity
+0–5 min Define power, type I and type II errors; distinguish power from a p value.
+5–13 min Recall the free throws. Fix the null SD and derive the one- and two-tailed
+cutoffs.
+13–22 min Shift to the specified alternative, derive both powers, and work θA = 0.55.
+Read the power curves.
+22–25 min Introduce paired signs: a fair sign is Bernoulli(1 /2). Explain the setup for
+Exercise 10.10 without giving the proof.
+25–41 min Problem 1: 8 minutes independent work, 8 minutes discussion.
+41–55 min Problem 2: 7 minutes independent work, 7 minutes discussion.
+55–72 min Problem 3: 10 minutes independent work, 7 minutes discussion.
+72–75 min Exit check and questions.
+Fast-class option: Keep independent-work times intact. Shorten the three core discussions to 6,
+4, and 4 minutes, respectively. This finishes Problem 3 at minute 64. Use 64–69 for independent
+work on Problem 4, 69–72 for its discussion, and 72–75 for the exit check.
+Board sequence. Write
+null model − → fixed rejection region − → probability under a specified model .
+Sketch a null bell curve centered at zero and an alternative curve centered at 0 .135, with the
+same vertical cutoff 0.16585 on both. The area to its right is about 0 .05 under the null and 0 .384
+under the specified alternative. For two tails, draw both ±0.19762 cutoffs and shade the two
+alternative tail areas. Then move to the binomial sign statistic: the same rejection-probability
+idea applies to discrete data.
+Exit check. Ask: “Which SD sets the free-throw cutoff, and which SD computes power? Why
+can a level-0 .05 sign test reject less than 5% of the time under the null?” Expected answers:
+the null SD and specified-model SD, respectively; discrete tail probabilities need not equal the
+target level.
+Paired-data assumptions. Real ears from the same person can be dependent. The exercise’s
+independent continuous measurements are sufficient for its derivation; independent people with
+exchangeable left/right measurements and no ties are also sufficient. Do not infer exchangeability
+from equal marginals alone. If ties occur, the simple no-ties derivation does not apply directly.
+The usual sign test drops ties and uses the number of non-tied pairs; this requires fair signs
+conditional on being non-tied. There are no ties in the supplied data.
+7
+
+Instructor notes: the actual pooled test
+Why the two power calculations differ. Example 10.17 fixes the null SD at the true
+equality model with θH = 0.685. In practice, the two-sample z test estimates a pooled null
+probability from each new dataset . To evaluate that actual procedure at specified ( θH , θA),
+repeat the following:
+1. Simulate independent counts ekH ∼ Binomial(44, θH) andekA ∼ Binomial(41, θA).
+2. For the simulated counts kH , kA, compute
+d = kH
+44 − kA
+41 , θ ML,0 = kH + kA
+85 , s 0 =
+q
+θML,0(1 − θML,0)(1/44 + 1/41).
+3. Compute z = d/s0 and use p1 = 1 − Φ(z) or p2 = 2[1 − Φ(|z|)]. If all attempts are makes or
+all are misses, d = s0 = 0; define the procedure to not reject (set p = 1).
+4. Record 1(p ≤ 0.05). The fraction of rejections across B independent repetitions estimates
+power. Its estimated Monte Carlo SE is
+p
+pMC(1 − pMC)/B, where pMC denotes that
+observed fraction.
+Because there are only 45 ×42 possible count pairs, we can also compute the rejection probability
+directly, without simulation error:
+44X
+kH =0
+41X
+kA=0
+1{pooled rule rejects at ( kH , kA)}
+44
+kH
+
+θkH
+H (1 − θH)44−kH
+41
+kA
+
+θkA
+A (1 − θA)41−kA.
+Fixed-null Gaussian approximation Pooled rule: exact summation
+θA One tail Two tails One tail Two tails
+0.550 0.3840 0.2754 0.3390 0.2574
+0.685 0.0500 0.0500 0.0491 0.0496
+0.750 0.0089 0.0900 0.0112 0.0998
+Here θH = 0.685 throughout. Exact summation evaluates the chosen pooled z rule under the
+independent-binomial model; it does not turn that rule into an exact level-0 .05 test for all null
+parameters.
+Sources and numerical clarification. The review and Problem 1 follow Example 10.17 and
+Exercise 10.5; Problems 2–3 cover all of Exercise 10.10, with an added discrete-cutoff question.
+In the preprint, the quoted cutoffs 0 .166 and 0 .198 agree with the fixed true-null SD 0 .10083,
+not the stated observed SD 0 .103. Using the actual observed pooled SE 0 .10291 instead gives
+0.16927 and 0 .20170. The power curves here are recomputed from equations (10.79)–(10.82).
+Problem 4(a) reuses the Gaussian test in the Fall 2025 archive’s mine/r7/r7.tex, Section 2;
+parts (b)–(c) add power and sample-size planning. The archive had no close match for the
+requested sign exercise.
+8
