@@ -58,8 +58,10 @@ independent, with fixed success probabilities $\theta_H$ and $\theta_A$:
        \frac1{41}\sum_{j=1}^{41}\rv a_j.
 \]
 The observed difference is $d_{\mathrm{obs}}=34/44-22/41\approx0.236$.
-We compare a right-tailed test for $\theta_H>\theta_A$ with a two-tailed
-test for $\theta_H\ne\theta_A$. Both are calibrated at equality.
+The right-tailed test uses $H_0:\theta_H\leq\theta_A$ versus
+$H_1:\theta_H>\theta_A$; the two-tailed test uses
+$H_0:\theta_H=\theta_A$ versus $H_1:\theta_H\ne\theta_A$.
+Both are calibrated at equality.
 
 \paragraph{2. Use the null distribution to set the rejection region.}
 Follow the book's power approximation: fix $\theta_H=0.685$ and use the
@@ -160,35 +162,46 @@ are for independent work before discussion.
 
 \subsection*{Problem 1: Which effects can the free-throw test detect?}
 \noindent\textit{Independent work: 8 minutes. Example 10.17 and Exercise 10.5.}
-Use the independent Bernoulli model and the fixed cutoffs on page 1.
+Let $\theta_H,\theta_A$ denote the home/away success probabilities.
+Assume all 44 home shots and 41 away shots are independent, and fix
+$\theta_H=0.685$. Let $d$ be the observed home-minus-away proportion
+and $\rv d$ its random counterpart. Compare these tests:
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule Test & $H_0$ & $H_1$ & Reject when\\\midrule
+One tail & $\theta_H\leq\theta_A$ & $\theta_H>\theta_A$ & $d\geq0.16585$\\
+Two tails & $\theta_H=\theta_A$ & $\theta_H\ne\theta_A$ & $|d|\geq0.19762$\\
+\bottomrule
+\end{tabular}
+\end{center}
+These are the fixed-null Gaussian cutoffs for nominal $\alpha=0.05$,
+calibrated at $\theta_H=\theta_A=0.685$ as on page 1.
 \begin{enumerate}
  \item Derive $\E[\rv d]=\theta_H-\theta_A$ and
  $\Var(\rv d)=\theta_H(1-\theta_H)/44+\theta_A(1-\theta_A)/41$.
  Why do the two variance contributions add?
  \item Suppose $\theta_H=0.685$ and $\theta_A=0.75$.
- Compute $\delta$, $\sigma_{\mathrm{pow}}$, and both approximate powers.
+ Compute $\delta=\theta_H-\theta_A$, $\sigma_{\mathrm{pow}}$, and
+ the approximate rejection probability of each test.
  You may use $\Phi(2.371)\approx0.9911$,
  $\Phi(1.362)\approx0.9134$, and $\Phi(2.698)\approx0.9965$.
- \item Explain why the one-tailed rejection probability is so small in
- part (b). Which test addresses a difference in \emph{either} direction?
- What happens to both approximate powers at $\theta_A=0.685$?
+ \item For each test, is the scenario in (b) in $H_0$ or $H_1$?
+ Explain the small one-tailed rejection probability. Which test detects
+ differences in either direction? At $\theta_A=0.685$, what is each
+ approximate rejection probability, and which type of error does it represent?
 \end{enumerate}
 \workingspace{9cm}
 \begin{answer}
-\textbf{(a)} Each Bernoulli observation has mean $\theta$ and variance
-$\theta(1-\theta)$. By linearity,
+\textbf{(a)} A mean of $n$ independent Bernoulli$(\theta)$ observations
+has expectation $\theta$ and variance $\theta(1-\theta)/n$.
+Linearity of expectation and independence between groups therefore give
 \[
- \E[\rv d]=\frac{44\theta_H}{44}-\frac{41\theta_A}{41}
- =\theta_H-\theta_A.
+ \E[\rv d]=\theta_H-\theta_A,\qquad
+ \Var(\rv d)=\frac{\theta_H(1-\theta_H)}{44}
+                         +\frac{\theta_A(1-\theta_A)}{41}.
 \]
-Within-group independence gives variances
-$44\theta_H(1-\theta_H)/44^2$ and $41\theta_A(1-\theta_A)/41^2$.
-Between-group independence makes their covariance zero. Since the
-coefficient $-1$ is squared in a variance,
-\[
- \boxed{\Var(\rv d)=\frac{\theta_H(1-\theta_H)}{44}
-                         +\frac{\theta_A(1-\theta_A)}{41}.}
-\]
+The variances add because the covariance is zero and the coefficient
+$-1$ is squared when computing variance.
 
 \textbf{(b)} Now $\delta=-0.065$ and
 \[
@@ -209,11 +222,13 @@ The supplied rounded cdf values give about $0.0901$ for the second result.
 \textbf{(c)} The right-tailed test rejects for a sufficiently positive
 home-minus-away difference, but the true difference here is negative.
 The two-tailed test can detect either direction, although a 6.5-point gap
-is still hard to detect with these sample sizes. For the directional
-formulation $H_0:\theta_H\leq\theta_A$, part (b) is in the null region;
-its rejection probability is not power against the intended alternative.
+is still hard to detect with these sample sizes. In part (b),
+$0.685<0.75$: the one-tailed $H_0$ holds, but the two-tailed $H_1$ holds.
+Thus $0.0089$ is a null rejection probability, whereas $0.0900$ is power
+against the two-tailed alternative.
 At equality, $\delta=0$ and $\sigma_{\mathrm{pow}}=\sigma_{\mathrm{null}}$,
-so the two Gaussian formulas both give $\boxed{0.05}$.
+so the two Gaussian formulas both give $\boxed{0.05}$. Both nulls hold
+there, so these are type I error probabilities in the approximation.
 \end{answer}
 
 \newpage
@@ -224,16 +239,22 @@ the second measurement is larger:
 \[
  t=\sum_{i=1}^n\mathbf 1(y_i>x_i).
 \]
-Its random counterpart is
-$\rv t=\sum_{i=1}^n\mathbf 1(\rv y_i>\rv x_i)$.
+Its random counterpart is $\rv t=\sum_{i=1}^n\mathbf 1(\rv y_i>\rv x_i)$.
+Assume independent pairs, no ties, and a common sign probability
+$q=\Pbb(\rv y_i>\rv x_i)$. The one-sided sign test uses
+\[
+ \boxed{H_0:q\leq\tfrac12\qquad\text{versus}\qquad H_1:q>\tfrac12.}
+\]
+Large values of $t$ support $H_1$. Calibrate the test at the null boundary
+$q=1/2$; parts (a)--(b) derive this case from a same-distribution model.
 \begin{enumerate}
  \item For independent $\rv a,\rv b$ with a common continuous distribution,
  show that \mbox{$\Pbb(\rv a>\rv b)=1/2$}.
  Where do continuity and symmetry enter?
- \item Under the null, suppose all $2n$ measurements are independent
- samples from the same continuous distribution. Derive the distribution
- of $\rv t$ and its pmf. State a one-tailed $p$-value formula for the
- alternative that the second measurement tends to be larger.
+ \item Suppose all $2n$ measurements are independent samples from the
+ same continuous distribution. Show that this gives the null boundary
+ $q=1/2$, and derive the distribution of $\rv t$ and its pmf.
+ State the upper-tail $p$-value formula for the stated alternative.
 \end{enumerate}
 \noindent\textit{Discussion:} Why does this test not require a Gaussian
 model for the measurements? What information does it discard?
@@ -260,8 +281,10 @@ Large counts support the stated alternative. For observed count $t$,
        =\sum_{k=t}^{n}\binom nk2^{-n}.}
 \]
 Include the observed count in this tail: this is a discrete test.
-The continuous measurement distribution need not be specified, because
-under the null the independent signs have a known distribution.
+For $q\leq1/2$, the binomial upper tail is largest at $q=1/2$, so this
+boundary calibration controls error throughout the stated null.
+The continuous measurement distribution need not be specified: at the
+null boundary, the independent signs are Bernoulli$(1/2)$.
 The statistic uses only which measurement is larger, discarding the
 magnitudes of the differences.
 
@@ -286,15 +309,20 @@ Right &2.2&2.6&3.3&2.2&2.1&2.5&3.1&2.5&2.7&2.2\\
 \bottomrule
 \end{tabular}
 \end{center}
-Assume independent people and fair, independent signs under the null.
-Set $y_i$ to the left-ear length and $x_i$ to the right-ear length.
+Assume independent people and no ties. Set $y_i$ to the left-ear length,
+$x_i$ to the right-ear length, and let $q=\Pbb(\rv y_i>\rv x_i)$ be common
+across people. Test at significance level $\alpha=0.05$:
+\[
+ \boxed{H_0:q\leq\tfrac12\qquad\text{versus}\qquad H_1:q>\tfrac12.}
+\]
+Use $t=\sum_{i=1}^{10}\mathbf 1(y_i>x_i)$; large counts support $H_1$.
+Under the null boundary $q=1/2$, $\rv t\sim\operatorname{Binomial}(10,1/2)$.
 \begin{enumerate}
- \item State the one-sided alternative using
- $q=\Pbb(\rv y_i>\rv x_i)$, and compute $t$.
+ \item Explain $H_1$ in words, list the ten signs of $y_i-x_i$, and compute $t$.
  \item Compute the exact one-sided $p$ value and give the decision at
  $\alpha=0.05$. Does the decision establish equal ear lengths?
  \item As an extension, find the smallest count that rejects at 5\%.
- Is the actual null rejection probability exactly 5\%?
+ What is the rejection probability at $q=1/2$? Is it exactly 5\%?
  \item Return to Exercise 10.10(d): suppose all measurements are
  independent, and $\rv x_i$ and $\rv y_i$ each have the same continuous
  distribution $F_i$ within each pair, but $F_i$ may differ across people.
@@ -305,17 +333,16 @@ $\binom{10}{7}=120$, $\binom{10}{8}=45$,
 $\binom{10}{9}=10$, $\binom{10}{10}=1$, and $2^{10}=1024$.
 \workingspace{8cm}
 \begin{answer}
-\textbf{(a)} Use the fair-sign null $H_0:q=1/2$ against $H_1:q>1/2$.
-The latter describes a tendency for left ears to be longer. The signs of
+\textbf{(a)} The alternative $H_1:q>1/2$ means that a person's left ear
+is more likely to be longer than the right ear. The signs of
 left minus right are
 \[
  (+,+,-,+,-,+,+,-,+,+),\qquad \boxed{t=7}.
 \]
-This null concerns a population comparison, not exact equality of every
-person's two ear lengths. The same upper-tail rule also controls error
-for the one-sided composite null $q\leq1/2$ under i.i.d. signs.
+The null $q\leq1/2$ says that left-longer is no more likely than right-longer;
+it does not assert exact equality of every person's two ear lengths.
 
-\textbf{(b)} Under the fair-sign null, $\rv t\sim\operatorname{Binomial}(10,1/2)$.
+\textbf{(b)} At the null boundary $q=1/2$, $\rv t\sim\operatorname{Binomial}(10,1/2)$.
 The exact tail probability is
 \[
  p=\Pbb_0(\rv t\geq7)
@@ -334,8 +361,8 @@ $2(0.171875)=0.34375$.
  \Pbb_0(\rv t\geq9)=\frac{11}{1024}\approx0.0107422<0.05.
 \]
 Thus reject exactly when $\boxed{t\geq9}$.
-The null rejection probability is about $1.07\%$; discreteness makes
-this nonrandomized level-$0.05$ test conservative.
+At $q=1/2$, the rejection probability is about $1.07\%$, and it is smaller
+for $q<1/2$. Discreteness makes this nonrandomized level-$0.05$ test conservative.
 
 \textbf{(d)} Yes. For each $i$, independence, continuity, and the common
 within-pair distribution $F_i$ give
@@ -498,6 +525,15 @@ $\theta_A$ & One tail & Two tails & One tail & Two tails\\\midrule
 \noindent Here $\theta_H=0.685$ throughout. Exact summation evaluates the
 chosen pooled $z$ rule under the independent-binomial model; it does not
 turn that rule into an exact level-$0.05$ test for all null parameters.
+
+\paragraph{Hypothesis conventions.}
+The book computes the free-throw curves using the equality null.
+This handout makes the directional formulation explicit:
+$H_0:\theta_H\leq\theta_A$ versus $H_1:\theta_H>\theta_A$, calibrated
+at the same equality boundary. Its rejection curve is unchanged; the
+away-better region is now part of the directional null. For the sign test,
+independent continuous measurements with the same distribution within each
+pair imply $q=1/2$, the boundary of our directional null $q\leq1/2$.
 
 \paragraph{Sources and numerical clarification.}
 The review and Problem 1 follow

@@ -286,5 +286,5 @@ cm/cmsy10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/c
 m/cmsy8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/
 cmti10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symb
 ols/msbm10.pfb>
-Output written on "Recitation 10 Problems.pdf" (6 pages, 189097 bytes).
+Output written on "Recitation 10 Problems.pdf" (6 pages, 191843 bytes).
 Transcript written on "Recitation 10 Problems.log".

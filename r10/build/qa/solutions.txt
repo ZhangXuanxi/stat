@@ -24,8 +24,9 @@ ehi − 1
 41X
 j=1
 eaj.
-The observed difference is dobs = 34/44 − 22/41 ≈ 0.236. We compare a right-tailed test for
-θH > θ A with a two-tailed test for θH ̸= θA. Both are calibrated at equality.
+The observed difference is dobs = 34/44 − 22/41 ≈ 0.236. The right-tailed test uses H0 : θH ≤ θA
+versus H1 : θH > θ A; the two-tailed test uses H0 : θH = θA versus H1 : θH ̸= θA. Both are
+calibrated at equality.
 2. Use the null distribution to set the rejection region. Follow the book’s power
 approximation: fix θH = 0.685 and use the true null standard deviation at θA = θH,
 σnull =
@@ -93,24 +94,30 @@ Practice problems
 Three core problems; Problem 4 is a backup. The indicated times are for independent work
 before discussion.
 Problem 1: Which effects can the free-throw test detect?
-Independent work: 8 minutes. Example 10.17 and Exercise 10.5. Use the independent Bernoulli
-model and the fixed cutoffs on page 1.
+Independent work: 8 minutes. Example 10.17 and Exercise 10.5. Let θH , θA denote the
+home/away success probabilities. Assume all 44 home shots and 41 away shots are independent,
+and fix θH = 0 .685. Let d be the observed home-minus-away proportion and ed its random
+counterpart. Compare these tests:
+Test H0 H1 Reject when
+One tail θH ≤ θA θH > θ A d ≥ 0.16585
+Two tails θH = θA θH ̸= θA |d| ≥ 0.19762
+These are the fixed-null Gaussian cutoffs for nominal α = 0.05, calibrated at θH = θA = 0.685 as
+on page 1.
 (a) Derive E[ed] = θH − θA and Var(ed) = θH(1 − θH)/44 + θA(1 − θA)/41. Why do the two
 variance contributions add?
-(b) Suppose θH = 0.685 and θA = 0.75. Compute δ, σpow, and both approximate powers. You
-may use Φ(2.371) ≈ 0.9911, Φ(1.362) ≈ 0.9134, and Φ(2 .698) ≈ 0.9965.
-(c) Explain why the one-tailed rejection probability is so small in part (b). Which test addresses
-a difference in either direction? What happens to both approximate powers at θA = 0.685?
-Solution. (a) Each Bernoulli observation has mean θ and variance θ(1 − θ). By linearity,
-E[ed] = 44θH
-44 − 41θA
-41 = θH − θA.
-Within-group independence gives variances 44 θH(1 − θH)/442 and 41θA(1 − θA)/412. Between-
-group independence makes their covariance zero. Since the coefficient −1 is squared in a
-variance,
-Var(ed) = θH(1 − θH)
+(b) Suppose θH = 0.685 and θA = 0.75. Compute δ = θH − θA, σpow, and the approximate
+rejection probability of each test. You may use Φ(2 .371) ≈ 0.9911, Φ(1.362) ≈ 0.9134, and
+Φ(2.698) ≈ 0.9965.
+(c) For each test, is the scenario in (b) in H0 or H1? Explain the small one-tailed rejection
+probability. Which test detects differences in either direction? At θA = 0.685, what is each
+approximate rejection probability, and which type of error does it represent?
+Solution. (a) A mean of n independent Bernoulli( θ) observations has expectation θ and
+variance θ(1 − θ)/n. Linearity of expectation and independence between groups therefore give
+E[ed] = θH − θA, Var(ed) = θH(1 − θH)
 44 + θA(1 − θA)
 41 .
+The variances add because the covariance is zero and the coefficient−1 is squared when computing
+variance.
 (b) Now δ = −0.065 and
 σpow =
 r
@@ -135,10 +142,11 @@ pow2 ≈ Φ
 The supplied rounded cdf values give about 0 .0901 for the second result.
 (c) The right-tailed test rejects for a sufficiently positive home-minus-away difference, but
 the true difference here is negative. The two-tailed test can detect either direction, although
-a 6.5-point gap is still hard to detect with these sample sizes. For the directional formulation
-H0 : θH ≤ θA, part (b) is in the null region; its rejection probability is not power against the
-intended alternative. At equality, δ = 0 and σpow = σnull, so the two Gaussian formulas both
-give 0 .05 .
+a 6.5-point gap is still hard to detect with these sample sizes. In part (b), 0 .685 < 0.75: the
+one-tailed H0 holds, but the two-tailed H1 holds. Thus 0 .0089 is a null rejection probability,
+whereas 0.0900 is power against the two-tailed alternative. At equality, δ = 0 and σpow = σnull,
+so the two Gaussian formulas both give 0.05 . Both nulls hold there, so these are type I error
+probabilities in the approximation.
 3
 
 Problem 2: Derive the sign test (Exercise 10.10(a)–(b))
@@ -148,13 +156,19 @@ t =
 nX
 i=1
 1(yi > x i).
-Its random counterpart is et =Pn
-i=1 1(eyi >exi).
+Its random counterpart is et = Pn
+i=1 1(eyi > exi). Assume independent pairs, no ties, and a
+common sign probability q = P(eyi >exi). The one-sided sign test uses
+H0 : q ≤ 1
+2 versus H1 : q > 1
+2 .
+Large values of t support H1. Calibrate the test at the null boundary q = 1/2; parts (a)–(b)
+derive this case from a same-distribution model.
 (a) For independentea,eb with a common continuous distribution, show that P(ea >eb) = 1/2.
 Where do continuity and symmetry enter?
-(b) Under the null, suppose all 2 n measurements are independent samples from the same
-continuous distribution. Derive the distribution of et and its pmf. State a one-tailed p-value
-formula for the alternative that the second measurement tends to be larger.
+(b) Suppose all 2n measurements are independent samples from the same continuous distribution.
+Show that this gives the null boundary q = 1/2, and derive the distribution of et and its
+pmf. State the upper-tail p-value formula for the stated alternative.
 Discussion: Why does this test not require a Gaussian model for the measurements? What
 information does it discard?
 Solution. (a) Independence and the common distribution make ( ea,eb) and (eb,ea) identically
@@ -176,10 +190,11 @@ k=t
 k
 
 2−n.
-Include the observed count in this tail: this is a discrete test. The continuous measurement
-distribution need not be specified, because under the null the independent signs have a known
-distribution. The statistic uses only which measurement is larger, discarding the magnitudes of
-the differences.
+Include the observed count in this tail: this is a discrete test. For q ≤ 1/2, the binomial upper
+tail is largest at q = 1/2, so this boundary calibration controls error throughout the stated
+null. The continuous measurement distribution need not be specified: at the null boundary,
+the independent signs are Bernoulli(1 /2). The statistic uses only which measurement is larger,
+discarding the magnitudes of the differences.
 Assumption check: Independent pairs alone do not imply independent measurements within a pair.
 For paired data, within-pair exchangeability (swapping the labels leaves the joint distribution
 unchanged) and no ties also give fair signs, even if the two measurements are dependent. Equal
@@ -191,13 +206,19 @@ Independent work: 10 minutes. A friend claims that left ears tend to be longer t
 Measurements from ten people, in inches, are
 Left 2.4 2.7 3.2 2.3 2.0 2.6 3.2 2.3 2.9 2.3
 Right 2.2 2.6 3.3 2.2 2.1 2.5 3.1 2.5 2.7 2.2
-Assume independent people and fair, independent signs under the null. Set yi to the left-ear
-length and xi to the right-ear length.
-(a) State the one-sided alternative using q = P(eyi >exi), and compute t.
+Assume independent people and no ties. Set yi to the left-ear length, xi to the right-ear length,
+and let q = P(eyi >exi) be common across people. Test at significance level α = 0.05:
+H0 : q ≤ 1
+2 versus H1 : q > 1
+2 .
+Use t = P10
+i=1 1(yi > x i); large counts support H1. Under the null boundary q = 1 /2, et ∼
+Binomial(10, 1/2).
+(a) Explain H1 in words, list the ten signs of yi − xi, and compute t.
 (b) Compute the exact one-sided p value and give the decision at α = 0.05. Does the decision
 establish equal ear lengths?
-(c) As an extension, find the smallest count that rejects at 5%. Is the actual null rejection
-probability exactly 5%?
+(c) As an extension, find the smallest count that rejects at 5%. What is the rejection probability
+at q = 1/2? Is it exactly 5%?
 (d) Return to Exercise 10.10(d): suppose all measurements are independent, and exi andeyi each
 have the same continuous distribution Fi within each pair, but Fi may differ across people.
 Is the same sign test still valid? Justify your answer.
@@ -218,13 +239,12 @@ Arithmetic aid:
 10
 
 = 1, and 2 10 = 1024.
-Solution. (a) Use the fair-sign null H0 : q = 1/2 against H1 : q > 1/2. The latter describes a
-tendency for left ears to be longer. The signs of left minus right are
+Solution. (a) The alternative H1 : q > 1/2 means that a person’s left ear is more likely to be
+longer than the right ear. The signs of left minus right are
 (+, +, −, +, −, +, +, −, +, +), t = 7 .
-This null concerns a population comparison, not exact equality of every person’s two ear lengths.
-The same upper-tail rule also controls error for the one-sided composite null q ≤ 1/2 under i.i.d.
-signs.
-(b) Under the fair-sign null, et ∼ Binomial(10, 1/2). The exact tail probability is
+The null q ≤ 1/2 says that left-longer is no more likely than right-longer; it does not assert exact
+equality of every person’s two ear lengths.
+(b) At the null boundary q = 1/2,et ∼ Binomial(10, 1/2). The exact tail probability is
 p = P0(et ≥ 7) = 120 + 45 + 10 + 1
 1024 = 0 .171875 .
 Since p > 0.05, do not reject. These data do not provide sufficient evidence for the directional
@@ -234,8 +254,8 @@ test would give 2(0 .171875) = 0.34375.
 P0(et ≥ 8) = 56
 1024 = 0.0546875 > 0.05, P0(et ≥ 9) = 11
 1024 ≈ 0.0107422 < 0.05.
-Thus reject exactly when t ≥ 9 . The null rejection probability is about 1 .07%; discreteness
-makes this nonrandomized level-0 .05 test conservative.
+Thus reject exactly when t ≥ 9 . At q = 1/2, the rejection probability is about 1 .07%, and it is
+smaller for q < 1/2. Discreteness makes this nonrandomized level-0 .05 test conservative.
 (d) Yes. For each i, independence, continuity, and the common within-pair distribution Fi
 give P(eyi >exi) = 1/2. Independent pairs therefore still yield i.i.d. Bernoulli(1 /2) signs, even
 though the underlying lengths are not identically distributed across people. Their sum remains
@@ -354,6 +374,12 @@ Fixed-null Gaussian approximation Pooled rule: exact summation
 Here θH = 0.685 throughout. Exact summation evaluates the chosen pooled z rule under the
 independent-binomial model; it does not turn that rule into an exact level-0 .05 test for all null
 parameters.
+Hypothesis conventions. The book computes the free-throw curves using the equality null.
+This handout makes the directional formulation explicit: H0 : θH ≤ θA versus H1 : θH > θ A,
+calibrated at the same equality boundary. Its rejection curve is unchanged; the away-better
+region is now part of the directional null. For the sign test, independent continuous measurements
+with the same distribution within each pair imply q = 1/2, the boundary of our directional null
+q ≤ 1/2.
 Sources and numerical clarification. The review and Problem 1 follow Example 10.17 and
 Exercise 10.5; Problems 2–3 cover all of Exercise 10.10, with an added discrete-cutoff question.
 In the preprint, the quoted cutoffs 0 .166 and 0 .198 agree with the fixed true-null SD 0 .10083,

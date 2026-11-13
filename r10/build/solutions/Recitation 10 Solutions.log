@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2023.2.4)  13 NOV 2026 11:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2023.2.4)  13 NOV 2026 14:21
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -936,11 +936,11 @@ ed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 34038 strings out of 478268
- 787159 string characters out of 5846348
+ 34037 strings out of 478268
+ 787148 string characters out of 5846348
  1237741 words of memory out of 5000000
  51545 multiletter control sequences out of 15000+600000
- 484208 words of font info for 139 fonts, out of 8000000 for 9000
+ 484052 words of font info for 138 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  103i,17n,97p,1881b,2144s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
@@ -960,10 +960,10 @@ live/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texli
 ve/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texliv
 e/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive
 /2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on "Recitation 10 Solutions.pdf" (8 pages, 238247 bytes).
+Output written on "Recitation 10 Solutions.pdf" (8 pages, 241737 bytes).
 PDF statistics:
- 179 PDF objects out of 1000 (max. 8388607)
- 133 compressed objects within 2 object streams
- 43 named destinations out of 1000 (max. 500000)
+ 180 PDF objects out of 1000 (max. 8388607)
+ 134 compressed objects within 2 object streams
+ 44 named destinations out of 1000 (max. 500000)
  33293 words of extra memory for PDF output out of 35830 (max. 10000000)
 
