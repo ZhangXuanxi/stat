@@ -1,0 +1,681 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools,booktabs,enumitem}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref,microtype,comment,tikz}
+\usetikzlibrary{arrows.meta}
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,urlcolor=MidnightBlue,
+ pdftitle={Recitation 11: PCA and the Linear Algebra Behind It},
+ pdfauthor={Xuanxi Zhang}}
+% Default: student handout. Define \WITHSOLUTIONS for answers and pacing.
+% Self-contained: all figures are drawn in this source.
+\newif\ifsolutions
+\ifdefined\WITHSOLUTIONS\solutionstrue\else\solutionsfalse\fi
+\newcommand{\R}{\mathbb R}
+\newcommand{\rv}[1]{\widetilde{#1}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\col}{\operatorname{col}}
+\newcommand{\ct}{\operatorname{ct}}
+\newcommand{\ols}{\mathrm{OLS}}
+\ifsolutions
+ \newenvironment{answer}{\par\medskip\noindent\textcolor{MidnightBlue}{\textbf{Solution.}}\ }{\par\medskip}
+ \newcommand{\workingspace}[1]{}
+\else
+ \excludecomment{answer}
+ \newcommand{\workingspace}[1]{\vspace{#1}}
+\fi
+\setlist[enumerate]{label=(\alph*),leftmargin=2em,itemsep=0.35em}
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.25em}
+\begin{document}
+\begin{center}
+{\LARGE Recitation 11\par}
+\vspace{0.3em}
+{\large PCA and the Linear Algebra Behind It\par}
+\vspace{0.25em}
+{\ifsolutions Solutions and Teaching Notes\else Review and Practice Problems\fi\par}
+\vspace{0.4em}
+{Xuanxi Zhang\qquad November 20, 2026}
+\end{center}
+\section{PCA: optimization, solution, and decomposition}
+\noindent PCA represents each observation by $k$ coordinates with minimum
+squared reconstruction error. Related features can place the observations
+close to a line or plane, making this reduction useful.
+
+\paragraph{The problem.}
+Let $X=\{x_1,\ldots,x_n\}$, with $x_i\in\R^d$ and $n\geq2$.
+Choose $1\leq k<d$. The fitted affine subspace passes through the data mean,
+so define $m=m(X)=n^{-1}\sum_i x_i$ and $c_i=x_i-m$.
+
+\paragraph{1. Write the optimization problem.}
+Let $Q_k=[q_1\ \cdots\ q_k]\in\R^{d\times k}$ hold orthonormal directions
+and $w_i\in\R^k$ hold the coordinates. PCA solves
+\[
+ \boxed{\min_{Q_k,\,w_1,\ldots,w_n}
+ \sum_{i=1}^n\norm{c_i-Q_kw_i}^2
+ \quad\text{subject to }Q_k^TQ_k=I_k.}
+\]
+
+\paragraph{2. Solve the optimization.}
+For fixed $Q_k$, completing the square gives
+\[
+ \norm{c_i-Q_kw_i}^2
+ =\norm{c_i}^2-\norm{Q_k^Tc_i}^2
+   +\norm{w_i-Q_k^Tc_i}^2.
+\]
+Thus the minimizing coordinates are $w_i=Q_k^Tc_i$. With sample covariance
+$S=(n-1)^{-1}\sum_i c_ic_i^T$, the remaining problem is
+\[
+ \min_{Q_k^TQ_k=I_k}
+ \left\{\sum_i\norm{c_i}^2-(n-1)\sum_{j=1}^k q_j^TSq_j\right\}
+ \quad\Longleftrightarrow\quad
+ \max_{Q_k^TQ_k=I_k}\sum_{j=1}^kq_j^TSq_j.
+\]
+For one direction, a Lagrange multiplier gives
+$\nabla_q[q^TSq-\lambda(q^Tq-1)]=0$, hence $Sq=\lambda q$.
+The variance along a unit eigenvector is $q^TSq=\lambda$.
+Order an orthonormal eigenbasis by
+$Sq_j=\lambda_jq_j$, $\lambda_1\geq\cdots\geq\lambda_d\geq0$.
+The largest value for $k$ directions is $\sum_{j=1}^k\lambda_j$, attained by
+\[
+ \boxed{Q_k=[q_1\ \cdots\ q_k],\qquad w_i=Q_k^T(x_i-m).}
+\]
+
+\paragraph{3. Write the PCA decomposition.}
+Let $D\in\R^{n\times d}$ have rows $x_i^T$ and
+$C=D-\mathbf1_n m^T$ have rows $c_i^T$; $\mathbf1_n$ is the all-ones column.
+The full score matrix is $W=CQ$, with $Q=[q_1\ \cdots\ q_d]$.
+Retain its first $k$ columns, $W_k=CQ_k\in\R^{n\times k}$:
+\[
+ \boxed{C=WQ^T,\qquad
+ D=\underbrace{\mathbf1_n m^T+W_kQ_k^T}_{D_{\mathrm{rec}}}+R_k.}
+\]
+For each observation this is the exact decomposition
+\[
+ x_i=m+\underbrace{\sum_{j=1}^k(q_j^Tc_i)q_j}_{Q_kw_i}
+       +\underbrace{\sum_{j=k+1}^d(q_j^Tc_i)q_j}_{r_i}.
+\]
+The matrix $R_k$ has rows $r_i^T$. Each row of $W_k$ stores the retained
+coordinates; $R_k$ stores the discarded component. The minimum error is
+\mbox{$(n-1)\sum_{j=k+1}^d\lambda_j$}.
+
+\newpage
+\subsection*{Worked example: reduce three features to two coordinates}
+\paragraph{Center six observations.}
+Take $n=6$, $d=3$, and $k=2$. The row data matrix, mean, and centered matrix are
+\[
+ D=\begin{pmatrix}
+ 5&5&3\\1&1&3\\3&3&5\\3&3&1\\4&2&3\\2&4&3
+ \end{pmatrix},\qquad
+ m=\begin{pmatrix}3\\3\\3\end{pmatrix},\qquad
+ C=\begin{pmatrix}
+ 2&2&0\\-2&-2&0\\0&0&2\\0&0&-2\\1&-1&0\\-1&1&0
+ \end{pmatrix}.
+\]
+
+\paragraph{Solve the covariance eigenvalue problem.}
+Compute $S=C^TC/(n-1)$. Its eigenvectors and eigenvalues are
+\[
+ S=\frac15\begin{pmatrix}10&6&0\\6&10&0\\0&0&8\end{pmatrix},\qquad
+ \begin{array}{c|c}
+ \text{Unit direction}&\text{Eigenvalue}\\\hline
+ q_1=(1,1,0)^T/\sqrt2&\lambda_1=16/5\\[0.2em]
+ q_2=(0,0,1)^T&\lambda_2=8/5\\[0.2em]
+ q_3=(1,-1,0)^T/\sqrt2&\lambda_3=4/5
+ \end{array}
+\]
+For example, $Sq_1=(16/5)q_1$; the other two pairs satisfy the same
+relation. Keep $q_1$ and $q_2$, the directions with the two largest variances.
+The retained plane consists of points $(a,b,c)^T$ with $a=b$.
+
+\paragraph{Encode each observation as two numbers.}
+The retained direction matrix and the score matrix are
+\[
+ Q_2=\begin{pmatrix}
+ 1/\sqrt2&0\\1/\sqrt2&0\\0&1
+ \end{pmatrix},\qquad
+ W_2=CQ_2=\begin{pmatrix}
+ 2\sqrt2&0\\-2\sqrt2&0\\0&2\\0&-2\\0&0\\0&0
+ \end{pmatrix}.
+\]
+For a point $x=(a,b,c)^T$, the two stored coordinates are
+\[
+ w=Q_2^T(x-m)
+ =\begin{pmatrix}(a+b-6)/\sqrt2\\c-3\end{pmatrix}.
+\]
+The first combines the first two features; the second records the centered
+third feature.
+
+\paragraph{Reconstruct and measure the discarded variation.}
+The concrete PCA decomposition is
+\[
+ D=\underbrace{\mathbf1_6m^T+W_2Q_2^T}_{D_{\mathrm{rec}}}+R_2,
+ \qquad
+ D_{\mathrm{rec}}=\begin{pmatrix}
+ 5&5&3\\1&1&3\\3&3&5\\3&3&1\\3&3&3\\3&3&3
+ \end{pmatrix},\quad
+ R_2=\begin{pmatrix}
+ 0&0&0\\0&0&0\\0&0&0\\0&0&0\\1&-1&0\\-1&1&0
+ \end{pmatrix}.
+\]
+The first four observations reconstruct exactly. The last two have zero
+retained scores and reconstruct to the mean; their deviations lie along
+$q_3$, the discarded direction. Quantitatively,
+\[
+ \boxed{\text{retained fraction}=\frac{16/5+8/5}{16/5+8/5+4/5}
+ =\frac{24}{28}=\frac67\approx85.7\%,\qquad
+ \sum_i\norm{r_i}^2=5\left(\frac45\right)=4.}
+\]
+
+\newpage
+\section{The linear algebra behind PCA and regression}
+\subsection{Vectors and inner products turn a direction into a coordinate}
+A vector $v=(v_1,\ldots,v_d)^T\in\R^d$ lists $d$ numbers as a column.
+The transpose $v^T$ lists them as a row. For $u,v\in\R^d$, their inner
+product and Euclidean length are
+\[
+ \langle u,v\rangle=u^Tv=\sum_{j=1}^d u_jv_j,
+ \qquad \norm{v}=\sqrt{v^Tv}.
+\]
+For nonzero vectors with angle $\theta$,
+$u^Tv=\norm{u}\norm{v}\cos\theta$.
+Thus a zero inner product means the vectors are perpendicular, or
+\textbf{orthogonal}. A \textbf{unit vector} has length one;
+$q=u/\norm{u}$ normalizes any nonzero direction $u$.
+
+\paragraph{A PCA score is a signed distance along a unit direction.}
+For $\norm{q}=1$, $q^Tv=\norm{v}\cos\theta$ is the coordinate of $v$
+along $q$. Its sign indicates which side of the origin the coordinate lies on.
+For $q=(1,1)^T/\sqrt2$ and $v=(3,1)^T$,
+\[
+ q^Tv=\frac{3+1}{\sqrt2}=2\sqrt2.
+\]
+In Section 1, $v=c_i$ is a centered observation, so this coordinate is
+its PCA score. Unit length fixes the scale of the score when comparing directions.
+
+\subsection{Projection gives the closest reconstruction}
+The line $\operatorname{span}(u)=\{au:a\in\R\}$ contains all multiples
+of a nonzero vector $u$. Write the closest point to $v$ as $p=au$.
+At that point the residual $r=v-au$ is orthogonal to the line, giving
+\[
+ u^T(v-au)=0
+ \quad\Longrightarrow\quad
+ a=\frac{u^Tv}{u^Tu},\qquad
+ \boxed{p=\frac{u^Tv}{u^Tu}\,u=q(q^Tv).}
+\]
+This condition certifies the minimum: for any point $bu$ on the line,
+\[
+ \norm{v-bu}^2=\norm{r+(p-bu)}^2
+ =\norm{r}^2+\norm{p-bu}^2\ \geq\ \norm{r}^2,
+\]
+where the cross term vanishes because $r$ is orthogonal to the line.
+
+\medskip
+\noindent\begin{minipage}[c]{0.59\textwidth}
+\textbf{Example.} With $u=(1,1)^T$ and $v=(3,1)^T$,
+\[
+ p=(2,2)^T,\qquad r=(1,-1)^T.
+\]
+The scalar score is $2\sqrt2$; multiplying it by $q=u/\sqrt2$ gives
+$p$. Squared lengths satisfy $10=8+2$.
+\end{minipage}\hfill
+\begin{minipage}[c]{0.37\textwidth}
+\centering
+\begin{tikzpicture}[scale=0.73,>=Stealth,font=\small]
+ \draw[->,gray] (-0.2,0)--(3.8,0);
+ \draw[->,gray] (0,-0.15)--(0,2.8);
+ \draw[gray] (-0.2,-0.2)--(2.65,2.65) node[above] {$\operatorname{span}(u)$};
+ \draw[->,very thick] (0,0)--(3,1) node[right] {$v$};
+ \draw[->,thick,MidnightBlue] (0,0)--(2,2) node[above left] {$p$};
+ \draw[->,dashed,thick] (2,2)--(3,1) node[midway,above right] {$r$};
+ \draw (1.82,1.82)--(2,1.64)--(2.18,1.82);
+ \node[below left] at (0,0) {$0$};
+\end{tikzpicture}
+\end{minipage}
+
+\paragraph{PCA maximizes what the projection retains.}
+Since $\norm{q(q^Tc_i)}^2=(q^Tc_i)^2$, the same identity gives
+\[
+ \sum_i\norm{c_i-qq^Tc_i}^2
+ =\underbrace{\sum_i\norm{c_i}^2}_{\text{fixed total variation}}
+ -\underbrace{\sum_i(q^Tc_i)^2}_{\text{retained variation}}.
+\]
+The mean score is zero because $\sum_i c_i=0$, so dividing the retained
+variation by $n-1$ gives the sample score variance. Maximizing this
+variance therefore minimizes reconstruction error.
+
+\newpage
+\subsection{Matrices encode several coordinates at once}
+A matrix $B\in\R^{a\times b}$ maps a vector in $\R^b$ to one in $\R^a$.
+Each output entry is a row--vector inner product:
+\[
+ (Bv)_i=\sum_{j=1}^b B_{ij}v_j.
+\]
+Equivalently, $Bv$ is the linear combination of the columns of $B$ with
+coefficients $v_1,\ldots,v_b$. A map $L$ is \textbf{linear} if
+$L(su+tv)=sL(u)+tL(v)$; multiplication by a fixed matrix has this property.
+Transposing a matrix swaps rows and columns, $(B^T)_{ji}=B_{ij}$.
+A product $BC$ applies $C$ first and then $B$: $(BC)v=B(Cv)$.
+
+\paragraph{PCA encodes with $Q_k^T$ and reconstructs with $Q_k$.}
+The columns of $Q_k$ are \textbf{orthonormal}: each has length one and
+different columns are orthogonal. Consequently $Q_k^TQ_k=I_k$, where
+$I_k$ has diagonal entries one and all other entries zero. The dimensions are
+\[
+ \underbrace{w_i}_{k\times1}=
+ \underbrace{Q_k^T}_{k\times d}\underbrace{c_i}_{d\times1},\qquad
+ \underbrace{p_i}_{d\times1}=\underbrace{Q_k}_{d\times k}
+ \underbrace{w_i}_{k\times1}
+ =\sum_{j=1}^k q_j(q_j^Tc_i).
+\]
+Thus $P_k=Q_kQ_k^T$ is a $d\times d$ projection matrix.
+The residual obeys $Q_k^T(c_i-p_i)=0$, and
+$\norm{c_i}^2=\norm{w_i}^2+\norm{c_i-p_i}^2$.
+Adding $m(X)$ returns the reconstruction to the original coordinates.
+
+\subsection{Covariance and eigenvectors identify the principal directions}
+The sample covariance matrix collects the products of centered features:
+\[
+ S=\frac1{n-1}\sum_{i=1}^n c_ic_i^T,\qquad
+ S_{ab}=\frac1{n-1}\sum_i c_{i,a}c_{i,b}.
+\]
+Its diagonal entries are feature variances; off-diagonal entries describe
+how pairs of features vary together. Multiplying on both sides by a unit
+vector $q$ gives the variance of the scores along that direction:
+\[
+ \frac1{n-1}\sum_i(q^Tc_i)^2=q^TSq.
+\]
+An \textbf{eigenvector} $q_j$ satisfies $Sq_j=\lambda_jq_j$:
+the transformation scales that vector by its \textbf{eigenvalue}
+$\lambda_j$. A covariance matrix has an orthonormal basis of eigenvectors
+with nonnegative eigenvalues. Order them as
+$\lambda_1\geq\cdots\geq\lambda_d\geq0$.
+Any unit direction has the form $q=\sum_j a_jq_j$, with $\sum_j a_j^2=1$, so
+\[
+ q^TSq=\sum_j\lambda_j a_j^2\leq\lambda_1.
+\]
+The first principal direction is $q_1$; subsequent directions follow the
+same maximization in the perpendicular space. Keeping the first $k$
+eigenvectors maximizes total retained score variance, giving
+\[
+ \boxed{\text{retained fraction}=
+ \frac{\lambda_1+\cdots+\lambda_k}{\lambda_1+\cdots+\lambda_d}}
+ \quad\text{when total variance is positive.}
+\]
+For the six observations in Section 1, the eigenvalues are $16/5$, $8/5$,
+and $4/5$. Keeping the first two gives the fraction $6/7$ and minimum
+squared error $(6-1)(4/5)=4$. The discarded scores are the coordinates
+along $(1,-1,0)^T/\sqrt2$.
+
+\newpage
+\subsection{Inverses distinguish a change of coordinates from a projection}
+A square matrix $B$ is \textbf{invertible} when $B^{-1}B=BB^{-1}=I$.
+Then $Bv=w$ has the unique solution $v=B^{-1}w$. Its columns are
+\textbf{linearly independent}: the only coefficients making a zero
+linear combination are all zero. For a $2\times2$ matrix,
+\[
+ B=\begin{pmatrix}a&b\\c&d\end{pmatrix},\qquad
+ \boxed{B^{-1}=\frac1{ad-bc}\begin{pmatrix}d&-b\\-c&a\end{pmatrix}}
+ \quad\text{if }ad-bc\ne0.
+\]
+The denominator $ad-bc$ is its determinant. A zero determinant means
+that the transformation loses a direction and has no inverse.
+
+\paragraph{All PCA coordinates allow exact recovery.}
+A full $d\times d$ matrix $Q=[q_1\ \cdots\ q_d]$ with orthonormal columns
+satisfies $Q^TQ=QQ^T=I_d$. Therefore $Q^{-1}=Q^T$:
+\[
+ z=Q^Tc\qquad\Longrightarrow\qquad c=Qz.
+\]
+For example, $Q=\frac1{\sqrt2}
+\left(\begin{smallmatrix}1&1\\1&-1\end{smallmatrix}\right)$
+records the sum and difference coordinates. Keeping both recovers the vector.
+
+\paragraph{Keeping $k<d$ coordinates discards the perpendicular component.}
+For a discarded direction $q_{k+1}$, $Q_k^Tq_{k+1}=0$ and
+$P_kq_{k+1}=0$. Thus $c$ and $c+tq_{k+1}$ have the same retained scores
+for every $t$. The reconstruction $P_kc$ preserves the component in the
+retained subspace; the residual contains the discarded component.
+The $d\times d$ projection $P_k$ consequently has no inverse.
+
+\subsection{Regression uses the same projection with a specified subspace}
+For observed responses $y\in\R^n$, let $A\in\R^{n\times p}$ contain
+$p$ predictor columns $a_1,\ldots,a_p$. A coefficient vector
+$\beta\in\R^p$ produces fitted values
+\[
+ A\beta=\sum_{j=1}^p\beta_ja_j,\qquad
+ \col(A)=\{A\beta:\beta\in\R^p\}.
+\]
+For a fitted line, row $i$ of $A$ is $(1,x_i)$ and
+$\beta=(\beta_0,\beta_1)^T$. The first column supplies the intercept.
+Least squares minimizes $\norm{y-A\beta}^2$, so the closest fitted vector
+is the projection of $y$ onto the column space $\col(A)$.
+
+\paragraph{Residual orthogonality gives the coefficients.}
+The residual $r=y-A\beta_{\ols}$ is orthogonal to every column of $A$.
+Stacking these inner-product conditions gives the \textbf{normal equations}:
+\[
+ A^Tr=0\quad\Longleftrightarrow\quad A^TA\beta_{\ols}=A^Ty.
+\]
+The matrix $A^TA$ contains the column inner products,
+$(A^TA)_{ij}=a_i^Ta_j$. If the columns of $A$ are independent, $A^TA$
+is invertible and
+\[
+ \boxed{\beta_{\ols}=(A^TA)^{-1}A^Ty,\qquad
+ y_{\mathrm{fit}}=A(A^TA)^{-1}A^Ty.}
+\]
+Indeed, $h^TA^TAh=\norm{Ah}^2>0$ for every nonzero $h$ when the columns
+are independent. With dependent columns, multiple coefficient vectors
+can describe the same unique closest fitted vector.
+
+\smallskip
+\noindent\textbf{The geometric roles.} PCA chooses a subspace of feature
+space $\R^d$ to represent the observations. Regression uses a specified
+column space in observation space $\R^n$ to fit the response vector.
+Both constructions minimize squared error by orthogonal projection.
+
+\newpage
+\subsection*{Practice problems}
+\noindent Three core problems; Problem 4 is a backup. Work independently
+for the indicated time before discussion.
+
+\subsection*{Problem 1: A mean is a projection}
+\noindent\textit{Independent work: 8 minutes.}
+Let
+\[
+ u=\begin{pmatrix}1\\1\\1\end{pmatrix},\qquad
+ y=\begin{pmatrix}1\\2\\6\end{pmatrix},\qquad
+ q=\frac{u}{\norm{u}}.
+\]
+We want to approximate all three observations by a single constant $c$,
+so the fitted vector is $cu$.
+\begin{enumerate}
+ \item Compute $u^Ty$, $u^Tu$, and $\norm{y}^2$. Find the unit vector $q$.
+ \item Find the projection $p$ of $y$ onto $\operatorname{span}(u)$,
+ the residual $r=y-p$, and the scalar coordinate $q^Ty$.
+ Verify $u^Tr=0$ and $\norm{y}^2=\norm{p}^2+\norm{r}^2$.
+ \item Explain why $p$ is the best constant fit in squared error.
+ Identify $c_{\ols}$ and relate it to the sample mean.
+ \item Write the projection as $p=Py$ for a $3\times3$ matrix $P$.
+ What does $P$ do to an arbitrary vector? In PCA, keeping a single
+ direction also stores a scalar coordinate: which quantity in (b)
+ plays that role, and how does it reconstruct $p$?
+\end{enumerate}
+\workingspace{9cm}
+\begin{answer}
+\textbf{(a)} We obtain $u^Ty=9$, $u^Tu=3$, $\norm{y}^2=41$, and
+$q=(1,1,1)^T/\sqrt3$.
+
+\textbf{(b)} The projection coefficient is $9/3=3$, so
+\[
+ p=\begin{pmatrix}3\\3\\3\end{pmatrix},\qquad
+ r=\begin{pmatrix}-2\\-1\\3\end{pmatrix},\qquad
+ q^Ty=\frac9{\sqrt3}=3\sqrt3.
+\]
+Indeed, $u^Tr=-2-1+3=0$, and
+$\norm{p}^2+\norm{r}^2=27+14=41=\norm{y}^2$.
+
+\textbf{(c)} Since $r\perp u$,
+\[
+ \norm{y-cu}^2=\norm{r+(3-c)u}^2
+ =14+3(3-c)^2.
+\]
+The unique minimum occurs at $\boxed{c_{\ols}=3=(1+2+6)/3}$.
+This is regression with an intercept only.
+
+\textbf{(d)} The matrix is
+\[
+ P=\frac{uu^T}{u^Tu}=\frac13
+ \begin{pmatrix}1&1&1\\1&1&1\\1&1&1\end{pmatrix}.
+\]
+For any $v\in\R^3$, $Pv$ replaces every entry by the mean of its entries.
+The coordinate analogous to a PCA score is $q^Ty=3\sqrt3$;
+multiply it by $q$ to recover $p$. The regression coefficient $3$, the
+unit-direction coordinate $3\sqrt3$, and the fitted vector $p$ are
+different objects. PCA applies the same projection operation to
+centered observations and chooses the direction from their variation.
+\end{answer}
+
+\newpage
+\subsection*{Problem 2: PCA coordinates and information loss}
+\noindent\textit{Independent work: 10 minutes.}
+Consider the centered dataset $X=\{x_1,x_2,x_3,x_4\}\subset\R^2$,
+\[
+ x_1=\begin{pmatrix}2\\1\end{pmatrix},\quad x_2=-x_1,\quad
+ x_3=\begin{pmatrix}1\\2\end{pmatrix},\quad x_4=-x_3.
+\]
+Let
+\[
+ q=\frac1{\sqrt2}\begin{pmatrix}1\\1\end{pmatrix},\quad
+ v=\frac1{\sqrt2}\begin{pmatrix}1\\-1\end{pmatrix},\quad
+ Q=[q\ v]=\frac1{\sqrt2}\begin{pmatrix}1&1\\1&-1\end{pmatrix}.
+\]
+\begin{enumerate}
+ \item Verify $Q^TQ=I_2$ and give $Q^{-1}$. Compute all coordinate vectors
+ $z_i=Q^Tx_i$ (use the signs to save work). How do you recover $x_i$ from $z_i$?
+ \item Compute $\sum_i(q^Tx_i)^2$ and $\sum_i(v^Tx_i)^2$.
+ For any unit direction $w=cq+dv$, these data give
+ \[
+ \sum_i(w^Tx_i)^2=18c^2+2d^2,\qquad c^2+d^2=1.
+ \]
+ Which direction maximizes this quantity? What fraction of the total
+ squared length $\sum_i\norm{x_i}^2$ does it retain?
+ \item Form $P=qq^T$ and compute $Px_1$ and $Px_3$.
+ Find a nonzero vector that $P$ sends to zero.
+ Explain how $Q^T$ allows exact recovery and which component $P$ discards.
+\end{enumerate}
+\workingspace{9cm}
+\begin{answer}
+\textbf{(a)} The two columns have unit length and inner product zero, so
+$Q^TQ=I_2$ and $Q^{-1}=Q^T$ (here also $Q=Q^T$). The coordinates are
+\[
+ z_1=\frac1{\sqrt2}\begin{pmatrix}3\\1\end{pmatrix},\quad
+ z_2=\frac1{\sqrt2}\begin{pmatrix}-3\\-1\end{pmatrix},\quad
+ z_3=\frac1{\sqrt2}\begin{pmatrix}3\\-1\end{pmatrix},\quad
+ z_4=\frac1{\sqrt2}\begin{pmatrix}-3\\1\end{pmatrix}.
+\]
+Both coordinates give exact recovery: $x_i=Qz_i=qz_{i,1}+vz_{i,2}$.
+
+\textbf{(b)} The squared scores sum to $4(9/2)=18$ along $q$ and
+$4(1/2)=2$ along $v$. Their cross-products sum to zero, which yields
+the expression in the question. Since
+$18c^2+2d^2=18-16d^2\leq18$, the maximizing directions are
+$\boxed{q\text{ and }-q}$.
+The total squared length is $4(2^2+1^2)=20$, so the retained fraction is
+$\boxed{18/20=90\%}$. The score sample variances are $18/3=6$ and
+$2/3$; the fraction is unchanged. The discarded squared error is $2$.
+
+\textbf{(c)} We have
+\[
+ P=\frac12\begin{pmatrix}1&1\\1&1\end{pmatrix},\qquad
+ Px_1=Px_3=\begin{pmatrix}3/2\\3/2\end{pmatrix},\qquad Pv=0.
+\]
+A full change of orthonormal coordinates keeps both coordinates.
+Projection keeps the $q$ coordinate and loses the $v$ coordinate:
+distinct points can have the same image. Thus $P$ has no inverse.
+Equivalently, $\det(P)=0$; its columns are identical.
+\end{answer}
+
+\newpage
+\subsection*{Problem 3: Regression is projection onto several columns}
+\noindent\textit{Independent work: 10 minutes. Adapted from the 2025 archive.}
+An algorithm's runtime is modeled as quadratic in its input size $s$:
+\[
+ t_i\approx\beta_0+\beta_1s_i+\beta_2s_i^2.
+\]
+The observed pairs are $(s_i,t_i)=(1,3),(2,6),(3,15),(4,22)$.
+Let $y=(3,6,15,22)^T$ and $\beta=(\beta_0,\beta_1,\beta_2)^T$.
+\begin{enumerate}
+ \item Write the $4\times3$ design matrix $A$ and the least-squares
+ minimization problem. Explain the linearity of the map $\beta\mapsto A\beta$ in terms
+ of its columns.
+ \item For this $A$, you may use
+ \[
+ C:=(A^TA)^{-1}A^T=
+ \begin{pmatrix}
+ 9/4&-3/4&-5/4&3/4\\
+ -31/20&23/20&27/20&-19/20\\
+ 1/4&-1/4&-1/4&1/4
+ \end{pmatrix}.
+ \]
+ Compute $\beta_{\ols}=Cy$ and $y_{\mathrm{fit}}=A\beta_{\ols}$.
+ \item Compute $r=y-y_{\mathrm{fit}}$ and verify $A^Tr=0$.
+ Explain what this says about the fitted vector geometrically.
+ \item Give the dimensions of $A$ and $A^TA$.
+ State the condition that makes $A^TA$ invertible.
+\end{enumerate}
+\workingspace{9cm}
+\begin{answer}
+\textbf{(a)} The matrix and objective are
+\[
+ A=\begin{pmatrix}1&1&1\\1&2&4\\1&3&9\\1&4&16\end{pmatrix},
+ \qquad \min_{\beta\in\R^3}\norm{y-A\beta}^2.
+\]
+The columns are fixed vectors; $A\beta$ is their linear combination.
+Linearity here concerns the coefficients, while $s^2$ is a fixed feature.
+
+\textbf{(b)} Multiplication gives
+\[
+ \beta_{\ols}=\begin{pmatrix}0\\8/5\\1\end{pmatrix},\qquad
+ t_{\mathrm{fit}}(s)=\frac85s+s^2,\qquad
+ y_{\mathrm{fit}}=\frac15\begin{pmatrix}13\\36\\69\\112\end{pmatrix}.
+\]
+\textbf{(c)} The residual and its inner products with the columns are
+\[
+ r=\frac15\begin{pmatrix}2\\-6\\6\\-2\end{pmatrix},\qquad
+ A^Tr=\frac15\begin{pmatrix}
+ 2-6+6-2\\2-12+18-8\\2-24+54-32
+ \end{pmatrix}=0.
+\]
+Hence $y_{\mathrm{fit}}$ is the orthogonal projection of $y\in\R^4$ onto
+$\col(A)$. For every $\beta$,
+$\norm{y-A\beta}^2=\norm{r}^2+\norm{y_{\mathrm{fit}}-A\beta}^2$;
+the minimum squared error is $\norm{r}^2=16/5$.
+
+\textbf{(d)} $A$ is $4\times3$, and $A^TA$ is $3\times3$. The latter is invertible
+because $A$ has independent columns: a quadratic polynomial vanishing
+at all four distinct sizes must be the zero polynomial. The supplied
+$C$ maps four responses to three coefficients; $AC$ projects responses
+onto $\col(A)$, retaining the component represented by the predictors.
+\end{answer}
+
+\newpage
+\subsection*{Problem 4 (backup): Arrhenius regression and a $2\times2$ inverse}
+\noindent\textit{Independent work: 7 minutes. Based on the 2025 archive.}
+The Arrhenius relationship between reaction rate $k>0$ and absolute
+temperature $t>0$ is
+\[
+ k=a\exp\!\left(-\frac{E_a}{\kappa t}\right),
+\]
+where $a>0$ and $E_a$ are unknown constants and $\kappa>0$ is known.
+For observed pairs $(t_i,k_i)$, fit this relationship by least squares
+\emph{on the log-rate scale}.
+\begin{enumerate}
+ \item Define a transformed predictor $x_i$, response $y_i$, and
+ coefficients $\beta_0,\beta_1$ so that $y_i\approx\beta_0+\beta_1x_i$.
+ Write the design matrix $A$.
+ \item Let $S_1=\sum_i x_i$ and $S_2=\sum_i x_i^2$.
+ Compute $A^TA$ and its $2\times2$ inverse when the inverse exists.
+ \item Show that its determinant is
+ $nS_2-S_1^2=n\sum_i(x_i-\bar{x})^2$.
+ What condition on the temperatures makes the coefficients unique?
+ What information is missing if every temperature is the same?
+ \item Given $\beta_{\ols}$, how do you recover fitted values of
+ $a$ and $E_a$?
+\end{enumerate}
+\workingspace{9cm}
+\begin{answer}
+\textbf{(a)} Taking logarithms gives
+\[
+ y_i=\log k_i,\quad x_i=1/t_i,\quad
+ \beta_0=\log a,\quad \beta_1=-E_a/\kappa,\qquad
+ A=\begin{pmatrix}1&x_1\\\vdots&\vdots\\1&x_n\end{pmatrix}.
+\]
+We minimize $\sum_i(y_i-\beta_0-\beta_1x_i)^2$.
+This objective measures errors in log rates.
+
+\textbf{(b)} Matrix multiplication and the inverse formula give
+\[
+ A^TA=\begin{pmatrix}n&S_1\\S_1&S_2\end{pmatrix},\qquad
+ (A^TA)^{-1}=\frac1{nS_2-S_1^2}
+ \begin{pmatrix}S_2&-S_1\\-S_1&n\end{pmatrix}.
+\]
+\textbf{(c)} Since $\bar{x}=S_1/n$,
+\[
+ n\sum_i(x_i-\bar{x})^2
+ =n(S_2-2\bar{x}S_1+n\bar{x}^2)=nS_2-S_1^2.
+\]
+This is positive exactly when at least two $x_i$ differ, equivalently
+when at least two temperatures differ. If every $t_i=t_0$, the second
+column of $A$ is $1/t_0$ times the first. Only
+$\beta_0+\beta_1/t_0$ is determined by the fit; the data cannot separate
+the baseline from the temperature effect.
+
+\textbf{(d)} Transform back:
+\[
+ \boxed{a_{\mathrm{fit}}=\exp(\beta_{0,\ols}),\qquad
+ E_{a,\mathrm{fit}}=-\kappa\beta_{1,\ols}.}
+\]
+\end{answer}
+
+\ifsolutions
+\newpage
+\subsection*{Instructor notes: 75-minute plan}
+\begin{center}
+\begin{tabular}{@{}r p{0.77\textwidth}@{}}
+\toprule Minutes & Activity\\\midrule
+0--10 & PCA optimization, decomposition, and the three-to-two example.\\
+10--15 & Inner products and projection; explain the squared-error identity.\\
+15--20 & Matrix coordinates, covariance, and the principal directions.\\
+20--23 & Full coordinates, inverses, and the discarded component.\\
+23--25 & Connect projection to regression and state the normal equations.\\
+25--33 & Problem 1: independent work (8 minutes).\\
+33--40 & Discuss the mean as a projection; distinguish score and fitted vector.\\
+40--50 & Problem 2: independent work (10 minutes).\\
+50--56 & Discuss PCA variance, reconstruction, and loss of invertibility.\\
+56--66 & Problem 3: independent work (10 minutes).\\
+66--73 & Discuss the design matrix, normal equations, and residual checks.\\
+73--75 & Exit check: state PCA's objective, outputs, and what projection retains.\\
+\bottomrule
+\end{tabular}
+\end{center}
+\noindent\textbf{Fast-class option.} If the core work finishes by minute 63,
+use 63--70 for independent work on Problem 4, 70--73 for discussion,
+and retain the two-minute exit check. Otherwise leave it as extra practice.
+
+\paragraph{Board emphasis.}
+Keep the dimensions visible:
+$q\in\R^d$, $q^Tx\in\R$, $qq^Tx\in\R^d$;
+$A\in\R^{n\times p}$, $\beta\in\R^p$, and $A\beta,r\in\R^n$.
+Start with the complete PCA story in Section 1. Use the diagram in
+Section 2 to establish the closest-point property, then return to the
+PCA objective. The detailed algebra is a reference: during review, state
+the covariance eigenbasis fact and verify the three-dimensional example.
+The practice discussions supply time to revisit the derivations.
+In Problem 2, $q$ and $-q$ describe the same line;
+their scores have opposite signs but their reconstructions agree.
+
+\paragraph{Why independent columns matter.}
+For $h\in\R^p$, $h^TA^TAh=\norm{Ah}^2$. Thus $A^TA$ is invertible
+exactly when $Ah=0$ forces $h=0$. With dependent columns, any nonzero
+$h$ satisfying $Ah=0$ can be added to a coefficient vector without
+changing its fitted values. Orthogonality of the residual still
+characterizes the unique fitted vector. For computation with real data,
+solve least squares using a numerical solver; the displayed inverse
+formula explains the algebra and its assumptions.
+
+\paragraph{Reading and exercise sources.}
+The review follows the geometry in
+\href{https://github.com/cfgranda/ps4ds/blob/main/ps4ds_preprint.pdf}
+{\emph{Probability and Statistics for Data Science}}, Sections 8.7.1--8.7.3,
+11.3--11.5, and 12.1.2. Problems 1--2 were written for this review:
+the 2025 archive contained no close match for these algebra/PCA tasks.
+Problem 3 adapts Linear Regression, Problem 1(a)--(c), in
+\texttt{Recitations/Recitation 13 Problems.pdf}, retaining its runtime
+data and supplied coefficient map. The source omits the final transpose
+in the label of that map; the correct label is $(A^TA)^{-1}A^T$.
+Problem 4 extends Problem 4 of
+\texttt{Recitations/Recitation 11 Problems.pdf} with matrix-inverse and
+identifiability questions. These files are in the supplied Fall 2025
+archive; their printed worksheet headings say Spring 2025.
+\fi
+\end{document}
